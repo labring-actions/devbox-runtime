@@ -30,8 +30,11 @@ metadata:
 spec:
   title: $PARENT_DIR
   classRef: ${ADDR[1]}
-  image: "ghcr.io/$DOCKER_USERNAME/devbox/$IMAGE_NAME"
   description: "$PARENT_DIR"
+  config:
+    user: sealos
+    image: ghcr.io/$DOCKER_USERNAME/devbox/$IMAGE_NAME
+  category:
 ---
 apiVersion: devbox.sealos.io/v1alpha1
 kind: RuntimeClass

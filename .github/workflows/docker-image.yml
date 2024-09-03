@@ -62,12 +62,7 @@ jobs:
         DOCKER_USERNAME: ${{ github.repository_owner }}
         COMMIT_ID: ${{ github.sha }}
       shell: bash
-    - name: Commit runtime yaml
-      run: |
-        git config --global user.email "crk2778355976@163.com"
-        git config --global user.name "cbluebird"
-        git add yaml/
-        git commit -m "generate runtime yaml"
-        git push
-      env:
-        GITHUB_TOKEN: ${{ secrets.GH_PAT }}
+    
+    - uses: stefanzweifel/git-auto-commit-action@v5
+      with:
+        commit_message: auto generate runtime yaml
