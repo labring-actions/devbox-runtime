@@ -1,0 +1,21 @@
+apiVersion: devbox.sealos.io/v1alpha1
+kind: Runtime
+metadata:
+  name: go1-22-5
+spec:
+  title: go1.22.5
+  classRef: go
+  description: "go1.22.5"
+  config:
+    user: sealos
+    image: ghcr.io/labring-actions/devbox/go1.22.5:1e1bf3
+  category:
+---
+apiVersion: devbox.sealos.io/v1alpha1
+kind: RuntimeClass
+metadata:
+  name: go
+spec:
+  title: go
+  kind: Language
+  description: "go"
