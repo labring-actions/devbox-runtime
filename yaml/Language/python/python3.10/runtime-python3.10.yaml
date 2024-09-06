@@ -1,0 +1,21 @@
+apiVersion: devbox.sealos.io/v1alpha1
+kind: Runtime
+metadata:
+  name: python3-10
+spec:
+  title: python3.10
+  classRef: python
+  description: "python3.10"
+  config:
+    user: sealos
+    image: ghcr.io/labring-actions/devbox/python3.10:2539aa
+  category:
+---
+apiVersion: devbox.sealos.io/v1alpha1
+kind: RuntimeClass
+metadata:
+  name: python
+spec:
+  title: python
+  kind: Language
+  description: "python"
