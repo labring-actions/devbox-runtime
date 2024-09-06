@@ -1,0 +1,21 @@
+apiVersion: devbox.sealos.io/v1alpha1
+kind: Runtime
+metadata:
+  name: nodejs22
+spec:
+  title: nodejs22
+  classRef: nodejs
+  description: "nodejs22"
+  config:
+    user: sealos
+    image: ghcr.io/labring-actions/devbox/nodejs22:aa9aff
+  category:
+---
+apiVersion: devbox.sealos.io/v1alpha1
+kind: RuntimeClass
+metadata:
+  name: nodejs
+spec:
+  title: nodejs
+  kind: Language
+  description: "nodejs"
