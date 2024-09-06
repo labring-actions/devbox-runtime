@@ -1,0 +1,21 @@
+apiVersion: devbox.sealos.io/v1alpha1
+kind: Runtime
+metadata:
+  name: vue
+spec:
+  title: vue
+  classRef: vue
+  description: "vue"
+  config:
+    user: sealos
+    image: ghcr.io/labring-actions/devbox/vue:4b85a1
+  category:
+---
+apiVersion: devbox.sealos.io/v1alpha1
+kind: RuntimeClass
+metadata:
+  name: vue
+spec:
+  title: vue
+  kind: Framework
+  description: "vue"
