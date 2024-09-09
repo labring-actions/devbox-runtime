@@ -8,7 +8,7 @@ spec:
   description: "rust1.8.0"
   config:
     user: sealos
-    image: ghcr.io/labring-actions/devbox/rust1.8.0:37d040
+    image: ghcr.io/labring-actions/devbox/rust1.8.0:f80ca8
   category:
 ---
 apiVersion: devbox.sealos.io/v1alpha1
