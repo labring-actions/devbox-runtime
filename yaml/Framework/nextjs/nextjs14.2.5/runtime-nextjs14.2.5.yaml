@@ -1,0 +1,21 @@
+apiVersion: devbox.sealos.io/v1alpha1
+kind: Runtime
+metadata:
+  name: nextjs14-2-5
+spec:
+  title: nextjs14.2.5
+  classRef: nextjs
+  description: "nextjs14.2.5"
+  config:
+    user: sealos
+    image: ghcr.io/labring-actions/devbox/nextjs14.2.5:5e2d33
+  category:
+---
+apiVersion: devbox.sealos.io/v1alpha1
+kind: RuntimeClass
+metadata:
+  name: nextjs
+spec:
+  title: nextjs
+  kind: Framework
+  description: "nextjs"
