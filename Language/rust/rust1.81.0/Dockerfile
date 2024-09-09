@@ -1,5 +1,7 @@
 FROM ghcr.io/labring-actions/devbox/debian-ssh:d8f335
 
+COPY /Language/rust/workspace /home/sealos/workspace
+
 USER sealos
 RUN curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y 
 
