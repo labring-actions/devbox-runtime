@@ -13,6 +13,8 @@ The third-level directories correspond to specific versions, for example, go1.22
 All Dockerfiles pushed to the repository should strictly adhere to these conventions. Therefore, an example of a compliant Dockerfile path would be:
 `/Language/go/go1.22.5/Dockerfile`
 
+If you need to trigger the packaging action, you should push directly to the main repository. This will trigger the action's build process and the generation of corresponding CRDs
+
 ## Get CRD
 All CRD (Custom Resource Definition) files corresponding to the runtimes are located in the yaml folder. You can get yaml as follow:
 ```
