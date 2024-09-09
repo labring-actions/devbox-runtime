@@ -1,5 +1,7 @@
 FROM ghcr.io/labring-actions/devbox/debian-ssh:d8f335
 
+COPY /Language/java/workspace /home/sealos/workspace
+
 RUN apt-get update && \
     apt-get install -y wget && \
     wget https://download.java.net/openjdk/jdk17/ri/openjdk-17+35_linux-x64_bin.tar.gz && \

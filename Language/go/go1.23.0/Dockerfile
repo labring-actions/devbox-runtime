@@ -1,5 +1,7 @@
 FROM ghcr.io/labring-actions/devbox/debian-ssh:d8f335
 
+COPY /Language/go/workspace /home/sealos/workspace
+
 RUN curl -O https://dl.google.com/go/go1.23.0.linux-amd64.tar.gz && \
     tar -xvf go1.23.0.linux-amd64.tar.gz && \
     mv go /usr/local && \

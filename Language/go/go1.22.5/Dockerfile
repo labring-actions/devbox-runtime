@@ -1,5 +1,7 @@
 FROM ghcr.io/labring-actions/devbox/debian-ssh:d8f335
 
+COPY /Language/go/workspace /home/sealos/workspace
+
 RUN curl -O https://dl.google.com/go/go1.22.5.linux-amd64.tar.gz && \
     tar -xvf go1.22.5.linux-amd64.tar.gz && \
     mv go /usr/local && \
@@ -13,5 +15,5 @@ RUN curl -O https://dl.google.com/go/go1.22.5.linux-amd64.tar.gz && \
 
 ENV GOPATH=/go
 ENV PATH=$PATH:/usr/local/go/bin:/go/bin
- 
+
 RUN mkdir /root/.sealos

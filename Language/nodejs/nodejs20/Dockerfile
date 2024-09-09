@@ -1,5 +1,7 @@
 FROM ghcr.io/labring-actions/devbox/debian-ssh:d8f335
 
+COPY /Language/nodejs/workspace /home/sealos/workspace
+
 RUN apt-get update && \
     apt-get install -y curl && \
     curl -sL https://deb.nodesource.com/setup_20.x | bash - && \
