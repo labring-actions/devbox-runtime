@@ -1,0 +1,21 @@
+apiVersion: devbox.sealos.io/v1alpha1
+kind: Runtime
+metadata:
+  name: gin1-10-0
+spec:
+  title: gin1.10.0
+  classRef: gin
+  description: "gin1.10.0"
+  config:
+    user: sealos
+    image: ghcr.io/labring-actions/devbox/gin1.10.0:2765ff
+  category:
+---
+apiVersion: devbox.sealos.io/v1alpha1
+kind: RuntimeClass
+metadata:
+  name: gin
+spec:
+  title: gin
+  kind: Framework
+  description: "gin"
