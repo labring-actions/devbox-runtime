@@ -8,7 +8,7 @@ spec:
   description: "nodejs22"
   config:
     user: sealos
-    image: ghcr.io/labring-actions/devbox/nodejs22:aa9aff
+    image: ghcr.io/labring-actions/devbox/nodejs22:b50472
   category:
 ---
 apiVersion: devbox.sealos.io/v1alpha1
