@@ -12,7 +12,7 @@ RUN curl -O https://dl.google.com/go/go1.23.0.linux-amd64.tar.gz && \
     echo 'export GOPATH=/go' >> /root/.bashrc && \
     echo 'export PATH=$PATH:/usr/local/go/bin:/go/bin' >> /root/.bashrc && \
     chmod -R 777 /go && \
-    chown -R sealos:sealos /home/sealos/worspace && \
+    chown -R sealos:sealos /home/sealos/workspace && \
     chmod -R u+rw /home/sealos/workspace
     
 ENV GOPATH=/go
