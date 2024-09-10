@@ -1,0 +1,21 @@
+apiVersion: devbox.sealos.io/v1alpha1
+kind: Runtime
+metadata:
+  name: flask3-0-3
+spec:
+  title: flask3.0.3
+  classRef: flask
+  description: "flask3.0.3"
+  config:
+    user: sealos
+    image: ghcr.io/labring-actions/devbox/flask3.0.3:6441eb
+  category:
+---
+apiVersion: devbox.sealos.io/v1alpha1
+kind: RuntimeClass
+metadata:
+  name: flask
+spec:
+  title: flask
+  kind: Framework
+  description: "flask"
