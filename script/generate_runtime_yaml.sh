@@ -13,12 +13,11 @@ for i in "${!DIFF_OUTPUT_ARRAY[@]}"; do
   DOCKERFILE_PATH=${DIFF_OUTPUT_ARRAY[$i]}
   IFS='/' read -ra ADDR <<< $DOCKERFILE_PATH
   PARENT_DIR=${PARENT_DIRS_ARRAY[$i]}
-  IMAGE_NAME="$PARENT_DIR:$TAG"
+  IMAGE_NAME="${ADDR[1]}-$PARENT_DIR:$TAG"
 
   YAML_PATH="${DOCKERFILE_PATH%/*}"
-  RUNTIME_NAME="${PARENT_DIR//./-}"
   mkdir -p "yaml/${YAML_PATH}"
-  output_file="yaml/${YAML_PATH}/runtime-$PARENT_DIR.yaml"
+  output_file="yaml/${YAML_PATH}/$PARENT_DIR.yaml"
   if [ ! -f "$output_file" ]; then
     touch "$output_file"
   fi
@@ -26,15 +25,19 @@ for i in "${!DIFF_OUTPUT_ARRAY[@]}"; do
 apiVersion: devbox.sealos.io/v1alpha1
 kind: Runtime
 metadata:
-  name: $RUNTIME_NAME
+  name: ${ADDR[1]}-${PARENT_DIR//./-}
+  namespace: devbox-system
 spec:
-  title: $PARENT_DIR
   classRef: ${ADDR[1]}
-  description: "$PARENT_DIR"
   config:
-    user: sealos
     image: ghcr.io/$DOCKER_USERNAME/devbox/$IMAGE_NAME
-  category:
+    ports:
+      - containerPort: 22
+        name: devbox-ssh-port
+        protocol: TCP
+    user: sealos
+  description: ${ADDR[1]} $PARENT_DIR
+  version: $PARENT_DIR
 ---
 apiVersion: devbox.sealos.io/v1alpha1
 kind: RuntimeClass
@@ -43,6 +46,6 @@ metadata:
 spec:
   title: ${ADDR[1]}
   kind: ${ADDR[0]}
-  description: "${ADDR[1]}"
+  description: ${ADDR[1]}
 EOF
 done
