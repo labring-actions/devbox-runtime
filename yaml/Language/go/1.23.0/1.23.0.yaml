@@ -1,0 +1,25 @@
+apiVersion: devbox.sealos.io/v1alpha1
+kind: Runtime
+metadata:
+  name: go-1-23-0
+  namespace: devbox-system
+spec:
+  classRef: go
+  config:
+    image: ghcr.io/labring-actions/devbox/go-1.23.0:f59e2a
+    ports:
+      - containerPort: 22
+        name: devbox-ssh-port
+        protocol: TCP
+    user: sealos
+  description: go 1.23.0
+  version: 1.23.0
+---
+apiVersion: devbox.sealos.io/v1alpha1
+kind: RuntimeClass
+metadata:
+  name: go
+spec:
+  title: go
+  kind: Language
+  description: go
