@@ -1,4 +1,4 @@
-FROM ghcr.io/labring-actions/devbox/nodejs20:b50472
+FROM ghcr.io/labring-actions/devbox/nodejs-20:d8bfae
 
 COPY /Framework/nextjs/14.2.5/project /home/sealos/project
 
