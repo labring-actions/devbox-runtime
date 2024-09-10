@@ -18,7 +18,9 @@ RUN apt-get update && \
     apt-get clean && \
     rm -rf /var/lib/apt/lists/* && \
     echo 'export PATH=$PATH:$JAVA_HOME/bin' >> /home/sealos/.bashrc && \
-    echo 'export JAVA_HOME=/usr/lib/jvm/java-17-openjdk-amd64' >> /home/sealos/.bashrc
+    echo 'export JAVA_HOME=/usr/lib/jvm/java-17-openjdk-amd64' >> /home/sealos/.bashrc && \
+    chown -R sealos:sealos /home/sealos/workspace && \
+    chmod -R u+rw /home/sealos/workspace
 
 ENV JAVA_HOME=/usr/lib/jvm/java-17-openjdk-amd64
 ENV PATH=$PATH:$JAVA_HOME/bin
