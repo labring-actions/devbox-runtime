@@ -1,0 +1,25 @@
+apiVersion: devbox.sealos.io/v1alpha1
+kind: Runtime
+metadata:
+  name: nodejs-18
+  namespace: devbox-system
+spec:
+  classRef: nodejs
+  config:
+    image: ghcr.io/labring-actions/devbox/nodejs-18:d8bfae
+    ports:
+      - containerPort: 22
+        name: devbox-ssh-port
+        protocol: TCP
+    user: sealos
+  description: nodejs 18
+  version: 18
+---
+apiVersion: devbox.sealos.io/v1alpha1
+kind: RuntimeClass
+metadata:
+  name: nodejs
+spec:
+  title: nodejs
+  kind: Language
+  description: nodejs
