@@ -1,0 +1,25 @@
+apiVersion: devbox.sealos.io/v1alpha1
+kind: Runtime
+metadata:
+  name: python-3-11
+  namespace: devbox-system
+spec:
+  classRef: python
+  config:
+    image: ghcr.io/labring-actions/devbox/python-3.11:48704e
+    ports:
+      - containerPort: 22
+        name: devbox-ssh-port
+        protocol: TCP
+    user: sealos
+  description: python 3.11
+  version: 3.11
+---
+apiVersion: devbox.sealos.io/v1alpha1
+kind: RuntimeClass
+metadata:
+  name: python
+spec:
+  title: python
+  kind: Language
+  description: python
