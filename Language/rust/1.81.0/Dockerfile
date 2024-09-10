@@ -12,4 +12,6 @@ RUN apt-get update && \
     apt-get clean && \
     rm -rf /var/lib/apt/lists/* && \
     echo 'export PATH=/home/sealos/.cargo/bin:$PATH' >> $HOME/.bashrc && \
-    echo 'source /home/sealos/.cargo/env' >> $HOME/.bashrc
+    echo 'source /home/sealos/.cargo/env' >> $HOME/.bashrc && \
+    chown -R sealos:sealos /home/sealos/workspace && \
+    chmod -R u+rw /home/sealos/workspace
