@@ -1,6 +1,6 @@
 FROM ghcr.io/labring-actions/devbox/debian-ssh:d8f335
 
-COPY /Language/nodejs/project /home/sealos/project
+COPY /Language/node.js/project /home/sealos/project
 
 RUN apt-get update && \
     apt-get install -y curl && \
