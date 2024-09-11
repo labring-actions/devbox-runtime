@@ -6,6 +6,7 @@ RUN chown -R sealos:sealos /home/sealos/project && \
 chmod -R u+rw /home/sealos/project && \
 cd /home/sealos/project && \
 npm config set fetch-retry-maxtimeout 600000 && \
-npm install
+npm install && \
+npm audit fix
 
 RUN mkdir /home/sealos/.sealos
