@@ -6,14 +6,14 @@ metadata:
 spec:
   classRef: go
   config:
-    image: ghcr.io/labring-actions/devbox/go-1.22.5:f59e2a
+    image: ghcr.io/labring-actions/devbox/go-1.22.5:35bf93
     ports:
       - containerPort: 22
         name: devbox-ssh-port
         protocol: TCP
     user: sealos
   description: go 1.22.5
-  version: 1.22.5
+  version: "1.22.5"
 ---
 apiVersion: devbox.sealos.io/v1alpha1
 kind: RuntimeClass
