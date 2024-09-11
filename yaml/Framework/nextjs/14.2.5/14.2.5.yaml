@@ -6,14 +6,14 @@ metadata:
 spec:
   classRef: nextjs
   config:
-    image: ghcr.io/labring-actions/devbox/nextjs-14.2.5:7ad3be
+    image: ghcr.io/labring-actions/devbox/nextjs-14.2.5:e55849
     ports:
       - containerPort: 22
         name: devbox-ssh-port
         protocol: TCP
     user: sealos
   description: nextjs 14.2.5
-  version: 14.2.5
+  version: "14.2.5"
 ---
 apiVersion: devbox.sealos.io/v1alpha1
 kind: RuntimeClass
