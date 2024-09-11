@@ -1,6 +1,6 @@
 FROM ghcr.io/labring-actions/devbox/debian-ssh:d8f335
 
-COPY /Language/rust/workspace /home/sealos/workspace
+COPY /Language/rust/project /home/sealos/project
 
 USER sealos
 RUN curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y 
@@ -13,5 +13,5 @@ RUN apt-get update && \
     rm -rf /var/lib/apt/lists/* && \
     echo 'export PATH=/home/sealos/.cargo/bin:$PATH' >> $HOME/.bashrc && \
     echo 'source /home/sealos/.cargo/env' >> $HOME/.bashrc && \
-    chown -R sealos:sealos /home/sealos/workspace && \
-    chmod -R u+rw /home/sealos/workspace
+    chown -R sealos:sealos /home/sealos/project && \
+    chmod -R u+rw /home/sealos/project
