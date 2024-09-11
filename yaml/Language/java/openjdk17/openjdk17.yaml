@@ -6,14 +6,14 @@ metadata:
 spec:
   classRef: java
   config:
-    image: ghcr.io/labring-actions/devbox/java-openjdk17:d8bfae
+    image: ghcr.io/labring-actions/devbox/java-openjdk17:a66df1
     ports:
       - containerPort: 22
         name: devbox-ssh-port
         protocol: TCP
     user: sealos
   description: java openjdk17
-  version: openjdk17
+  version: "openjdk17"
 ---
 apiVersion: devbox.sealos.io/v1alpha1
 kind: RuntimeClass
