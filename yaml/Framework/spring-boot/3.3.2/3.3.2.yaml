@@ -1,0 +1,25 @@
+apiVersion: devbox.sealos.io/v1alpha1
+kind: Runtime
+metadata:
+  name: spring-boot-3-3-2
+  namespace: devbox-system
+spec:
+  classRef: spring-boot
+  config:
+    image: ghcr.io/labring-actions/devbox/spring-boot-3.3.2:793210
+    ports:
+      - containerPort: 22
+        name: devbox-ssh-port
+        protocol: TCP
+    user: sealos
+  description: spring-boot 3.3.2
+  version: 3.3.2
+---
+apiVersion: devbox.sealos.io/v1alpha1
+kind: RuntimeClass
+metadata:
+  name: spring-boot
+spec:
+  title: spring-boot
+  kind: Framework
+  description: spring-boot
