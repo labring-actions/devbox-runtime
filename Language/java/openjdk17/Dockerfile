@@ -1,6 +1,6 @@
 FROM ghcr.io/labring-actions/devbox/debian-ssh:d8f335
 
-COPY /Language/java/workspace /home/sealos/workspace
+COPY /Language/java/project /home/sealos/project
 
 RUN apt-get update && \
     apt-get install -y wget && \
@@ -19,8 +19,8 @@ RUN apt-get update && \
     rm -rf /var/lib/apt/lists/* && \
     echo 'export PATH=$PATH:$JAVA_HOME/bin' >> /home/sealos/.bashrc && \
     echo 'export JAVA_HOME=/usr/lib/jvm/java-17-openjdk-amd64' >> /home/sealos/.bashrc && \
-    chown -R sealos:sealos /home/sealos/workspace && \
-    chmod -R u+rw /home/sealos/workspace
+    chown -R sealos:sealos /home/sealos/project && \
+    chmod -R u+rw /home/sealos/project
 
 ENV JAVA_HOME=/usr/lib/jvm/java-17-openjdk-amd64
 ENV PATH=$PATH:$JAVA_HOME/bin
