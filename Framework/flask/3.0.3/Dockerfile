@@ -1,5 +1,7 @@
-FROM ghcr.io/labring-actions/devbox/python3.12:6e6ed1
+FROM ghcr.io/labring-actions/devbox/python-3.12:6de245
 
+RUN cd /home/sealos/project && \
+rm -rf ./*
 COPY /Framework/flask/3.0.3/project /home/sealos/project
 
 RUN chown -R sealos:sealos /home/sealos/project && \
@@ -12,5 +14,4 @@ RUN python3 -m venv /home/sealos/project && \
     pip3 install flask && \
     deactivate 
 
-USER root
 RUN mkdir /home/sealos/.sealos
