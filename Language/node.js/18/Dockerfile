@@ -1,6 +1,6 @@
 FROM ghcr.io/labring-actions/devbox/debian-ssh:d8f335
 
-COPY /Language/nodejs/workspace /home/sealos/workspace
+COPY /Language/nodejs/project /home/sealos/project
 
 RUN apt-get update && \
     apt-get install -y curl && \
@@ -9,7 +9,7 @@ RUN apt-get update && \
     npm install -g typescript yarn pnpm && \
     apt-get clean && \
     rm -rf /var/lib/apt/lists/* && \
-    chown -R sealos:sealos /home/sealos/workspace && \
-    chmod -R u+rw /home/sealos/workspace
+    chown -R sealos:sealos /home/sealos/project && \
+    chmod -R u+rw /home/sealos/project
 
 RUN mkdir /root/.sealos
