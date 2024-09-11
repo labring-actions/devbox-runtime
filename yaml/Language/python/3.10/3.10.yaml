@@ -6,14 +6,14 @@ metadata:
 spec:
   classRef: python
   config:
-    image: ghcr.io/labring-actions/devbox/python-3.10:48704e
+    image: ghcr.io/labring-actions/devbox/python-3.10:6de245
     ports:
       - containerPort: 22
         name: devbox-ssh-port
         protocol: TCP
     user: sealos
   description: python 3.10
-  version: 3.10
+  version: "3.10"
 ---
 apiVersion: devbox.sealos.io/v1alpha1
 kind: RuntimeClass
