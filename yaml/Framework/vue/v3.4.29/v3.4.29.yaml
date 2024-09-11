@@ -6,14 +6,14 @@ metadata:
 spec:
   classRef: vue
   config:
-    image: ghcr.io/labring-actions/devbox/vue-v3.4.29:7ad3be
+    image: ghcr.io/labring-actions/devbox/vue-v3.4.29:fc9fb9
     ports:
       - containerPort: 22
         name: devbox-ssh-port
         protocol: TCP
     user: sealos
   description: vue v3.4.29
-  version: v3.4.29
+  version: "v3.4.29"
 ---
 apiVersion: devbox.sealos.io/v1alpha1
 kind: RuntimeClass
