@@ -6,7 +6,7 @@ metadata:
 spec:
   classRef: nextjs
   config:
-    image: ghcr.io/labring-actions/devbox/nextjs-14.2.5:3fb52e
+    image: ghcr.io/labring-actions/devbox/nextjs-14.2.5:7ad3be
     ports:
       - containerPort: 22
         name: devbox-ssh-port
