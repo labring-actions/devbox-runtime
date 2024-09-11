@@ -1,0 +1,25 @@
+apiVersion: devbox.sealos.io/v1alpha1
+kind: Runtime
+metadata:
+  name: php-8-2-20
+  namespace: devbox-system
+spec:
+  classRef: php
+  config:
+    image: ghcr.io/labring-actions/devbox/php-8.2.20:cc4499
+    ports:
+      - containerPort: 22
+        name: devbox-ssh-port
+        protocol: TCP
+    user: sealos
+  description: php 8.2.20
+  version: "8.2.20"
+---
+apiVersion: devbox.sealos.io/v1alpha1
+kind: RuntimeClass
+metadata:
+  name: php
+spec:
+  title: php
+  kind: Language
+  description: php
