@@ -8,8 +8,7 @@ chmod -R u+rw /home/sealos/project
 USER sealos
 RUN cd /home/sealos/project && \
 npm config set fetch-retry-maxtimeout 2000000 && \
-npm install && \
-npm install -D @swc/cli @swc/core
+pnpm install 
 
 USER root
 RUN mkdir /home/sealos/.sealos
