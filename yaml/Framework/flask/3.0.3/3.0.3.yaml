@@ -6,14 +6,14 @@ metadata:
 spec:
   classRef: flask
   config:
-    image: ghcr.io/labring-actions/devbox/flask-3.0.3:7ad3be
+    image: ghcr.io/labring-actions/devbox/flask-3.0.3:a2ea20
     ports:
       - containerPort: 22
         name: devbox-ssh-port
         protocol: TCP
     user: sealos
   description: flask 3.0.3
-  version: 3.0.3
+  version: "3.0.3"
 ---
 apiVersion: devbox.sealos.io/v1alpha1
 kind: RuntimeClass
