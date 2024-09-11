@@ -1,6 +1,6 @@
 FROM ghcr.io/labring-actions/devbox/debian-ssh:d8f335
 
-COPY /Language/go/workspace /home/sealos/workspace
+COPY /Language/go/project /home/sealos/project
 
 RUN curl -O https://dl.google.com/go/go1.23.0.linux-amd64.tar.gz && \
     tar -xvf go1.23.0.linux-amd64.tar.gz && \
@@ -12,8 +12,8 @@ RUN curl -O https://dl.google.com/go/go1.23.0.linux-amd64.tar.gz && \
     echo 'export GOPATH=/go' >> /root/.bashrc && \
     echo 'export PATH=$PATH:/usr/local/go/bin:/go/bin' >> /root/.bashrc && \
     chmod -R 777 /go && \
-    chown -R sealos:sealos /home/sealos/workspace && \
-    chmod -R u+rw /home/sealos/workspace
+    chown -R sealos:sealos /home/sealos/project && \
+    chmod -R u+rw /home/sealos/project
     
 ENV GOPATH=/go
 ENV PATH=$PATH:/usr/local/go/bin:/go/bin
