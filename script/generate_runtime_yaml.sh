@@ -37,7 +37,7 @@ spec:
         protocol: TCP
     user: sealos
   description: ${ADDR[1]} $PARENT_DIR
-  version: $PARENT_DIR
+  version: "$PARENT_DIR"
 ---
 apiVersion: devbox.sealos.io/v1alpha1
 kind: RuntimeClass
