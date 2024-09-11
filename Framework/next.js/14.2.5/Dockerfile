@@ -11,5 +11,5 @@ USER sealos
 RUN cd /home/sealos/project && \
 npm config set fetch-retry-maxtimeout 2000000 && \
 pnpm install 
-
+ 
 RUN mkdir /home/sealos/.sealos
