@@ -17,6 +17,7 @@ for i in "${!DIFF_OUTPUT_ARRAY[@]}"; do
   IFS='/' read -ra ADDR <<< $DOCKERFILE_PATH
   PARENT_DIR=${PARENT_DIRS_ARRAY[$i]}
   IMAGE_NAME="${ADDR[1]}-$PARENT_DIR:$TAG"
+  IMAGE_NAME="${IMAGE_NAME// /-}"
   echo "Building and pushing image for $DOCKERFILE_PATH with tag $IMAGE_NAME"
   docker buildx build --push \
     --file $DOCKERFILE_PATH \

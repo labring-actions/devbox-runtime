@@ -14,6 +14,7 @@ for i in "${!DIFF_OUTPUT_ARRAY[@]}"; do
   IFS='/' read -ra ADDR <<< $DOCKERFILE_PATH
   PARENT_DIR=${PARENT_DIRS_ARRAY[$i]}
   IMAGE_NAME="${ADDR[1]}-$PARENT_DIR:$TAG"
+  IMAGE_NAME="${IMAGE_NAME// /-}"
 
   YAML_PATH="${DOCKERFILE_PATH%/*}"
   mkdir -p "yaml/${YAML_PATH}"
