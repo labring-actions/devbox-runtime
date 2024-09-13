@@ -1,4 +1,7 @@
-FROM ghcr.io/labring-actions/devbox/debian-ssh:d8f335
+FROM ghcr.io/labring-actions/devbox/debian-ssh-12.6:d8b67a
+
+RUN cd /home/sealos/project && \
+rm -rf ./*
 
 COPY /Language/go/project /home/sealos/project
 
