@@ -6,20 +6,26 @@ metadata:
 spec:
   classRef: spring-boot
   config:
-    image: ghcr.io/labring-actions/devbox/spring-boot-3.3.2:793210
+    image: ghcr.io/labring-actions/devbox/spring-boot-3.3.2:050e14
     ports:
       - containerPort: 22
         name: devbox-ssh-port
         protocol: TCP
     user: sealos
+    workingDir: /home/sealos/project
+    releaseCommand:
+      - /bin/bash
+      - -c
+    releaseArgs:
+      - /home/sealos/project/entrypoint.sh
   description: spring-boot 3.3.2
-  version: 3.3.2
+  version: "3.3.2"
 ---
 apiVersion: devbox.sealos.io/v1alpha1
 kind: RuntimeClass
 metadata:
   name: spring-boot
 spec:
-  title: spring-boot
+  title: "Spring Boot"
   kind: Framework
   description: spring-boot
