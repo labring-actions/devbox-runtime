@@ -6,12 +6,18 @@ metadata:
 spec:
   classRef: node.js
   config:
-    image: ghcr.io/labring-actions/devbox/node.js-18:bf81c9
+    image: ghcr.io/labring-actions/devbox/node.js-18:508549
     ports:
       - containerPort: 22
         name: devbox-ssh-port
         protocol: TCP
     user: sealos
+    workingDir: /home/sealos/project
+    releaseCommand:
+      - /bin/bash
+      - -c
+    releaseArgs:
+      - /home/sealos/project/entrypoint.sh
   description: node.js 18
   version: "18"
 ---
@@ -20,6 +26,6 @@ kind: RuntimeClass
 metadata:
   name: node.js
 spec:
-  title: node.js
+  title: "node.js"
   kind: Language
   description: node.js
