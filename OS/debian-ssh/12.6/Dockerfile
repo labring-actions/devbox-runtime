@@ -5,6 +5,7 @@ COPY /script/startup.sh /usr/start/startup.sh
 RUN chmod +x /usr/start/startup.sh && \
     apt-get update && \
     apt-get install -y \
+    dumb-init \
     openssh-client \
     openssh-server && \
     apt-get clean && \
@@ -26,7 +27,9 @@ RUN sudo chown -R sealos:sealos /home/sealos/project && \
     sudo chmod -R 777 /home/sealos/project
 
 USER root
-ENTRYPOINT ["sudo", "-E", "/usr/start/startup.sh"]
+
+ENTRYPOINT ["/usr/bin/dumb-init", "--"]
+CMD ["sudo", "-E", "/usr/start/startup.sh"]
 
 WORKDIR /home/sealos/project
 EXPOSE 22
