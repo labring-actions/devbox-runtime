@@ -1,4 +1,7 @@
-FROM ghcr.io/labring-actions/devbox/openjdk17:b50472
+FROM ghcr.io/labring-actions/devbox/java-openjdk17:a264e6
+
+RUN cd /home/sealos/project && \
+rm -rf ./*
 
 COPY /Framework/spring-boot/3.3.2/project /home/sealos/project
 
@@ -8,6 +11,5 @@ chmod -R u+rw /home/sealos/project
 USER sealos
 RUN cd /home/sealos/project && \
     mvn install
- 
-USER root
+
 RUN mkdir /home/sealos/.sealos
