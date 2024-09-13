@@ -6,12 +6,18 @@ metadata:
 spec:
   classRef: python
   config:
-    image: ghcr.io/labring-actions/devbox/python-3.11:6de245
+    image: ghcr.io/labring-actions/devbox/python-3.11:765b1b
     ports:
       - containerPort: 22
         name: devbox-ssh-port
         protocol: TCP
     user: sealos
+    workingDir: /home/sealos/project
+    releaseCommand:
+      - /bin/bash
+      - -c
+    releaseArgs:
+      - /home/sealos/project/entrypoint.sh
   description: python 3.11
   version: "3.11"
 ---
@@ -20,6 +26,6 @@ kind: RuntimeClass
 metadata:
   name: python
 spec:
-  title: python
+  title: "python"
   kind: Language
   description: python
