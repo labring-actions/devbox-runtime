@@ -6,12 +6,18 @@ metadata:
 spec:
   classRef: rust
   config:
-    image: ghcr.io/labring-actions/devbox/rust-1.81.0:c4852b
+    image: ghcr.io/labring-actions/devbox/rust-1.81.0:0259eb
     ports:
       - containerPort: 22
         name: devbox-ssh-port
         protocol: TCP
     user: sealos
+    workingDir: /home/sealos/project
+    releaseCommand:
+      - /bin/bash
+      - -c
+    releaseArgs:
+      - /home/sealos/project/entrypoint.sh
   description: rust 1.81.0
   version: "1.81.0"
 ---
@@ -20,6 +26,6 @@ kind: RuntimeClass
 metadata:
   name: rust
 spec:
-  title: rust
+  title: "rust"
   kind: Language
   description: rust
