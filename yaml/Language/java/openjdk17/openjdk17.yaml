@@ -6,12 +6,18 @@ metadata:
 spec:
   classRef: java
   config:
-    image: ghcr.io/labring-actions/devbox/java-openjdk17:a66df1
+    image: ghcr.io/labring-actions/devbox/java-openjdk17:9d5315
     ports:
       - containerPort: 22
         name: devbox-ssh-port
         protocol: TCP
     user: sealos
+    workingDir: /home/sealos/project
+    releaseCommand:
+      - /bin/bash
+      - -c
+    releaseArgs:
+      - /home/sealos/project/entrypoint.sh
   description: java openjdk17
   version: "openjdk17"
 ---
@@ -20,6 +26,6 @@ kind: RuntimeClass
 metadata:
   name: java
 spec:
-  title: java
+  title: "java"
   kind: Language
   description: java
