@@ -1,4 +1,4 @@
-FROM ghcr.io/labring-actions/devbox/go-1.22.5:35bf93
+FROM ghcr.io/labring-actions/devbox/go-1.22.5:81b7ff
 
 RUN cd /home/sealos/project && \
 rm -rf ./*
@@ -10,6 +10,7 @@ chmod -R u+rw /home/sealos/project
 
 USER sealos
 RUN cd /home/sealos/project && \
-go mod tidy 
+go mod tidy && \
+go build -o main main.go
 
 RUN mkdir /home/sealos/.sealos
