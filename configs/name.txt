@@ -1,0 +1,13 @@
+debian=none
+debian-ssh=debian
+go=go
+java=java
+node.js=node.js
+PHP=PHP
+python=python
+rust=rust
+flask=flask
+gin=gin
+next.js=next.js
+spring-boot=Spring Boot
+vue=vue
