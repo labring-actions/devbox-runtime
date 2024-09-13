@@ -6,12 +6,18 @@ metadata:
 spec:
   classRef: flask
   config:
-    image: ghcr.io/labring-actions/devbox/flask-3.0.3:a2ea20
+    image: ghcr.io/labring-actions/devbox/flask-3.0.3:3d97dd
     ports:
       - containerPort: 22
         name: devbox-ssh-port
         protocol: TCP
     user: sealos
+    workingDir: /home/sealos/project
+    releaseCommand:
+      - /bin/bash
+      - -c
+    releaseArgs:
+      - /home/sealos/project/entrypoint.sh
   description: flask 3.0.3
   version: "3.0.3"
 ---
@@ -20,6 +26,6 @@ kind: RuntimeClass
 metadata:
   name: flask
 spec:
-  title: flask
+  title: "flask"
   kind: Framework
   description: flask
