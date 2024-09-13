@@ -6,12 +6,18 @@ metadata:
 spec:
   classRef: gin
   config:
-    image: ghcr.io/labring-actions/devbox/gin-v1.10.0:b7f162
+    image: ghcr.io/labring-actions/devbox/gin-v1.10.0:dd642d
     ports:
       - containerPort: 22
         name: devbox-ssh-port
         protocol: TCP
     user: sealos
+    workingDir: /home/sealos/project
+    releaseCommand:
+      - /bin/bash
+      - -c
+    releaseArgs:
+      - /home/sealos/project/entrypoint.sh
   description: gin v1.10.0
   version: "v1.10.0"
 ---
@@ -20,6 +26,6 @@ kind: RuntimeClass
 metadata:
   name: gin
 spec:
-  title: gin
+  title: "gin"
   kind: Framework
   description: gin
