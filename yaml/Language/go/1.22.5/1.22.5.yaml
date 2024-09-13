@@ -6,7 +6,7 @@ metadata:
 spec:
   classRef: go
   config:
-    image: ghcr.io/labring-actions/devbox/go-1.22.5:438305
+    image: ghcr.io/labring-actions/devbox/go-1.22.5:81b7ff
     ports:
       - containerPort: 22
         name: devbox-ssh-port
