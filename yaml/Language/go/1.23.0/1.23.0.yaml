@@ -6,12 +6,18 @@ metadata:
 spec:
   classRef: go
   config:
-    image: ghcr.io/labring-actions/devbox/go-1.23.0:35bf93
+    image: ghcr.io/labring-actions/devbox/go-1.23.0:438305
     ports:
       - containerPort: 22
         name: devbox-ssh-port
         protocol: TCP
     user: sealos
+    workingDir: /home/sealos/project
+    releaseCommand:
+      - /bin/bash
+      - -c
+    releaseArgs:
+      - /home/sealos/project/entrypoint.sh
   description: go 1.23.0
   version: "1.23.0"
 ---
@@ -20,6 +26,6 @@ kind: RuntimeClass
 metadata:
   name: go
 spec:
-  title: go
+  title: "go"
   kind: Language
   description: go
