@@ -1,4 +1,4 @@
-FROM ghcr.io/labring-actions/devbox/debian-ssh-12.6:d8b67a
+FROM ghcr.io/labring-actions/devbox/debian-ssh-12.6:a9c28d
 
 RUN cd /home/sealos/project && \
 rm -rf ./*
