@@ -6,12 +6,18 @@ metadata:
 spec:
   classRef: vue
   config:
-    image: ghcr.io/labring-actions/devbox/vue-v3.4.29:fc9fb9
+    image: ghcr.io/labring-actions/devbox/vue-v3.4.29:862c5a
     ports:
       - containerPort: 22
         name: devbox-ssh-port
         protocol: TCP
     user: sealos
+    workingDir: /home/sealos/project
+    releaseCommand:
+      - /bin/bash
+      - -c
+    releaseArgs:
+      - /home/sealos/project/entrypoint.sh
   description: vue v3.4.29
   version: "v3.4.29"
 ---
@@ -20,6 +26,6 @@ kind: RuntimeClass
 metadata:
   name: vue
 spec:
-  title: vue
+  title: ""
   kind: Framework
   description: vue

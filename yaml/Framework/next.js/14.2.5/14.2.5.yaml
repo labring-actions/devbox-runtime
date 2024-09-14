@@ -6,12 +6,18 @@ metadata:
 spec:
   classRef: next.js
   config:
-    image: ghcr.io/labring-actions/devbox/next.js-14.2.5:934e6b
+    image: ghcr.io/labring-actions/devbox/next.js-14.2.5:862c5a
     ports:
       - containerPort: 22
         name: devbox-ssh-port
         protocol: TCP
     user: sealos
+    workingDir: /home/sealos/project
+    releaseCommand:
+      - /bin/bash
+      - -c
+    releaseArgs:
+      - /home/sealos/project/entrypoint.sh
   description: next.js 14.2.5
   version: "14.2.5"
 ---
@@ -20,6 +26,6 @@ kind: RuntimeClass
 metadata:
   name: next.js
 spec:
-  title: next.js
+  title: "next.js"
   kind: Framework
   description: next.js
