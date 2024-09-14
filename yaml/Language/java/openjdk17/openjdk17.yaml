@@ -6,7 +6,7 @@ metadata:
 spec:
   classRef: java
   config:
-    image: ghcr.io/labring-actions/devbox/java-openjdk17:a264e6
+    image: ghcr.io/labring-actions/devbox/java-openjdk17:8db5f4
     ports:
       - containerPort: 22
         name: devbox-ssh-port

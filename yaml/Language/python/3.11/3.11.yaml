@@ -6,7 +6,7 @@ metadata:
 spec:
   classRef: python
   config:
-    image: ghcr.io/labring-actions/devbox/python-3.11:765b1b
+    image: ghcr.io/labring-actions/devbox/python-3.11:8db5f4
     ports:
       - containerPort: 22
         name: devbox-ssh-port
