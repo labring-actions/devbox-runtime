@@ -26,6 +26,6 @@ kind: RuntimeClass
 metadata:
   name: vue
 spec:
-  title: ""
+  title: "vue"
   kind: Framework
   description: vue
