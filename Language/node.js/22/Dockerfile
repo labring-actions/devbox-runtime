@@ -13,6 +13,7 @@ RUN apt-get update && \
     apt-get clean && \
     rm -rf /var/lib/apt/lists/* && \
     chown -R sealos:sealos /home/sealos/project && \
-    chmod -R u+rw /home/sealos/project
+    chmod -R u+rw /home/sealos/project && \
+    chmod -R +x /home/sealos/project/entrypoint.sh
 
 RUN mkdir /root/.sealos

@@ -11,6 +11,7 @@ RUN apt-get update && \
     rm -rf /var/lib/apt/lists/* && \
     python3 -m venv /home/sealos/project && \
     chown -R sealos:sealos /home/sealos/project && \
-    chmod -R u+rw /home/sealos/project
+    chmod -R u+rw /home/sealos/project && \
+    chmod -R +x /home/sealos/project/entrypoint.sh
 
 RUN mkdir /root/.sealos

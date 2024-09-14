@@ -17,4 +17,7 @@ RUN apt-get update && \
     echo 'export PATH=/home/sealos/.cargo/bin:$PATH' >> $HOME/.bashrc && \
     echo 'source /home/sealos/.cargo/env' >> $HOME/.bashrc && \
     chown -R sealos:sealos /home/sealos/project && \
-    chmod -R u+rw /home/sealos/project
+    chmod -R u+rw /home/sealos/project && \
+    chmod -R +x /home/sealos/project/entrypoint.sh
+    
+RUN mkdir /root/.sealos
