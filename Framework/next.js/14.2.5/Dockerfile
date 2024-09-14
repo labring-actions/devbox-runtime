@@ -5,7 +5,8 @@ rm -rf ./*
 
 COPY /Framework/next.js/14.2.5/project /home/sealos/project
 RUN chown -R sealos:sealos /home/sealos/project && \
-chmod -R u+rw /home/sealos/project  
+chmod -R u+rw /home/sealos/project  && \
+chmod -R +x /home/sealos/project/entrypoint.sh
 
 USER sealos
 RUN cd /home/sealos/project && \

@@ -5,7 +5,8 @@ rm -rf ./*
 COPY /Framework/flask/3.0.3/project /home/sealos/project
 
 RUN chown -R sealos:sealos /home/sealos/project && \
-    chmod -R u+rw /home/sealos/project 
+    chmod -R u+rw /home/sealos/project && \
+    chmod -R +x /home/sealos/project/entrypoint.sh
 
 USER sealos
 RUN python3 -m venv /home/sealos/project && \
