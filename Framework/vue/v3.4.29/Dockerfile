@@ -9,6 +9,7 @@ chmod -R u+rw /home/sealos/project
 
 USER sealos
 RUN cd /home/sealos/project && \
-npm install
+npm install && \
+npm run build
 
 RUN mkdir /home/sealos/.sealos

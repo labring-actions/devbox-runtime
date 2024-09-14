@@ -9,7 +9,9 @@ chmod -R u+rw /home/sealos/project
 
 USER sealos
 RUN cd /home/sealos/project && \
-npm config set fetch-retry-maxtimeout 2000000 && \
-pnpm install 
+npm config set fetch-retry-maxtimeout 4000000 && \
+pnpm install && \
+pnpm run build
+
  
 RUN mkdir /home/sealos/.sealos
