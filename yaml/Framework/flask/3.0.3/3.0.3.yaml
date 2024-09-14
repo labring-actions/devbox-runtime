@@ -6,7 +6,7 @@ metadata:
 spec:
   classRef: flask
   config:
-    image: ghcr.io/labring-actions/devbox/flask-3.0.3:3d97dd
+    image: ghcr.io/labring-actions/devbox/flask-3.0.3:8086af
     ports:
       - containerPort: 22
         name: devbox-ssh-port
