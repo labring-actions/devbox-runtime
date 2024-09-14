@@ -6,7 +6,7 @@ metadata:
 spec:
   classRef: vue
   config:
-    image: ghcr.io/labring-actions/devbox/vue-v3.4.29:7a9929
+    image: ghcr.io/labring-actions/devbox/vue-v3.4.29:d60efc
     ports:
       - containerPort: 22
         name: devbox-ssh-port
@@ -26,6 +26,6 @@ kind: RuntimeClass
 metadata:
   name: vue
 spec:
-  title: "vue"
+  title: ""
   kind: Framework
   description: vue
