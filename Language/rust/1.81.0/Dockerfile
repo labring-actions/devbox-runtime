@@ -20,4 +20,8 @@ RUN apt-get update && \
     chmod -R u+rw /home/sealos/project && \
     chmod -R +x /home/sealos/project/entrypoint.sh
 
+USER sealos
+RUN cd /home/sealos/project && \
+    cargo build --release
+
 RUN mkdir /root/.sealos

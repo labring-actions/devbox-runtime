@@ -1,2 +1,3 @@
 #!/bin/bash
-cargo build && cargo run
+cd /home/sealos/project/target/release
+./hello
