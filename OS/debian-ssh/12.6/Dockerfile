@@ -19,7 +19,10 @@ RUN chmod +x /usr/start/startup.sh && \
     useradd -m -s /bin/bash sealos && \
     usermod -aG sudo sealos && \
     echo 'sealos ALL=(ALL) NOPASSWD: ALL' >> /etc/sudoers && \
-    rm -rf /tmp/*
+    rm -rf /tmp/* && \
+    mkdir -p /home/sealos/.ssh && \
+    chown -R sealos:sealos /home/sealos/.ssh && \
+    chmod -R 770 /home/sealos/.ssh 
 
 USER sealos
 COPY /OS/debian-ssh/project /home/sealos/project
