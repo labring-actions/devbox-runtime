@@ -1,2 +1,2 @@
 #!/bin/bash
-cargo run
+cargo build && cargo run
