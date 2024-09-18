@@ -1,4 +1,4 @@
-FROM ghcr.io/labring-actions/devbox/go-1.22.5:81b7ff
+FROM ghcr.io/labring-actions/devbox/go-1.22.5:409348
 
 RUN cd /home/sealos/project && \
 rm -rf ./*

@@ -26,6 +26,6 @@ kind: RuntimeClass
 metadata:
   name: php
 spec:
-  title: ""
+  title: "PHP"
   kind: Language
   description: php
