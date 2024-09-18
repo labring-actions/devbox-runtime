@@ -6,7 +6,7 @@ metadata:
 spec:
   classRef: rust
   config:
-    image: ghcr.io/labring-actions/devbox/rust-1.81.0:50366f
+    image: ghcr.io/labring-actions/devbox/rust-1.81.0:409348
     ports:
       - containerPort: 22
         name: devbox-ssh-port
