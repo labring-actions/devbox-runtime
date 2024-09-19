@@ -26,6 +26,6 @@ kind: RuntimeClass
 metadata:
   name: react
 spec:
-  title: ""
+  title: "react"
   kind: Framework
   description: react
