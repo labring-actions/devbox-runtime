@@ -11,3 +11,4 @@ gin=gin
 next.js=next.js
 spring-boot=Spring Boot
 vue=vue
+react=react
