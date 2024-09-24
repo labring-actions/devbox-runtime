@@ -1,0 +1,35 @@
+apiVersion: devbox.sealos.io/v1alpha1
+kind: Runtime
+metadata:
+  name: gin-v1-10-0
+  namespace: devbox-system
+spec:
+  classRef: gin
+  config:
+    image: ghcr.io/labring-actions/devbox/gin-v1.10.0:a26c0b
+    ports:
+      - containerPort: 22
+        name: devbox-ssh-port
+        protocol: TCP
+    appPorts:
+      - port: 8080
+        name: devbox-app-port
+        protocol: TCP
+    user: sealos
+    workingDir: /home/sealos/project
+    releaseCommand:
+      - /bin/bash
+      - -c
+    releaseArgs:
+      - /home/sealos/project/entrypoint.sh
+  description: gin v1.10.0
+  version: "v1.10.0"
+---
+apiVersion: devbox.sealos.io/v1alpha1
+kind: RuntimeClass
+metadata:
+  name: gin
+spec:
+  title: "gin"
+  kind: Framework
+  description: gin
