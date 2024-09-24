@@ -1,12 +1,12 @@
 apiVersion: devbox.sealos.io/v1alpha1
 kind: Runtime
 metadata:
-  name: gin-v1-10-0
+  name: spring-boot-3-3-2
   namespace: devbox-system
 spec:
-  classRef: gin
+  classRef: spring-boot
   config:
-    image: ghcr.io/labring-actions/devbox/gin-v1.10.0:0af42de
+    image: ghcr.io/labring-actions/devbox/spring-boot-3.3.2:0af42d
     ports:
       - containerPort: 22
         name: devbox-ssh-port
@@ -22,14 +22,14 @@ spec:
       - -c
     releaseArgs:
       - /home/sealos/project/entrypoint.sh
-  description: gin v1.10.0
-  version: "v1.10.0"
+  description: spring-boot 3.3.2
+  version: "3.3.2"
 ---
 apiVersion: devbox.sealos.io/v1alpha1
 kind: RuntimeClass
 metadata:
-  name: gin
+  name: spring-boot
 spec:
-  title: "gin"
+  title: "Spring Boot"
   kind: Framework
-  description: gin
+  description: spring-boot

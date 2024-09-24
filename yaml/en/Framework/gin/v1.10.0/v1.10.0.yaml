@@ -6,7 +6,7 @@ metadata:
 spec:
   classRef: gin
   config:
-    image: ghcr.io/labring-actions/devbox/gin-v1.10.0:a26c0b
+    image: ghcr.io/labring-actions/devbox/gin-v1.10.0:0af42d
     ports:
       - containerPort: 22
         name: devbox-ssh-port
