@@ -1,0 +1,14 @@
+debian=none
+debian-ssh=8080
+go=8080
+java=8080
+node.js=8080
+PHP=8080
+python=8080
+rust=8080
+flask=8080
+gin=8080
+next.js=3000
+spring-boot=8080
+vue=3000
+react=3000

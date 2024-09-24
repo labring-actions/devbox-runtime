@@ -14,6 +14,11 @@ while IFS='=' read -r key value; do
     NAME_MAP["$key"]="$value"
 done < "configs/name.txt" 
 
+declare -A PORT_MAP
+while IFS='=' read -r key value; do
+    PORT_MAP["$key"]="$value"
+done < "configs/port.txt" 
+
 for i in "${!DIFF_OUTPUT_ARRAY[@]}"; do
   DOCKERFILE_PATH=${DIFF_OUTPUT_ARRAY[$i]}
   IFS='/' read -ra ADDR <<< $DOCKERFILE_PATH
@@ -54,7 +59,7 @@ spec:
         name: devbox-ssh-port
         protocol: TCP
     appPorts:
-      - port: 8080
+      - port: PORT_MAP[${ADDR[1]}]
         name: devbox-app-port
         protocol: TCP
     user: sealos
@@ -92,7 +97,7 @@ spec:
         name: devbox-ssh-port
         protocol: TCP
     appPorts:
-      - port: 8080
+      - port: PORT_MAP[${ADDR[1]}]
         name: devbox-app-port
         protocol: TCP
     user: sealos
