@@ -1,4 +1,4 @@
-FROM ghcr.io/labring-actions/devbox/python-3.12:409348
+FROM ghcr.io/labring-actions/devbox/python-3.12:d4059a
 
 RUN cd /home/sealos/project && \
 rm -rf ./*
