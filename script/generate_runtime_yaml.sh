@@ -24,14 +24,20 @@ for i in "${!DIFF_OUTPUT_ARRAY[@]}"; do
   IFS='/' read -ra ADDR <<< $DOCKERFILE_PATH
 
   PARENT_DIR=${PARENT_DIRS_ARRAY[$i]}
-  EN_IMAGE_NAME="${ADDR[1]}-$PARENT_DIR:$TAG"
-  CN_IMAGE_NAME="${ADDR[1]}-$PARENT_DIR:$CN_TAG"
-  
+
   if [ "${NAME_MAP[${ADDR[1]}]}" == "none" ]; then
     exit 1
   fi
 
   YAML_PATH="${DOCKERFILE_PATH%/*}"
+  parent_path=$(dirname "$YAML_PATH")
+
+  EN_IMAGE_NAME="${ADDR[1]}-$PARENT_DIR:$TAG"
+  if [ -f "$parent_path/update_cn_dockerfile.sh" ]; then
+    CN_IMAGE_NAME="${ADDR[1]}-$PARENT_DIR:$CN_TAG"
+  else
+    CN_IMAGE_NAME="${ADDR[1]}-$PARENT_DIR:$TAG"
+  fi
 
   mkdir -p "yaml/en/${YAML_PATH}"
   mkdir -p "yaml/cn/${YAML_PATH}"

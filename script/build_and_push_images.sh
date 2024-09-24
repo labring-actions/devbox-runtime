@@ -15,8 +15,8 @@ echo "PARENT_DIRS array: ${PARENT_DIRS_ARRAY[@]}"
 for i in "${!DIFF_OUTPUT_ARRAY[@]}"; do
   DOCKERFILE_PATH=${DIFF_OUTPUT_ARRAY[$i]}
   parent_path="${DOCKERFILE_PATH%/*}"
-  parent_path=$(dirname "$parent_path") 
-  bash "$parent_path/update_cn_dockerfile.sh" $DOCKERFILE_PATH
+  parent_path=$(dirname "$parent_path")
+
   IFS='/' read -ra ADDR <<< $DOCKERFILE_PATH
   PARENT_DIR=${PARENT_DIRS_ARRAY[$i]}
   EN_IMAGE_NAME="${ADDR[1]}-$PARENT_DIR:$TAG"
@@ -28,6 +28,8 @@ for i in "${!DIFF_OUTPUT_ARRAY[@]}"; do
     --tag "ghcr.io/$USERNAME/devbox/$EN_IMAGE_NAME" \
     .
   
+  if [ -f "$parent_path/update_cn_dockerfile.sh" ]; then
+  bash "$parent_path/update_cn_dockerfile.sh" $DOCKERFILE_PATH
   CN_IMAGE_NAME="${ADDR[1]}-$PARENT_DIR:$CN_TAG"
   docker buildx build --push \
     --file $DOCKERFILE_PATH"tmp" \
@@ -36,4 +38,5 @@ for i in "${!DIFF_OUTPUT_ARRAY[@]}"; do
     .
 
   rm $DOCKERFILE_PATH"tmp"
+  fi
 done
