@@ -12,7 +12,7 @@ spec:
         name: devbox-ssh-port
         protocol: TCP
     appPorts:
-      - port: 
+      - port: 8080
         name: devbox-app-port
         protocol: TCP
     user: sealos
@@ -30,6 +30,6 @@ kind: RuntimeClass
 metadata:
   name: php
 spec:
-  title: ""
+  title: "PHP"
   kind: Language
   description: php
