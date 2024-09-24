@@ -23,7 +23,7 @@ RUN chmod +x /usr/start/startup.sh && \
     mkdir -p /home/sealos/.ssh && \
     chown -R sealos:sealos /home/sealos/.ssh && \
     chmod -R 770 /home/sealos/.ssh 
-
+ 
 USER sealos
 COPY /OS/debian-ssh/project /home/sealos/project
 RUN sudo chown -R sealos:sealos /home/sealos/project && \
