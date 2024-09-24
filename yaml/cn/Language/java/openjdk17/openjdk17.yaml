@@ -1,0 +1,35 @@
+apiVersion: devbox.sealos.io/v1alpha1
+kind: Runtime
+metadata:
+  name: java-openjdk17
+  namespace: devbox-system
+spec:
+  classRef: java
+  config:
+    image: ghcr.io/labring-actions/devbox/java-openjdk17:0068796
+    ports:
+      - containerPort: 22
+        name: devbox-ssh-port
+        protocol: TCP
+    appPorts:
+      - port: 8080
+        name: devbox-app-port
+        protocol: TCP
+    user: sealos
+    workingDir: /home/sealos/project
+    releaseCommand:
+      - /bin/bash
+      - -c
+    releaseArgs:
+      - /home/sealos/project/entrypoint.sh
+  description: java openjdk17
+  version: "openjdk17"
+---
+apiVersion: devbox.sealos.io/v1alpha1
+kind: RuntimeClass
+metadata:
+  name: java
+spec:
+  title: "java"
+  kind: Language
+  description: java
