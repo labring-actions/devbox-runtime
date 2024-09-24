@@ -59,7 +59,7 @@ spec:
         name: devbox-ssh-port
         protocol: TCP
     appPorts:
-      - port: PORT_MAP[${ADDR[1]}]
+      - port: ${PORT_MAP[${ADDR[1]}]}
         name: devbox-app-port
         protocol: TCP
     user: sealos
@@ -97,7 +97,7 @@ spec:
         name: devbox-ssh-port
         protocol: TCP
     appPorts:
-      - port: PORT_MAP[${ADDR[1]}]
+      - port: ${PORT_MAP[${ADDR[1]}]}
         name: devbox-app-port
         protocol: TCP
     user: sealos

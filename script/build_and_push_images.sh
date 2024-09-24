@@ -15,6 +15,7 @@ echo "PARENT_DIRS array: ${PARENT_DIRS_ARRAY[@]}"
 for i in "${!DIFF_OUTPUT_ARRAY[@]}"; do
   DOCKERFILE_PATH=${DIFF_OUTPUT_ARRAY[$i]}
   parent_path="${DOCKERFILE_PATH%/*}"
+  parent_path=$(dirname "$parent_path") 
   bash "$parent_path/update_cn_dockerfile.sh" $DOCKERFILE_PATH
   IFS='/' read -ra ADDR <<< $DOCKERFILE_PATH
   PARENT_DIR=${PARENT_DIRS_ARRAY[$i]}
