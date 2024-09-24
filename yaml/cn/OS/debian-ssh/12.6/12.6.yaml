@@ -6,13 +6,13 @@ metadata:
 spec:
   classRef: debian-ssh
   config:
-    image: ghcr.io/labring-actions/devbox/debian-ssh-12.6:b7f751c
+    image: ghcr.io/labring-actions/devbox/debian-ssh-12.6:f472d1d
     ports:
       - containerPort: 22
         name: devbox-ssh-port
         protocol: TCP
     appPorts:
-      - port: 8080
+      - port: PORT_MAP[debian-ssh]
         name: devbox-app-port
         protocol: TCP
     user: sealos
