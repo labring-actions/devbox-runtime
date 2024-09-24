@@ -4,7 +4,7 @@ echo "PARENT_DIRS=$PARENT_DIRS"
 echo "DIFF_OUTPUT=$DIFF_OUTPUT"
 
 TAG=$1
-echo "TAG=$TAG"
+CN_TAG=$2
 
 IFS=',' read -r -a DIFF_OUTPUT_ARRAY <<< "$DIFF_OUTPUT"
 IFS=',' read -r -a PARENT_DIRS_ARRAY <<< "$PARENT_DIRS"
@@ -19,19 +19,27 @@ for i in "${!DIFF_OUTPUT_ARRAY[@]}"; do
   IFS='/' read -ra ADDR <<< $DOCKERFILE_PATH
 
   PARENT_DIR=${PARENT_DIRS_ARRAY[$i]}
-  IMAGE_NAME="${ADDR[1]}-$PARENT_DIR:$TAG"
+  EN_IMAGE_NAME="${ADDR[1]}-$PARENT_DIR:$TAG"
+  CN_IMAGE_NAME="${ADDR[1]}-$PARENT_DIR:$CN_TAG"
   
   if [ "${NAME_MAP[${ADDR[1]}]}" == "none" ]; then
     exit 1
   fi
 
   YAML_PATH="${DOCKERFILE_PATH%/*}"
-  mkdir -p "yaml/${YAML_PATH}"
-  output_file="yaml/${YAML_PATH}/$PARENT_DIR.yaml"
-  if [ ! -f "$output_file" ]; then
-    touch "$output_file"
+
+  mkdir -p "yaml/en/${YAML_PATH}"
+  mkdir -p "yaml/cn/${YAML_PATH}"
+  en_output_file="yaml/en/${YAML_PATH}/$PARENT_DIR.yaml"
+  cn_output_file="yaml/cn/${YAML_PATH}/$PARENT_DIR.yaml"
+  if [ ! -f "$en_output_file" ]; then
+    touch "$en_output_file"
   fi
-  cat << EOF > "$output_file"
+  if [ ! -f "$cn_output_file" ]; then
+    touch "$cn_output_file"
+  fi
+
+  cat << EOF > "$en_output_file"
 apiVersion: devbox.sealos.io/v1alpha1
 kind: Runtime
 metadata:
@@ -40,10 +48,14 @@ metadata:
 spec:
   classRef: ${ADDR[1]}
   config:
-    image: ghcr.io/$DOCKER_USERNAME/devbox/$IMAGE_NAME
+    image: ghcr.io/$DOCKER_USERNAME/devbox/$EN_IMAGE_NAME
     ports:
       - containerPort: 22
         name: devbox-ssh-port
+        protocol: TCP
+    appPorts:
+      - port: 8080
+        name: devbox-app-port
         protocol: TCP
     user: sealos
     workingDir: /home/sealos/project
@@ -64,4 +76,43 @@ spec:
   kind: ${ADDR[0]}
   description: ${ADDR[1]}
 EOF
+
+  cat << EOF > "$cn_output_file"
+apiVersion: devbox.sealos.io/v1alpha1
+kind: Runtime
+metadata:
+  name: ${ADDR[1]}-${PARENT_DIR//./-}
+  namespace: devbox-system
+spec:
+  classRef: ${ADDR[1]}
+  config:
+    image: ghcr.io/$DOCKER_USERNAME/devbox/$CN_IMAGE_NAME
+    ports:
+      - containerPort: 22
+        name: devbox-ssh-port
+        protocol: TCP
+    appPorts:
+      - port: 8080
+        name: devbox-app-port
+        protocol: TCP
+    user: sealos
+    workingDir: /home/sealos/project
+    releaseCommand:
+      - /bin/bash
+      - -c
+    releaseArgs:
+      - /home/sealos/project/entrypoint.sh
+  description: ${ADDR[1]} $PARENT_DIR
+  version: "$PARENT_DIR"
+---
+apiVersion: devbox.sealos.io/v1alpha1
+kind: RuntimeClass
+metadata:
+  name: ${ADDR[1]}
+spec:
+  title: "${NAME_MAP[${ADDR[1]}]}"
+  kind: ${ADDR[0]}
+  description: ${ADDR[1]}
+EOF
+
 done
