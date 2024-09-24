@@ -1,4 +1,4 @@
-FROM ghcr.io/labring-actions/devbox/node.js-20:409348
+FROM ghcr.io/labring-actions/devbox/node.js-20:747938
 
 RUN cd /home/sealos/project && \
 rm -rf ./*
