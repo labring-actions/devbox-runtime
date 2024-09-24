@@ -1,0 +1,35 @@
+apiVersion: devbox.sealos.io/v1alpha1
+kind: Runtime
+metadata:
+  name: next.js-14-2-5
+  namespace: devbox-system
+spec:
+  classRef: next.js
+  config:
+    image: ghcr.io/labring-actions/devbox/next.js-14.2.5:7fe6d6
+    ports:
+      - containerPort: 22
+        name: devbox-ssh-port
+        protocol: TCP
+    appPorts:
+      - port: 3000
+        name: devbox-app-port
+        protocol: TCP
+    user: sealos
+    workingDir: /home/sealos/project
+    releaseCommand:
+      - /bin/bash
+      - -c
+    releaseArgs:
+      - /home/sealos/project/entrypoint.sh
+  description: next.js 14.2.5
+  version: "14.2.5"
+---
+apiVersion: devbox.sealos.io/v1alpha1
+kind: RuntimeClass
+metadata:
+  name: next.js
+spec:
+  title: "next.js"
+  kind: Framework
+  description: next.js
