@@ -11,5 +11,6 @@ gin=gin
 next.js=next.js
 spring-boot=Spring Boot
 vue=vue
-echo=8080
+echo=echo
+chi=chi
 react=react

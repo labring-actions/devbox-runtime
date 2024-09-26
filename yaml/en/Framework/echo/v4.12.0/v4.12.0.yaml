@@ -30,6 +30,6 @@ kind: RuntimeClass
 metadata:
   name: echo
 spec:
-  title: "8080"
+  title: "echo"
   kind: Framework
   description: echo

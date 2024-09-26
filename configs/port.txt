@@ -12,4 +12,5 @@ next.js=3000
 spring-boot=8080
 vue=3000
 echo=8080
+chi=8080
 react=3000
