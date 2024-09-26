@@ -6,7 +6,7 @@ metadata:
 spec:
   classRef: php
   config:
-    image: ghcr.io/labring-actions/devbox/php-8.2.20:6f0a6d
+    image: ghcr.io/labring-actions/devbox/php-8.2.20:65f836
     ports:
       - containerPort: 22
         name: devbox-ssh-port
