@@ -6,7 +6,7 @@ metadata:
 spec:
   classRef: django
   config:
-    image: ghcr.io/labring-actions/devbox/django-4.2.16:148fcb
+    image: ghcr.io/labring-actions/devbox/django-4.2.16:d9e9ee
     ports:
       - containerPort: 22
         name: devbox-ssh-port

@@ -1,18 +1,18 @@
 apiVersion: devbox.sealos.io/v1alpha1
 kind: Runtime
 metadata:
-  name: django-4-2-16
+  name: express.js-4-21-0
   namespace: devbox-system
 spec:
-  classRef: django
+  classRef: express.js
   config:
-    image: ghcr.io/labring-actions/devbox/django-4.2.16:d9e9ee0
+    image: ghcr.io/labring-actions/devbox/express.js-4.21.0:d9e9ee0
     ports:
       - containerPort: 22
         name: devbox-ssh-port
         protocol: TCP
     appPorts:
-      - port: 8080
+      - port: 3000
         name: devbox-app-port
         protocol: TCP
     user: sealos
@@ -22,14 +22,14 @@ spec:
       - -c
     releaseArgs:
       - /home/sealos/project/entrypoint.sh
-  description: django 4.2.16
-  version: "4.2.16"
+  description: express.js 4.21.0
+  version: "4.21.0"
 ---
 apiVersion: devbox.sealos.io/v1alpha1
 kind: RuntimeClass
 metadata:
-  name: django
+  name: express.js
 spec:
-  title: "django"
+  title: "express.js"
   kind: Framework
-  description: django
+  description: express.js
