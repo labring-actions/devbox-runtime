@@ -2,7 +2,7 @@ FROM ghcr.io/labring-actions/devbox/node.js-20:747938
 
 RUN cd /home/sealos/project && \
 rm -rf ./*
-
+ 
 COPY /Framework/express.js/4.21.0/project /home/sealos/project
 RUN chown -R sealos:sealos /home/sealos/project && \
 chmod -R u+rw /home/sealos/project && \
