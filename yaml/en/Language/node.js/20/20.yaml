@@ -6,7 +6,7 @@ metadata:
 spec:
   classRef: node.js
   config:
-    image: ghcr.io/labring-actions/devbox/node.js-20:747938
+    image: ghcr.io/labring-actions/devbox/node.js-20:5c2eec
     ports:
       - containerPort: 22
         name: devbox-ssh-port
