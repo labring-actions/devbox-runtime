@@ -1,4 +1,4 @@
-FROM ghcr.io/labring-actions/devbox/node.js-20:747938
+FROM ghcr.io/labring-actions/devbox/node.js-20:5c2eec
 
 RUN cd /home/sealos/project && \
 rm -rf ./*
@@ -11,7 +11,7 @@ chmod -R +x /home/sealos/project/entrypoint.sh
 USER sealos
 RUN cd /home/sealos/project && \
 npm config set fetch-retry-maxtimeout 4000000 && \
-pnpm install && \
+npm install && \
 pnpm run build
 
 RUN mkdir /home/sealos/.sealos
