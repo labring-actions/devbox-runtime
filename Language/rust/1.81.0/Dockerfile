@@ -12,6 +12,8 @@ USER root
  
 RUN apt-get update && \
     apt-get install -y build-essential && \
+    apt-get install libudev-dev && \
+    apt-get install pkg-config && \
     apt-get clean && \
     rm -rf /var/lib/apt/lists/* && \
     echo 'export PATH=/home/sealos/.cargo/bin:$PATH' >> $HOME/.bashrc && \
