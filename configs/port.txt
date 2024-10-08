@@ -18,3 +18,4 @@ react=3000
 django=8080
 express.js=3000
 hexo=4000
+vert.x=8888
