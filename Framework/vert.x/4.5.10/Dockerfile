@@ -11,6 +11,7 @@ chmod -R +x /home/sealos/project/entrypoint.sh
 
 USER sealos
 RUN cd /home/sealos/project && \
-mvn package
+mvn package && \
+mvn install
 
 RUN mkdir /home/sealos/.sealos

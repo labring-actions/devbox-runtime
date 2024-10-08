@@ -1,2 +1,2 @@
 #!/bin/bash
-mvn exec:java
+java -jar target/starter-1.0.0-SNAPSHOT-fat.jar
