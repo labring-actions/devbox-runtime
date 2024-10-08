@@ -6,7 +6,7 @@ metadata:
 spec:
   classRef: vert.x
   config:
-    image: ghcr.io/labring-actions/devbox/vert.x-4.5.10:d5b373b
+    image: ghcr.io/labring-actions/devbox/vert.x-4.5.10:1209996
     ports:
       - containerPort: 22
         name: devbox-ssh-port
