@@ -6,7 +6,7 @@ metadata:
 spec:
   classRef: hexo
   config:
-    image: ghcr.io/labring-actions/devbox/hexo-7.3.0:3a2e82c
+    image: ghcr.io/labring-actions/devbox/hexo-7.3.0:7a47176
     ports:
       - containerPort: 22
         name: devbox-ssh-port
