@@ -5,8 +5,7 @@ rm -rf ./*
 
 RUN mkdir -p /home/sealos/project && \
 chown -R sealos:sealos /home/sealos/project && \
-chmod -R u+rw /home/sealos/project && \
-chmod -R +x /home/sealos/project/entrypoint.sh
+chmod -R u+rw /home/sealos/project
 
 USER sealos
 RUN  npm install -g hexo-cli && \
