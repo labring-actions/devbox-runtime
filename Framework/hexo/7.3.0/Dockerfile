@@ -8,7 +8,7 @@ chown -R sealos:sealos /home/sealos/project && \
 chmod -R u+rw /home/sealos/project
 
 USER sealos
-RUN  npm install -g hexo-cli && \
+RUN sudo npm install -g hexo-cli && \
 hexo init /home/sealos/project && \
 cd /home/sealos/project && \
 npm install
