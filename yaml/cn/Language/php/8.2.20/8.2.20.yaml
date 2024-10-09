@@ -1,12 +1,12 @@
 apiVersion: devbox.sealos.io/v1alpha1
 kind: Runtime
 metadata:
-  name: php-8.2.20:c2551e-8-2-20
+  name: php-8-2-20
   namespace: devbox-system
 spec:
-  classRef: php-8.2.20:c2551e
+  classRef: php
   config:
-    image: ghcr.io/labring-actions/devbox/php-8.2.20:c2551e
+    image: ghcr.io/labring-actions/devbox/php-8.2.20:9368a0
     ports:
       - containerPort: 22
         name: devbox-ssh-port
@@ -22,14 +22,14 @@ spec:
       - -c
     releaseArgs:
       - /home/sealos/project/entrypoint.sh
-  description: php-8.2.20:c2551e 8.2.20
+  description: php 8.2.20
   version: "8.2.20"
 ---
 apiVersion: devbox.sealos.io/v1alpha1
 kind: RuntimeClass
 metadata:
-  name: php-8.2.20:c2551e
+  name: php
 spec:
   title: ""
-  kind: yaml/cn/Language/php/8.2.20/8.2.20.yaml
-  description: php-8.2.20:c2551e
+  kind: Language
+  description: php
