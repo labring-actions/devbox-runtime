@@ -104,6 +104,8 @@ for i in "${!DIFF_OUTPUT_ARRAY[@]}"; do
   cn_output_file="yaml/cn/${YAML_PATH}/$PARENT_DIR.yaml"
 
   # Create the output files if they don’t exist
+  mkdir -p "yaml/en/${YAML_PATH}"
+  mkdir -p "yaml/cn/${YAML_PATH}"
   if [ ! -f "$en_output_file" ]; then
     touch "$en_output_file"
   fi
