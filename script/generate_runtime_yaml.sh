@@ -14,7 +14,7 @@ declare -A NAME_MAP PORT_MAP
 # Function to load mappings from a config file into an associative array
 load_mappings() {
   local file=$1
-  local map=$2
+  local -n map=$2
   while IFS='=' read -r key value; do
     map["$key"]="$value"
   done < "$file"
@@ -104,8 +104,12 @@ for i in "${!DIFF_OUTPUT_ARRAY[@]}"; do
   cn_output_file="yaml/cn/${YAML_PATH}/$PARENT_DIR.yaml"
 
   # Create the output files if they don’t exist
-  : > "$en_output_file"
-  : > "$cn_output_file"
+  if [ ! -f "$en_output_file" ]; then
+    touch "$en_output_file"
+  fi
+  if [ ! -f "$cn_output_file" ]; then
+    touch "$cn_output_file"
+  fi
 
   # Generate and write the English and Chinese YAML configurations
   generate_yaml "$en_output_file" "$EN_IMAGE_NAME" "$PARENT_DIR" "${ADDR[0]}" "${ADDR[1]}"
