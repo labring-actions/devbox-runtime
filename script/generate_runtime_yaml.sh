@@ -33,7 +33,10 @@ generate_yaml() {
   local output_file=$1
   local image_name=$2
   local parent_dir=$3
-  local addr=("$@")  # remaining arguments are passed as an array
+  local addr=("$@") 
+  echo $addr
+  echo $parent_dir
+   # remaining arguments are passed as an array
 
   cat << EOF > "$output_file"
 apiVersion: devbox.sealos.io/v1alpha1
