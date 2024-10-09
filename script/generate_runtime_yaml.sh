@@ -14,7 +14,7 @@ declare -A NAME_MAP PORT_MAP
 # Function to load mappings from a config file into an associative array
 load_mappings() {
   local file=$1
-  local -n map=$2
+  local map=$2
   while IFS='=' read -r key value; do
     map["$key"]="$value"
   done < "$file"
@@ -33,19 +33,18 @@ generate_yaml() {
   local output_file=$1
   local image_name=$2
   local parent_dir=$3
-  local addr=("$@") 
-  echo $addr
-  echo $parent_dir
+  local kind=$4
+  local runtime=$5
    # remaining arguments are passed as an array
 
   cat << EOF > "$output_file"
 apiVersion: devbox.sealos.io/v1alpha1
 kind: Runtime
 metadata:
-  name: ${addr[1]}-${parent_dir//./-}
+  name: $runtime-${parent_dir//./-}
   namespace: devbox-system
 spec:
-  classRef: ${addr[1]}
+  classRef: $runtime
   config:
     image: ghcr.io/$DOCKER_USERNAME/devbox/$image_name
     ports:
@@ -53,7 +52,7 @@ spec:
         name: devbox-ssh-port
         protocol: TCP
     appPorts:
-      - port: ${PORT_MAP[${addr[1]}]}
+      - port: ${PORT_MAP[$runtime]}
         name: devbox-app-port
         protocol: TCP
     user: sealos
@@ -63,17 +62,17 @@ spec:
       - -c
     releaseArgs:
       - /home/sealos/project/entrypoint.sh
-  description: ${addr[1]} $parent_dir
+  description: $runtime $parent_dir
   version: "$parent_dir"
 ---
 apiVersion: devbox.sealos.io/v1alpha1
 kind: RuntimeClass
 metadata:
-  name: ${addr[1]}
+  name: $runtime
 spec:
-  title: "${NAME_MAP[${addr[1]}]}"
-  kind: ${addr[0]}
-  description: ${addr[1]}
+  title: "${NAME_MAP[$runtime]}"
+  kind: $kind
+  description: $runtime
 EOF
 }
 
@@ -109,6 +108,6 @@ for i in "${!DIFF_OUTPUT_ARRAY[@]}"; do
   : > "$cn_output_file"
 
   # Generate and write the English and Chinese YAML configurations
-  generate_yaml "$en_output_file" "$EN_IMAGE_NAME" "$PARENT_DIR" "${ADDR[@]}"
-  generate_yaml "$cn_output_file" "$CN_IMAGE_NAME" "$PARENT_DIR" "${ADDR[@]}"
+  generate_yaml "$en_output_file" "$EN_IMAGE_NAME" "$PARENT_DIR" "${ADDR[0]}" "${ADDR[1]}"
+  generate_yaml "$cn_output_file" "$CN_IMAGE_NAME" "$PARENT_DIR" "${ADDR[0]}" "${ADDR[1]}"
 done
