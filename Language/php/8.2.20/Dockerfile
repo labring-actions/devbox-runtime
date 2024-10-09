@@ -11,5 +11,5 @@ RUN apt update && \
     chmod -R u+rw /home/sealos/project && \
     rm -rf /var/lib/apt/lists/* && \
     chmod -R +x /home/sealos/project/entrypoint.sh
-
+ 
 RUN mkdir /root/.sealos
