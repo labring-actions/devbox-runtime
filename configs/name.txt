@@ -20,3 +20,4 @@ express.js=express.js
 hexo=hexo
 vert.x=vert.x
 nuxt=nuxt
+vitepress=VitePress
