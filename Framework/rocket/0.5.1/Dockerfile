@@ -1,4 +1,4 @@
-FROM ghcr.io/labring-actions/devbox/java-openjdk17:006879
+FROM ghcr.io/labring-actions/devbox/rust-1.81.0:ae313b
 
 RUN cd /home/sealos/project && \
 rm -rf ./*
