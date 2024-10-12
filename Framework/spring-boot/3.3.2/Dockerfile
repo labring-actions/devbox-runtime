@@ -1,4 +1,4 @@
-FROM ghcr.io/labring-actions/devbox/java-openjdk17:006879
+FROM ghcr.io/labring-actions/devbox/java-openjdk17:8c965d
 
 RUN cd /home/sealos/project && \
 rm -rf ./*
