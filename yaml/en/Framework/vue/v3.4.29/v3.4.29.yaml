@@ -6,7 +6,7 @@ metadata:
 spec:
   classRef: vue
   config:
-    image: ghcr.io/labring-actions/devbox/vue-v3.4.29:2fff24
+    image: ghcr.io/labring-actions/devbox/vue-v3.4.29:d7b902
     ports:
       - containerPort: 22
         name: devbox-ssh-port
