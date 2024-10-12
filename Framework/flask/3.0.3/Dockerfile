@@ -15,4 +15,5 @@ RUN python3 -m venv /home/sealos/project && \
     pip3 install flask && \
     deactivate 
 
+USER root
 RUN mkdir /home/sealos/.sealos

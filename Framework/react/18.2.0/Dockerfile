@@ -13,4 +13,5 @@ RUN cd /home/sealos/project && \
 npm install && \
 npm run build
 
+USER root
 RUN mkdir /home/sealos/.sealos

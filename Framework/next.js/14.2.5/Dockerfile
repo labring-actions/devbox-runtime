@@ -14,4 +14,5 @@ npm config set fetch-retry-maxtimeout 4000000 && \
 npm install && \
 pnpm run build
 
+USER root
 RUN mkdir /home/sealos/.sealos

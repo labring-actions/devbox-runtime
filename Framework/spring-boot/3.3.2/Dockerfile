@@ -13,4 +13,5 @@ USER sealos
 RUN cd /home/sealos/project && \
     mvn install
 
+USER root
 RUN mkdir /home/sealos/.sealos
