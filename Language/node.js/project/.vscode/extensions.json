@@ -1,0 +1,12 @@
+{
+    "recommendations": [
+        "pomdtr.excalidraw-editor",
+        "editorconfig.editorconfig",
+        "lokalise.i18n-ally",
+        "esbenp.prettier-vscode",
+        "dbaeumer.vscode-eslint",
+        "burkeholland.simple-react-snippets",
+        "prisma.prisma",
+        "bradlc.vscode-tailwindcss"
+    ]
+}

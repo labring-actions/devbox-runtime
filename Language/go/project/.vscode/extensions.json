@@ -1,0 +1,10 @@
+{
+    "recommendations": [
+        "pomdtr.excalidraw-editor",
+        "editorconfig.editorconfig",
+        "lokalise.i18n-ally",
+        "golang.go",
+        "golang.go-nightly",
+        "formulahendry.code-runner"
+    ]
+}
