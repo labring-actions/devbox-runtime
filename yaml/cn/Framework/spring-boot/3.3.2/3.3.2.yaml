@@ -6,7 +6,7 @@ metadata:
 spec:
   classRef: spring-boot
   config:
-    image: ghcr.io/labring-actions/devbox/spring-boot-3.3.2:0af42de
+    image: ghcr.io/labring-actions/devbox/spring-boot-3.3.2:2fff240
     ports:
       - containerPort: 22
         name: devbox-ssh-port
