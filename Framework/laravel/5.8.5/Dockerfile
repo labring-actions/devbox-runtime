@@ -4,11 +4,11 @@ RUN cd /home/sealos/project && \
 rm -rf ./*
 
 USER sealos
-RUN bash -c "$(curl -fsSL https://php.new/install/linux)"
+RUN  export TERM=dumb && bash -c "$(curl -fsSL https://php.new/install/linux)"
 
 
 USER root
-RUN bash -c "$(curl -fsSL https://php.new/install/linux)"
+RUN  export TERM=dumb && bash -c "$(curl -fsSL https://php.new/install/linux)"
 
 USER sealos
 RUN  cd /home/sealos && \ 
