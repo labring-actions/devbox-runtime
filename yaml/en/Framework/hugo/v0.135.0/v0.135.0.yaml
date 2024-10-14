@@ -6,7 +6,7 @@ metadata:
 spec:
   classRef: hugo
   config:
-    image: ghcr.io/labring-actions/devbox/hugo-v0.135.0:4c2d93
+    image: ghcr.io/labring-actions/devbox/hugo-v0.135.0:e85d2a
     ports:
       - containerPort: 22
         name: devbox-ssh-port
