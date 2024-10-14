@@ -1,13 +1,13 @@
 FROM ghcr.io/labring-actions/devbox/go-1.22.5:8c965d
 
-RUN cd /home/sealos/project && \
-rm -rf ./*
+RUN rm -r /home/sealos/project 
 
 USER sealos
 RUN curl -LO https://github.com/gohugoio/hugo/releases/download/v0.135.0/hugo_extended_0.135.0_linux-amd64.tar.gz && \
 tar -xvzf hugo_extended_0.135.0_linux-amd64.tar.gz && \
 sudo mv hugo /usr/local/bin/ && \
 sudo chmod +x /usr/local/bin/hugo && \
+rm README.md && rm LICENSE && rm hugo_extended_0.135.0_linux-amd64.tar.gz && \
 cd /home/sealos && \
 hugo new site project && \
 cd project && \
