@@ -21,3 +21,4 @@ hexo=hexo
 vert.x=vert.x
 nuxt=nuxt
 vitepress=VitePress
+laravel=laravel

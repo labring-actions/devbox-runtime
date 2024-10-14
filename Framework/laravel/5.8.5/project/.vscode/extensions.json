@@ -1,0 +1,10 @@
+{
+    "recommendations": [
+        "pomdtr.excalidraw-editor",
+        "editorconfig.editorconfig",
+        "lokalise.i18n-ally",
+        "devsense.phptools-vscode",
+        "xdebug.php-debug",
+        "bmewburn.vscode-intelephense-client"
+    ]
+}
