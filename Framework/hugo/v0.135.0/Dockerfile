@@ -10,7 +10,7 @@ sudo mv hugo /usr/local/bin/ && \
 sudo chmod +x /usr/local/bin/hugo && \
 cd /home/sealos && \
 hugo new site project && \
-cd quickstart && \
+cd project && \
 git init && \
 git submodule add https://github.com/theNewDynamic/gohugo-theme-ananke.git themes/ananke && \
 echo "theme = 'ananke'" >> hugo.toml && \
