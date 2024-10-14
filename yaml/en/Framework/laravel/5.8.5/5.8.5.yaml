@@ -6,7 +6,7 @@ metadata:
 spec:
   classRef: laravel
   config:
-    image: ghcr.io/labring-actions/devbox/laravel-5.8.5:f1a43f
+    image: ghcr.io/labring-actions/devbox/laravel-5.8.5:6ed62e
     ports:
       - containerPort: 22
         name: devbox-ssh-port
