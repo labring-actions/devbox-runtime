@@ -15,7 +15,7 @@ git init && \
 git submodule add https://github.com/theNewDynamic/gohugo-theme-ananke.git themes/ananke && \
 echo "theme = 'ananke'" >> hugo.toml && \
 hugo
-
+ 
 COPY /Framework/hugo/v0.135.0/project /home/sealos/project
 
 USER root
