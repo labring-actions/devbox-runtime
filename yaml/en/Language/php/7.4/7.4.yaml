@@ -1,0 +1,35 @@
+apiVersion: devbox.sealos.io/v1alpha1
+kind: Runtime
+metadata:
+  name: php-7-4
+  namespace: devbox-system
+spec:
+  classRef: php
+  config:
+    image: ghcr.io/labring-actions/devbox/php-7.4:259824
+    ports:
+      - containerPort: 22
+        name: devbox-ssh-port
+        protocol: TCP
+    appPorts:
+      - port: 8080
+        name: devbox-app-port
+        protocol: TCP
+    user: sealos
+    workingDir: /home/sealos/project
+    releaseCommand:
+      - /bin/bash
+      - -c
+    releaseArgs:
+      - /home/sealos/project/entrypoint.sh
+  description: php 7.4
+  version: "7.4"
+---
+apiVersion: devbox.sealos.io/v1alpha1
+kind: RuntimeClass
+metadata:
+  name: php
+spec:
+  title: "PHP"
+  kind: Language
+  description: php
