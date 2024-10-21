@@ -29,7 +29,7 @@ jobs:
           runtime_name=$(echo $runtime_path | sed -E 's/.*\/([^/]+)\/([^/]+)\/([^/]+)\.yaml/\1-\2-\3/' | tr '.' '-')
           echo "runtime_name: $runtime_name"
           echo "github.sha: ${{ github.sha }}"
-          sudo bash scripts/build_runtime_cluster_image.sh ${{ matrix.target }} $runtime_name ghcr.io/${{ github.repository_owner }}/sealos-cloud-devbox-runtime-$runtime_name:${{ github.sha }}
+          sudo bash script/build_runtime_cluster_image.sh ${{ matrix.target }} $runtime_name ghcr.io/${{ github.repository_owner }}/sealos-cloud-devbox-runtime-$runtime_name:${{ github.sha }}
       - name: Push and save cluster image
         run: |
           runtime_path=${{ matrix.target }}
