@@ -1,0 +1,47 @@
+name: Build Runtime Cluster Image
+on:
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        target: [
+          "yaml/cn/Language/go/1.22.5/1.22.5.yaml",
+        ]
+      fail-fast: false
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+      - name: Set up sealos
+        run: |
+          curl -sfL https://raw.githubusercontent.com/labring/sealos/main/scripts/install.sh | sh -s v5.0.0 labring/sealos
+      - name: Login to ghcr.io
+        run: |
+          sudo sealos login -u ${{ github.repository_owner }} -p ${{ secrets.GH_PAT }} ghcr.io
+      - name: Build cluster image
+        run: |
+          runtime_path=${{ matrix.target }}
+          echo "runtime_path: $runtime_path"
+          runtime_name=$(echo $runtime_path | sed -E 's/.*\/([^/]+)\/([^/]+)\/([^/]+)\.yaml/\1-\2-\3/' | tr '.' '-')
+          echo "runtime_name: $runtime_name"
+          echo "github.sha: ${{ github.sha }}"
+          sudo bash scripts/build_runtime_cluster_image.sh ${{ matrix.target }} $runtime_name ghcr.io/${{ github.repository_owner }}/sealos-cloud-devbox-runtime-$runtime_name:${{ github.sha }}
+      - name: Push and save cluster image
+        run: |
+          runtime_path=${{ matrix.target }}
+          runtime_name=$(echo $runtime_path | sed -E 's/.*\/([^/]+)\/([^/]+)\/([^/]+)\.yaml/\1-\2-\3/' | tr '.' '-')
+          sudo sealos push ghcr.io/${{ github.repository_owner }}/sealos-cloud-devbox-runtime-$runtime_name:${{ github.sha }}
+          sudo sealos save ghcr.io/${{ github.repository_owner }}/sealos-cloud-devbox-runtime-$runtime_name:${{ github.sha }} -o $runtime_name.tar
+      - name: Upload cluster image tar
+        run: |
+          sudo -v ; curl https://gosspublic.alicdn.com/ossutil/install.sh | sudo bash
+          runtime_name=$(echo $runtime_path | sed -E 's/.*\/([^/]+)\/([^/]+)\/([^/]+)\.yaml/\1-\2-\3/' | tr '.' '-')
+          ossutil64 cp -e ${{ secrets.OSS_ENDPOINT }} \
+            -i ${{ secrets.OSS_ACCESS_KEY_ID }} \
+            -k ${{ secrets.OSS_ACCESS_KEY_SECRET }} \
+            $runtime_name.tar \
+            oss://${{ secrets.OSS_BUCKET }}/cloud/devbox/runtime/$runtime_name.tar
