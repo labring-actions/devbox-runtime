@@ -6,7 +6,7 @@ metadata:
 spec:
   classRef: docusaurus
   config:
-    image: ghcr.io/labring-actions/devbox/docusaurus-3.5.2:cc83d2
+    image: ghcr.io/labring-actions/devbox/docusaurus-3.5.2:1174f2
     ports:
       - containerPort: 22
         name: devbox-ssh-port
