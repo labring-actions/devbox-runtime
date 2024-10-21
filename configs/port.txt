@@ -24,3 +24,4 @@ vitepress=5173
 laravel=8000
 hugo=1313
 net=8080
+docusaurus=3000
