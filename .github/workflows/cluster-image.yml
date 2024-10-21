@@ -13,7 +13,6 @@ jobs:
       fail-fast: false
     env:
       RUNTIME_PATH: ${{ matrix.target }}
-      SHORT_SHA: ${{ github.sha::6 }}
     steps:
       - name: Checkout
         uses: actions/checkout@v3
@@ -25,6 +24,10 @@ jobs:
           RUNTIME_NAME=$(echo $RUNTIME_PATH | sed -E 's/.*\/([^/]+)\/([^/]+)\/.*\.yaml/\1-\2/' | tr '.' '-')
           echo "runtime_name=$RUNTIME_NAME" >> $GITHUB_OUTPUT
           echo "RUNTIME_NAME=$RUNTIME_NAME" >> $GITHUB_ENV
+          COMMIT_ID=${{ github.sha }}
+          SHORT_COMMIT_ID=${COMMIT_ID::6}
+          echo "COMMIT_ID=$COMMIT_ID" >> $GITHUB_OUTPUT
+          echo "SHORT_COMMIT_ID=$SHORT_COMMIT_ID" >> $GITHUB_OUTPUT
       - name: Set up sealos
         run: |
           curl -sfL https://raw.githubusercontent.com/labring/sealos/main/scripts/install.sh | sh -s v5.0.0 labring/sealos
@@ -35,12 +38,12 @@ jobs:
         run: |
           echo "runtime_path: $RUNTIME_PATH"
           echo "runtime_name: $RUNTIME_NAME"
-          echo "short_sha: $SHORT_SHA"
-          sudo bash script/build_runtime_cluster_image.sh $RUNTIME_PATH $RUNTIME_NAME ghcr.io/${{ github.repository_owner }}/sealos-cloud-devbox-runtime-$RUNTIME_NAME:$SHORT_SHA
+          echo "short_sha: $SHORT_COMMIT_ID"
+          sudo bash script/build_runtime_cluster_image.sh $RUNTIME_PATH $RUNTIME_NAME ghcr.io/${{ github.repository_owner }}/sealos-cloud-devbox-runtime-$RUNTIME_NAME:$SHORT_COMMIT_ID
       - name: Push and save cluster image
         run: |
-          sudo sealos push ghcr.io/${{ github.repository_owner }}/sealos-cloud-devbox-runtime-$RUNTIME_NAME:$SHORT_SHA
-          sudo sealos save ghcr.io/${{ github.repository_owner }}/sealos-cloud-devbox-runtime-$RUNTIME_NAME:$SHORT_SHA -o $RUNTIME_NAME.tar
+          sudo sealos push ghcr.io/${{ github.repository_owner }}/sealos-cloud-devbox-runtime-$RUNTIME_NAME:$SHORT_COMMIT_ID
+          sudo sealos save ghcr.io/${{ github.repository_owner }}/sealos-cloud-devbox-runtime-$RUNTIME_NAME:$SHORT_COMMIT_ID -o $RUNTIME_NAME.tar
       - name: Upload cluster image tar
         run: |
           sudo -v ; curl https://gosspublic.alicdn.com/ossutil/install.sh | sudo bash
