@@ -29,3 +29,4 @@ rocket=8000
 net=8080
 umi=8000
 angular=4200
+astro=4321
