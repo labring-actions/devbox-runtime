@@ -11,7 +11,7 @@ chmod -R +x /home/sealos/project/entrypoint.sh
 USER sealos
 RUN cd /home/sealos/project && \
 npm install && \
-npm run build
+pnpm run build
 
 USER root
 RUN mkdir /home/sealos/.sealos
