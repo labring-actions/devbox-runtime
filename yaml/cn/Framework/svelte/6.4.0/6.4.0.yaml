@@ -6,7 +6,7 @@ metadata:
 spec:
   classRef: svelte
   config:
-    image: ghcr.io/labring-actions/devbox/svelte-6.4.0:b21c339
+    image: ghcr.io/labring-actions/devbox/svelte-6.4.0:405c876
     ports:
       - containerPort: 22
         name: devbox-ssh-port
