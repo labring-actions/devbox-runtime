@@ -11,7 +11,7 @@ chmod -R +x /home/sealos/project/entrypoint.sh
 USER sealos
 RUN cd /home/sealos/project && \
 npm config seinstat fetch-retry-maxtimeout 4000000 && \
-npm install && \
-pnpm run build
+npm install
 
+USER root
 RUN mkdir /home/sealos/.sealos
