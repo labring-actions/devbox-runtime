@@ -11,6 +11,6 @@ chmod -R +x /home/sealos/project/entrypoint.sh
 USER sealos
 RUN cd /home/sealos/project && \
 npm install 
- 
+
 USER root
 RUN mkdir /home/sealos/.devbox
