@@ -30,3 +30,4 @@ net=.Net
 umi=UmiJS
 angular=angular
 astro=astro
+svelteKit=SvelteKit
