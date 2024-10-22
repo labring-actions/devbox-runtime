@@ -26,3 +26,4 @@ hugo=1313
 net=8080
 docusaurus=3000
 rocket=8000
+net=8080

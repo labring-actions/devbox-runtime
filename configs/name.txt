@@ -26,3 +26,4 @@ hugo=hugo
 net=.NET
 docusaurus=docusaurus
 rocket=rocket
+net=.Net
