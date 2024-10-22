@@ -6,7 +6,7 @@ metadata:
 spec:
   classRef: umi
   config:
-    image: ghcr.io/labring-actions/devbox/umi-4.3.27:b266e6
+    image: ghcr.io/labring-actions/devbox/umi-4.3.27:5c86c9e
     ports:
       - containerPort: 22
         name: devbox-ssh-port
