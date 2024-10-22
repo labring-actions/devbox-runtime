@@ -28,3 +28,4 @@ docusaurus=3000
 rocket=8000
 net=8080
 umi=8000
+angular=4200
