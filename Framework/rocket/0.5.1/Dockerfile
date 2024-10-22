@@ -1,4 +1,4 @@
-FROM ghcr.io/labring-actions/devbox/rust-1.81.0:255ae9
+FROM ghcr.io/labring-actions/devbox/rust-1.81.0:8c965d
 
 RUN cd /home/sealos/project && \
 rm -rf ./*
