@@ -6,7 +6,7 @@ metadata:
 spec:
   classRef: nuxt3
   config:
-    image: ghcr.io/labring-actions/devbox/nuxt3-v3.13:77ce28
+    image: ghcr.io/labring-actions/devbox/nuxt3-v3.13:e63e16
     ports:
       - containerPort: 22
         name: devbox-ssh-port
