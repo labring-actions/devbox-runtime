@@ -13,4 +13,8 @@ hexo init /home/sealos/project && \
 cd /home/sealos/project && \
 npm install
 COPY /Framework/hexo/7.3.0/entrypoint.sh /home/sealos/project/entrypoint.sh
-RUN mkdir /home/sealos/.sealos
+
+USER root
+RUN mkdir /home/sealos/.sealos && \
+chown -R sealos:sealos /home/sealos/project/entrypoint.sh && \
+chmod -R 777 /home/sealos/project/entrypoint.sh
