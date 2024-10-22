@@ -6,7 +6,7 @@ metadata:
 spec:
   classRef: rocket
   config:
-    image: ghcr.io/labring-actions/devbox/rocket-0.5.1:058fd99
+    image: ghcr.io/labring-actions/devbox/rocket-0.5.1:1f3902b
     ports:
       - containerPort: 22
         name: devbox-ssh-port
