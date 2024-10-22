@@ -1,0 +1,35 @@
+apiVersion: devbox.sealos.io/v1alpha1
+kind: Runtime
+metadata:
+  name: svelteKit-6-4-0
+  namespace: devbox-system
+spec:
+  classRef: svelteKit
+  config:
+    image: ghcr.io/labring-actions/devbox/svelteKit-6.4.0:49fe01f
+    ports:
+      - containerPort: 22
+        name: devbox-ssh-port
+        protocol: TCP
+    appPorts:
+      - port: 5173
+        name: devbox-app-port
+        protocol: TCP
+    user: sealos
+    workingDir: /home/sealos/project
+    releaseCommand:
+      - /bin/bash
+      - -c
+    releaseArgs:
+      - /home/sealos/project/entrypoint.sh
+  description: svelteKit 6.4.0
+  version: "6.4.0"
+---
+apiVersion: devbox.sealos.io/v1alpha1
+kind: RuntimeClass
+metadata:
+  name: svelteKit
+spec:
+  title: "SvelteKit"
+  kind: Framework
+  description: svelteKit
