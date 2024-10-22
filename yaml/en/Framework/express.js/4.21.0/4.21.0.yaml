@@ -6,7 +6,7 @@ metadata:
 spec:
   classRef: express.js
   config:
-    image: ghcr.io/labring-actions/devbox/express.js-4.21.0:caccba
+    image: ghcr.io/labring-actions/devbox/express.js-4.21.0:24db12
     ports:
       - containerPort: 22
         name: devbox-ssh-port
