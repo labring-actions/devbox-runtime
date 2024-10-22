@@ -6,7 +6,7 @@ metadata:
 spec:
   classRef: angular
   config:
-    image: ghcr.io/labring-actions/devbox/angular-v18:cd56262
+    image: ghcr.io/labring-actions/devbox/angular-v18:b95da0a
     ports:
       - containerPort: 22
         name: devbox-ssh-port
@@ -30,6 +30,6 @@ kind: RuntimeClass
 metadata:
   name: angular
 spec:
-  title: ""
+  title: "angular"
   kind: Framework
   description: angular
