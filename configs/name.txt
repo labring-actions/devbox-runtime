@@ -27,3 +27,4 @@ net=.NET
 docusaurus=docusaurus
 rocket=rocket
 net=.Net
+umi=UmiJS
