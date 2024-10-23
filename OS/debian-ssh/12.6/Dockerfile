@@ -23,7 +23,7 @@ RUN chmod +x /usr/start/startup.sh && \
     mkdir -p /home/devbox/.ssh && \
     chown -R devbox:devbox /home/devbox/.ssh && \
     chmod -R 770 /home/devbox/.ssh 
- 
+
 USER devbox
 COPY /OS/debian-ssh/project /home/devbox/project
 RUN sudo chown -R devbox:devbox /home/devbox/project && \

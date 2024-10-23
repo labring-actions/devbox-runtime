@@ -19,11 +19,6 @@ while IFS='=' read -r key value; do
     PORT_MAP["$key"]="$value"
 done < "configs/port.txt" 
 
-declare -A VERSION_MAP
-while IFS='=' read -r key value; do
-    VERSION_MAP["$key"]="$value"
-done < "configs/version.txt" 
-
 for i in "${!DIFF_OUTPUT_ARRAY[@]}"; do
   DOCKERFILE_PATH=${DIFF_OUTPUT_ARRAY[$i]}
   IFS='/' read -ra ADDR <<< $DOCKERFILE_PATH
@@ -59,7 +54,7 @@ for i in "${!DIFF_OUTPUT_ARRAY[@]}"; do
 apiVersion: devbox.sealos.io/v1alpha1
 kind: Runtime
 metadata:
-  name: ${ADDR[1]}-${PARENT_DIR//./-}-$TAG
+  name: ${ADDR[1]}-${PARENT_DIR//./-}-$(date +"%Y-%m-%d-%H%M")
   namespace: devbox-system
 spec:
   classRef: ${ADDR[1]}
@@ -82,7 +77,7 @@ spec:
       - /home/devbox/project/entrypoint.sh
   description: ${ADDR[1]} $PARENT_DIR
   version: "$PARENT_DIR"
-  runtimeVersion: ${VERSION_MAP[${ADDR[1]}]} 
+  runtimeVersion: $(date +"%Y-%m-%d-%H%M")
   state: active  
 ---
 apiVersion: devbox.sealos.io/v1alpha1
@@ -99,7 +94,7 @@ EOF
 apiVersion: devbox.sealos.io/v1alpha1
 kind: Runtime
 metadata:
-  name: ${ADDR[1]}-${PARENT_DIR//./-}-$TAG
+  name: ${ADDR[1]}-${PARENT_DIR//./-}-$(date +"%Y-%m-%d-%H%M")
   namespace: devbox-system
 spec:
   classRef: ${ADDR[1]}
@@ -122,7 +117,7 @@ spec:
       - /home/devbox/project/entrypoint.sh
   description: ${ADDR[1]} $PARENT_DIR
   version: "$PARENT_DIR"
-  runtimeVersion: ${VERSION_MAP[${ADDR[1]}]}
+  runtimeVersion: $(date +"%Y-%m-%d-%H%M")
   state: active  
 ---
 apiVersion: devbox.sealos.io/v1alpha1
