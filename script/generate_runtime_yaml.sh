@@ -59,7 +59,7 @@ for i in "${!DIFF_OUTPUT_ARRAY[@]}"; do
 apiVersion: devbox.sealos.io/v1alpha1
 kind: Runtime
 metadata:
-  name: ${ADDR[1]}-${PARENT_DIR//./-}
+  name: ${ADDR[1]}-${PARENT_DIR//./-}-$TAG
   namespace: devbox-system
 spec:
   classRef: ${ADDR[1]}
@@ -99,7 +99,7 @@ EOF
 apiVersion: devbox.sealos.io/v1alpha1
 kind: Runtime
 metadata:
-  name: ${ADDR[1]}-${PARENT_DIR//./-}
+  name: ${ADDR[1]}-${PARENT_DIR//./-}-$TAG
   namespace: devbox-system
 spec:
   classRef: ${ADDR[1]}
