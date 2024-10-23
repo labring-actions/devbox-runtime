@@ -16,23 +16,23 @@ RUN chmod +x /usr/start/startup.sh && \
     echo 'GatewayPorts yes' >> /etc/ssh/sshd_config && \
     echo 'X11Forwarding yes' >> /etc/ssh/sshd_config && \ 
     echo 'Port 22' >> /etc/ssh/sshd_config && \
-    useradd -m -s /bin/bash sealos && \
-    usermod -aG sudo sealos && \
-    echo 'sealos ALL=(ALL) NOPASSWD: ALL' >> /etc/sudoers && \
+    useradd -m -s /bin/bash devbox && \
+    usermod -aG sudo devbox && \
+    echo 'devbox ALL=(ALL) NOPASSWD: ALL' >> /etc/sudoers && \
     rm -rf /tmp/* && \
-    mkdir -p /home/sealos/.ssh && \
-    chown -R sealos:sealos /home/sealos/.ssh && \
-    chmod -R 770 /home/sealos/.ssh 
+    mkdir -p /home/devbox/.ssh && \
+    chown -R devbox:devbox /home/devbox/.ssh && \
+    chmod -R 770 /home/devbox/.ssh 
  
-USER sealos
-COPY /OS/debian-ssh/project /home/sealos/project
-RUN sudo chown -R sealos:sealos /home/sealos/project && \
-    sudo chmod -R 777 /home/sealos/project
+USER devbox
+COPY /OS/debian-ssh/project /home/devbox/project
+RUN sudo chown -R devbox:devbox /home/devbox/project && \
+    sudo chmod -R 777 /home/devbox/project
 
 USER root
 
 ENTRYPOINT ["/usr/bin/dumb-init", "--"]
 CMD ["sudo", "-E", "/usr/start/startup.sh"]
 
-WORKDIR /home/sealos/project
+WORKDIR /home/devbox/project
 EXPOSE 22

@@ -19,6 +19,11 @@ while IFS='=' read -r key value; do
     PORT_MAP["$key"]="$value"
 done < "configs/port.txt" 
 
+declare -A VERSION_MAP
+while IFS='=' read -r key value; do
+    VERSION_MAP["$key"]="$value"
+done < "configs/version.txt" 
+
 for i in "${!DIFF_OUTPUT_ARRAY[@]}"; do
   DOCKERFILE_PATH=${DIFF_OUTPUT_ARRAY[$i]}
   IFS='/' read -ra ADDR <<< $DOCKERFILE_PATH
@@ -68,15 +73,17 @@ spec:
       - port: ${PORT_MAP[${ADDR[1]}]}
         name: devbox-app-port
         protocol: TCP
-    user: sealos
-    workingDir: /home/sealos/project
+    user: devbox
+    workingDir: /home/devbox/project
     releaseCommand:
       - /bin/bash
       - -c
     releaseArgs:
-      - /home/sealos/project/entrypoint.sh
+      - /home/devbox/project/entrypoint.sh
   description: ${ADDR[1]} $PARENT_DIR
   version: "$PARENT_DIR"
+  runtimeVersion: ${VERSION_MAP[${ADDR[1]}]} 
+  state: active  
 ---
 apiVersion: devbox.sealos.io/v1alpha1
 kind: RuntimeClass
@@ -106,15 +113,17 @@ spec:
       - port: ${PORT_MAP[${ADDR[1]}]}
         name: devbox-app-port
         protocol: TCP
-    user: sealos
-    workingDir: /home/sealos/project
+    user: devbox
+    workingDir: /home/devbox/project
     releaseCommand:
       - /bin/bash
       - -c
     releaseArgs:
-      - /home/sealos/project/entrypoint.sh
+      - /home/devbox/project/entrypoint.sh
   description: ${ADDR[1]} $PARENT_DIR
   version: "$PARENT_DIR"
+  runtimeVersion: ${VERSION_MAP[${ADDR[1]}]}
+  state: active  
 ---
 apiVersion: devbox.sealos.io/v1alpha1
 kind: RuntimeClass
