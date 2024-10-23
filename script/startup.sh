@@ -13,16 +13,16 @@ if [ ! -f "${PASSWORD_FILE}" ]; then
     # Save the generated or existing USER_PASSWORD to the password file
     touch "${PASSWORD_FILE}"
     # Set the password for the 'sealos' user
-    echo "sealos:${SEALOS_DEVBOX_PASSWORD}" | sudo chpasswd
+    echo "devbox:${SEALOS_DEVBOX_PASSWORD}" | sudo chpasswd
     # Display the password for logging purposes (optional)
     echo "SEALOS_DEVBOX_PASSWORD=${SEALOS_DEVBOX_PASSWORD}"
 fi
 
 if [ -f /usr/start/.ssh/id.pub ]; then
     public_key=$(cat /usr/start/.ssh/id.pub)
-    if ! grep -qF "$public_key" /home/sealos/.ssh/authorized_keys 2>/dev/null; then
-        mkdir -p /home/sealos/.ssh 
-        echo "$public_key" >> /home/sealos/.ssh/authorized_keys
+    if ! grep -qF "$public_key" /home/devbox/.ssh/authorized_keys 2>/dev/null; then
+        mkdir -p /home/devbox/.ssh 
+        echo "$public_key" >> /home/devbox/.ssh/authorized_keys
         echo "Public key successfully added to authorized_keys"
     fi
 fi
