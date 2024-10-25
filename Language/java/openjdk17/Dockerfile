@@ -1,9 +1,9 @@
-FROM ghcr.io/labring-actions/devbox/debian-ssh-12.6:d720f6
+FROM ghcr.io/labring-actions/devbox/debian-ssh-12.6:501781
 
-RUN cd /home/sealos/project && \
+RUN cd /home/devbox/project && \
 rm -rf ./*
 
-COPY /Language/java/project /home/sealos/project
+COPY /Language/java/project /home/devbox/project
 
 RUN apt-get update && \
     apt-get install -y wget && \
@@ -20,13 +20,13 @@ RUN apt-get update && \
     rm /tmp/apache-maven-3.8.6-bin.tar.gz && \
     apt-get clean && \
     rm -rf /var/lib/apt/lists/* && \
-    echo 'export PATH=$PATH:$JAVA_HOME/bin' >> /home/sealos/.bashrc && \
-    echo 'export JAVA_HOME=/usr/lib/jvm/java-17-openjdk-amd64' >> /home/sealos/.bashrc && \
-    chown -R sealos:sealos /home/sealos/project && \
-    chmod -R u+rw /home/sealos/project && \
-    chmod -R +x /home/sealos/project/entrypoint.sh
+    echo 'export PATH=$PATH:$JAVA_HOME/bin' >> /home/devbox/.bashrc && \
+    echo 'export JAVA_HOME=/usr/lib/jvm/java-17-openjdk-amd64' >> /home/devbox/.bashrc && \
+    chown -R devbox:devbox /home/devbox/project && \
+    chmod -R u+rw /home/devbox/project && \
+    chmod -R +x /home/devbox/project/entrypoint.sh
 
 ENV JAVA_HOME=/usr/lib/jvm/java-17-openjdk-amd64
 ENV PATH=$PATH:$JAVA_HOME/bin
 
-RUN mkdir /root/.sealos
+RUN mkdir /root/.devbox
