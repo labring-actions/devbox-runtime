@@ -1,11 +1,11 @@
-FROM ghcr.io/labring-actions/devbox/debian-ssh-12.6:d720f6
+FROM ghcr.io/labring-actions/devbox/debian-ssh-12.6:501781
 
-RUN cd /home/sealos/project && \
+RUN cd /home/devbox/project && \
 rm -rf ./*
 
-COPY /Language/rust/project /home/sealos/project
+COPY /Language/rust/project /home/devbox/project
 
-USER sealos
+USER devbox
 RUN curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y 
 
 USER root
@@ -16,15 +16,15 @@ RUN apt-get update && \
     apt-get install -y pkg-config && \
     apt-get clean && \
     rm -rf /var/lib/apt/lists/* && \
-    echo 'export PATH=/home/sealos/.cargo/bin:$PATH' >> $HOME/.bashrc && \
-    echo '. /home/sealos/.cargo/env' >> $HOME/.bashrc && \ 
-    chown -R sealos:sealos /home/sealos/project && \
-    chmod -R u+rw /home/sealos/project && \
-    chmod -R +x /home/sealos/project/entrypoint.sh
+    echo 'export PATH=/home/devbox/.cargo/bin:$PATH' >> $HOME/.bashrc && \
+    echo '. /home/devbox/.cargo/env' >> $HOME/.bashrc && \ 
+    chown -R devbox:devbox /home/devbox/project && \
+    chmod -R u+rw /home/devbox/project && \
+    chmod -R +x /home/devbox/project/entrypoint.sh
  
-USER sealos
-ENV PATH="/home/sealos/.cargo/bin:${PATH}"
-RUN cd /home/sealos/project && \
+USER devbox
+ENV PATH="/home/devbox/.cargo/bin:${PATH}"
+RUN cd /home/devbox/project && \
     cargo build --release
 
-RUN mkdir -p /home/sealos/.sealos
+RUN mkdir -p /home/devbox/.devbox
