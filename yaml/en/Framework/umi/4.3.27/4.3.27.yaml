@@ -1,12 +1,12 @@
 apiVersion: devbox.sealos.io/v1alpha1
 kind: Runtime
 metadata:
-  name: umi-4-3-27-2024-10-28-0312
+  name: umi-4-3-27-2024-10-28-0326
   namespace: devbox-system
 spec:
   classRef: umi
   config:
-    image: ghcr.io/labring-actions/devbox/umi-4.3.27:c2b1fa
+    image: ghcr.io/labring-actions/devbox/umi-4.3.27:5034c7
     ports:
       - containerPort: 22
         name: devbox-ssh-port
@@ -24,7 +24,7 @@ spec:
       - /home/devbox/project/entrypoint.sh
   description: umi 4.3.27
   version: "4.3.27"
-  runtimeVersion: 2024-10-28-0312
+  runtimeVersion: 2024-10-28-0326
   state: active  
 ---
 apiVersion: devbox.sealos.io/v1alpha1

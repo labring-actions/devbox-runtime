@@ -1,12 +1,12 @@
 apiVersion: devbox.sealos.io/v1alpha1
 kind: Runtime
 metadata:
-  name: astro-4-10-0-2024-10-28-0312
+  name: astro-4-10-0-2024-10-28-0326
   namespace: devbox-system
 spec:
   classRef: astro
   config:
-    image: ghcr.io/labring-actions/devbox/astro-4.10.0:c2b1fa9
+    image: ghcr.io/labring-actions/devbox/astro-4.10.0:5034c7a
     ports:
       - containerPort: 22
         name: devbox-ssh-port
@@ -24,7 +24,7 @@ spec:
       - /home/devbox/project/entrypoint.sh
   description: astro 4.10.0
   version: "4.10.0"
-  runtimeVersion: 2024-10-28-0312
+  runtimeVersion: 2024-10-28-0326
   state: active  
 ---
 apiVersion: devbox.sealos.io/v1alpha1

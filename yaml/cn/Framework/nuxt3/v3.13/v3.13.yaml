@@ -1,12 +1,12 @@
 apiVersion: devbox.sealos.io/v1alpha1
 kind: Runtime
 metadata:
-  name: nuxt3-v3-13-2024-10-28-0312
+  name: nuxt3-v3-13-2024-10-28-0326
   namespace: devbox-system
 spec:
   classRef: nuxt3
   config:
-    image: ghcr.io/labring-actions/devbox/nuxt3-v3.13:c2b1fa9
+    image: ghcr.io/labring-actions/devbox/nuxt3-v3.13:5034c7a
     ports:
       - containerPort: 22
         name: devbox-ssh-port
@@ -24,7 +24,7 @@ spec:
       - /home/devbox/project/entrypoint.sh
   description: nuxt3 v3.13
   version: "v3.13"
-  runtimeVersion: 2024-10-28-0312
+  runtimeVersion: 2024-10-28-0326
   state: active  
 ---
 apiVersion: devbox.sealos.io/v1alpha1
