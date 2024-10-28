@@ -1,14 +1,14 @@
-FROM ghcr.io/labring-actions/devbox/go-1.22.5:8c965d
+FROM ghcr.io/labring-actions/devbox/go-1.22.5:d988c9
 
-RUN rm -r /home/sealos/project 
+RUN rm -r /home/devbox/project 
 
-USER sealos
+USER devbox
 RUN curl -LO https://github.com/gohugoio/hugo/releases/download/v0.135.0/hugo_extended_0.135.0_linux-amd64.tar.gz && \
 tar -xvzf hugo_extended_0.135.0_linux-amd64.tar.gz && \
 sudo mv hugo /usr/local/bin/ && \
 sudo chmod +x /usr/local/bin/hugo && \
 rm README.md && rm LICENSE && rm hugo_extended_0.135.0_linux-amd64.tar.gz && \
-cd /home/sealos && \
+cd /home/devbox && \
 hugo new site project && \
 cd project && \
 git init && \
@@ -16,12 +16,12 @@ git submodule add https://github.com/theNewDynamic/gohugo-theme-ananke.git theme
 echo "theme = 'ananke'" >> hugo.toml && \
 hugo
  
-COPY /Framework/hugo/v0.135.0/project /home/sealos/project
+COPY /Framework/hugo/v0.135.0/project /home/devbox/project
 
 USER root
 
-RUN chown -R sealos:sealos /home/sealos/project && \
-chmod -R u+rw /home/sealos/project  && \
-chmod -R +x /home/sealos/project/entrypoint.sh
+RUN chown -R devbox:devbox /home/devbox/project && \
+chmod -R u+rw /home/devbox/project  && \
+chmod -R +x /home/devbox/project/entrypoint.sh
 
-RUN mkdir /home/sealos/.sealos
+RUN mkdir /home/devbox/.devbox

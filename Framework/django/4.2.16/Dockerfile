@@ -1,18 +1,18 @@
-FROM ghcr.io/labring-actions/devbox/python-3.12:d4059a
+FROM ghcr.io/labring-actions/devbox/python-3.12:669362
 
-RUN cd /home/sealos/project && \
+RUN cd /home/devbox/project && \
 rm -rf ./*
-COPY /Framework/django/4.2.16/project /home/sealos/project
+COPY /Framework/django/4.2.16/project /home/devbox/project
  
-RUN chown -R sealos:sealos /home/sealos/project && \
-    chmod -R u+rw /home/sealos/project && \
-    chmod -R +x /home/sealos/project/entrypoint.sh
+RUN chown -R devbox:devbox /home/devbox/project && \
+    chmod -R u+rw /home/devbox/project && \
+    chmod -R +x /home/devbox/project/entrypoint.sh
 
-USER sealos
-RUN python3 -m venv /home/sealos/project && \
-    cd /home/sealos/project && \
+USER devbox
+RUN python3 -m venv /home/devbox/project && \
+    cd /home/devbox/project && \
     . bin/activate && \
     pip3 install  django==4.2.16 && \
     deactivate 
 
-RUN mkdir /home/sealos/.sealos
+RUN mkdir /home/devbox/.devbox

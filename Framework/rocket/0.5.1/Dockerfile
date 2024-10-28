@@ -1,18 +1,18 @@
-FROM ghcr.io/labring-actions/devbox/rust-1.81.0:8c965d
+FROM ghcr.io/labring-actions/devbox/rust-1.81.0:669362
 
-RUN cd /home/sealos/project && \
+RUN cd /home/devbox/project && \
 rm -rf ./*
 
 USER root
-COPY /Framework/rocket/0.5.1/project /home/sealos/project
+COPY /Framework/rocket/0.5.1/project /home/devbox/project
 
-RUN chown -R sealos:sealos /home/sealos/project && \
-chmod -R u+rw /home/sealos/project && \
-chmod -R +x /home/sealos/project/entrypoint.sh 
+RUN chown -R devbox:devbox /home/devbox/project && \
+chmod -R u+rw /home/devbox/project && \
+chmod -R +x /home/devbox/project/entrypoint.sh 
 
-USER sealos
-RUN cd /home/sealos/project && \
+USER devbox
+RUN cd /home/devbox/project && \
 cargo build --release
 
 USER root
-RUN mkdir -p /home/sealos/.sealos
+RUN mkdir -p /home/devbox/.devbox
