@@ -1,12 +1,12 @@
 apiVersion: devbox.sealos.io/v1alpha1
 kind: Runtime
 metadata:
-  name: spring-boot-3-3-2
+  name: spring-boot-3-3-2-2024-10-28-0256
   namespace: devbox-system
 spec:
   classRef: spring-boot
   config:
-    image: ghcr.io/labring-actions/devbox/spring-boot-3.3.2:d7b9020
+    image: ghcr.io/labring-actions/devbox/spring-boot-3.3.2:fd24912
     ports:
       - containerPort: 22
         name: devbox-ssh-port
@@ -15,15 +15,17 @@ spec:
       - port: 8080
         name: devbox-app-port
         protocol: TCP
-    user: sealos
-    workingDir: /home/sealos/project
+    user: devbox
+    workingDir: /home/devbox/project
     releaseCommand:
       - /bin/bash
       - -c
     releaseArgs:
-      - /home/sealos/project/entrypoint.sh
+      - /home/devbox/project/entrypoint.sh
   description: spring-boot 3.3.2
   version: "3.3.2"
+  runtimeVersion: 2024-10-28-0256
+  state: active  
 ---
 apiVersion: devbox.sealos.io/v1alpha1
 kind: RuntimeClass

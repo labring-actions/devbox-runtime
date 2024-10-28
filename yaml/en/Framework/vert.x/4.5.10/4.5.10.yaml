@@ -1,12 +1,12 @@
 apiVersion: devbox.sealos.io/v1alpha1
 kind: Runtime
 metadata:
-  name: vert.x-4-5-10
+  name: vert.x-4-5-10-2024-10-28-0256
   namespace: devbox-system
 spec:
   classRef: vert.x
   config:
-    image: ghcr.io/labring-actions/devbox/vert.x-4.5.10:120999
+    image: ghcr.io/labring-actions/devbox/vert.x-4.5.10:fd2491
     ports:
       - containerPort: 22
         name: devbox-ssh-port
@@ -15,15 +15,17 @@ spec:
       - port: 8888
         name: devbox-app-port
         protocol: TCP
-    user: sealos
-    workingDir: /home/sealos/project
+    user: devbox
+    workingDir: /home/devbox/project
     releaseCommand:
       - /bin/bash
       - -c
     releaseArgs:
-      - /home/sealos/project/entrypoint.sh
+      - /home/devbox/project/entrypoint.sh
   description: vert.x 4.5.10
   version: "4.5.10"
+  runtimeVersion: 2024-10-28-0256
+  state: active  
 ---
 apiVersion: devbox.sealos.io/v1alpha1
 kind: RuntimeClass
