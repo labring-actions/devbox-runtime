@@ -1,9 +1,7 @@
 FROM ghcr.io/labring-actions/devbox/node.js-20:b3361c
 
-RUN cd /home/devbox/project && \
-rm -rf ./*
-
-RUN mkdir -p /home/devbox/project && \
+RUN rm -r /home/devbox/project && \
+mkdir -p /home/devbox/project && \
 chown -R devbox:devbox /home/devbox/project && \
 chmod -R u+rw /home/devbox/project
 

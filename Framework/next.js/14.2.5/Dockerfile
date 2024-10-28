@@ -9,7 +9,7 @@ chmod -R +x /home/devbox/project/entrypoint.sh
 
 USER devbox
 RUN cd /home/devbox/project && \
-npm config set fetch-retry-maxtimeout 4000000 && \
+npm config set fetch-retry-maxtimeout 10000000 && \
 npm install && \
 pnpm run build
 
