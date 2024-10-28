@@ -1,5 +1,5 @@
 FROM ghcr.io/labring-actions/devbox/node.js-20:b3361c
-
+ 
 RUN cd /home/devbox/project && \
 rm -rf ./*
 
