@@ -1,3 +1,3 @@
 #!/bin/bash
-cd /home/sealos/project
+cd /home/devbox/project
 npm run start

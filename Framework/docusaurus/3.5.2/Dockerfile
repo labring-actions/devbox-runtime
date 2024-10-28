@@ -1,17 +1,16 @@
-FROM ghcr.io/labring-actions/devbox/node.js-20:8c965d
-
-RUN cd /home/sealos/project && \
+FROM ghcr.io/labring-actions/devbox/node.js-20:b3361c
+RUN cd /home/devbox/project && \
 rm -rf ./*
  
-COPY /Framework/docusaurus/3.5.2/project /home/sealos/project
-RUN chown -R sealos:sealos /home/sealos/project && \
-chmod -R u+rw /home/sealos/project && \
-chmod -R +x /home/sealos/project/entrypoint.sh
+COPY /Framework/docusaurus/3.5.2/project /home/devbox/project
+RUN chown -R devbox:devbox /home/devbox/project && \
+chmod -R u+rw /home/devbox/project && \
+chmod -R +x /home/devbox/project/entrypoint.sh
 
-USER sealos
-RUN cd /home/sealos/project && \
+USER devbox
+RUN cd /home/devbox/project && \
 npm install && \
 npx docusaurus build
  
 USER root
-RUN mkdir /home/sealos/.devbox
+RUN mkdir /home/devbox/.devbox

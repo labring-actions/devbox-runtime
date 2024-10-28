@@ -1,21 +1,21 @@
-FROM ghcr.io/labring-actions/devbox/node.js-20:5c2eec
+FROM ghcr.io/labring-actions/devbox/node.js-20:b3361c
 
-RUN cd /home/sealos/project && \
+RUN cd /home/devbox/project && \
 rm -rf ./*
 
-RUN mkdir -p /home/sealos/project && \
-chown -R sealos:sealos /home/sealos/project && \
-chmod -R u+rw /home/sealos/project
+RUN mkdir -p /home/devbox/project && \
+chown -R devbox:devbox /home/devbox/project && \
+chmod -R u+rw /home/devbox/project
 
-USER sealos
+USER devbox
 RUN sudo npm install -g hexo-cli && \
-hexo init /home/sealos/project && \
-cd /home/sealos/project && \
+hexo init /home/devbox/project && \
+cd /home/devbox/project && \
 npm install
-COPY /Framework/hexo/7.3.0/entrypoint.sh /home/sealos/project/entrypoint.sh
+COPY /Framework/hexo/7.3.0/entrypoint.sh /home/devbox/project/entrypoint.sh
 
 USER root
-RUN chown -R sealos:sealos /home/sealos/project/entrypoint.sh && \
-chmod -R 777 /home/sealos/project/entrypoint.sh
+RUN chown -R devbox:devbox /home/devbox/project/entrypoint.sh && \
+chmod -R 777 /home/devbox/project/entrypoint.sh
 
-RUN mkdir /home/sealos/.sealos
+RUN mkdir /home/devbox/.devbox
