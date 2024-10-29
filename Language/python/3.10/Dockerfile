@@ -14,4 +14,4 @@ RUN apt-get update && \
     chmod -R u+rw /home/devbox/project && \
     chmod -R +x /home/devbox/project/entrypoint.sh
  
-RUN mkdir /root/.devbox
+RUN mkdir /home/devbox/.devbox
