@@ -12,7 +12,7 @@ sed -i '$i\
 RUN pip config set global.index-url https://mirrors.tuna.tsinghua.edu.cn/pypi/web/simple' "$TMP_DOCKERFILE"
 
 sed -i '$i\
-USER sealos' "$TMP_DOCKERFILE"
+USER devbox' "$TMP_DOCKERFILE"
 
 sed -i '$i\
 RUN pip config set global.index-url https://mirrors.tuna.tsinghua.edu.cn/pypi/web/simple' "$TMP_DOCKERFILE"
