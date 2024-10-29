@@ -10,3 +10,9 @@ COPY /OS/debian-ssh/debian.sources /etc/apt/sources.list.d/debian.sources' "$TMP
 
 sed -i '$i\
 RUN pip config set global.index-url https://mirrors.tuna.tsinghua.edu.cn/pypi/web/simple' "$TMP_DOCKERFILE"
+
+sed -i '$i\
+USER sealos' "$TMP_DOCKERFILE"
+
+sed -i '$i\
+RUN pip config set global.index-url https://mirrors.tuna.tsinghua.edu.cn/pypi/web/simple' "$TMP_DOCKERFILE"
