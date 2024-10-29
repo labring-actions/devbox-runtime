@@ -17,6 +17,6 @@ RUN apt update && \
     rm -rf /var/lib/apt/lists/* && \
     chmod -R +x /home/devbox/project/entrypoint.sh
  
-COPY /Language/php/php.ini /etc/php/7.4/apache2
+COPY /Language/php/php.ini /etc/php/7.4/apache2/php.ini
 
 RUN mkdir /root/.devbox
