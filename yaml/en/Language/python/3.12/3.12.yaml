@@ -1,12 +1,12 @@
 apiVersion: devbox.sealos.io/v1alpha1
 kind: Runtime
 metadata:
-  name: python-3-12-2024-10-29-0754
+  name: python-3-12-2024-10-29-0800
   namespace: devbox-system
 spec:
   classRef: python
   config:
-    image: ghcr.io/labring-actions/devbox/python-3.12:7d734d
+    image: ghcr.io/labring-actions/devbox/python-3.12:0002ba
     ports:
       - containerPort: 22
         name: devbox-ssh-port
@@ -24,7 +24,7 @@ spec:
       - /home/devbox/project/entrypoint.sh
   description: python 3.12
   version: "3.12"
-  runtimeVersion: 2024-10-29-0754
+  runtimeVersion: 2024-10-29-0800
   state: active  
 ---
 apiVersion: devbox.sealos.io/v1alpha1
