@@ -1,12 +1,12 @@
 apiVersion: devbox.sealos.io/v1alpha1
 kind: Runtime
 metadata:
-  name: php-7-4-2024-10-29-0734
+  name: php-7-4-2024-10-29-0744
   namespace: devbox-system
 spec:
   classRef: php
   config:
-    image: ghcr.io/labring-actions/devbox/php-7.4:f09a43a
+    image: ghcr.io/labring-actions/devbox/php-7.4:e340e93
     ports:
       - containerPort: 22
         name: devbox-ssh-port
@@ -24,7 +24,7 @@ spec:
       - /home/devbox/project/entrypoint.sh
   description: php 7.4
   version: "7.4"
-  runtimeVersion: 2024-10-29-0734
+  runtimeVersion: 2024-10-29-0744
   state: active  
 ---
 apiVersion: devbox.sealos.io/v1alpha1
