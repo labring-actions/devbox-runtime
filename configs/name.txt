@@ -32,3 +32,5 @@ angular=angular
 astro=astro
 svelte=SvelteKit
 ubuntu=ubuntu
+cpp=C++
+c=c

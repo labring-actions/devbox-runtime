@@ -32,3 +32,5 @@ angular=4200
 astro=4321
 svelte=5173
 ubuntu=8080
+cpp=8080
+c=8080
