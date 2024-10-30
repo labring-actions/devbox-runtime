@@ -31,3 +31,4 @@ umi=UmiJS
 angular=angular
 astro=astro
 svelte=SvelteKit
+ubuntu=ubuntu
