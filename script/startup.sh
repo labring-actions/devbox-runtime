@@ -3,7 +3,7 @@
 # Define the password file location
 PASSWORD_FILE="/usr/start/user_password.txt"
 
-if [ ! -z "${RUNTIME_INITIAL}" ]; then
+if [ ! -z "${SEALOS_DEVBOX_INIT}" ] && [ "${SEALOS_DEVBOX_INIT}" == "true" ]; then
     if [ -d "/home/devbox/.ssh" ]; then
         cd /home/devbox/.ssh
         rm -rf ./*
