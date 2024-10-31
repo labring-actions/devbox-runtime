@@ -1,12 +1,12 @@
 apiVersion: devbox.sealos.io/v1alpha1
 kind: Runtime
 metadata:
-  name: debian-ssh-12-6-2024-10-23-0934
+  name: debian-ssh-12-6-2024-10-31-0900
   namespace: devbox-system
 spec:
   classRef: debian-ssh
   config:
-    image: ghcr.io/labring-actions/devbox/debian-ssh-12.6:5017817
+    image: ghcr.io/labring-actions/devbox/debian-ssh-12.6:f9788c7
     ports:
       - containerPort: 22
         name: devbox-ssh-port
@@ -24,7 +24,7 @@ spec:
       - /home/devbox/project/entrypoint.sh
   description: debian-ssh 12.6
   version: "12.6"
-  runtimeVersion: 2024-10-23-0934
+  runtimeVersion: 2024-10-31-0900
   state: active  
 ---
 apiVersion: devbox.sealos.io/v1alpha1
