@@ -29,7 +29,7 @@ USER devbox
 COPY /OS/debian-ssh/project /home/devbox/project
 RUN sudo chown -R devbox:devbox /home/devbox/project && \
     sudo chmod -R 777 /home/devbox/project
- 
+
 USER root
 
 ENTRYPOINT ["/usr/bin/dumb-init", "--"]
