@@ -3,6 +3,16 @@
 # Define the password file location
 PASSWORD_FILE="/usr/start/user_password.txt"
 
+if [ ! -z "${RUNTIME_INITIAL}" ]; then
+    if [ -d "/home/devbox/.ssh" ]; then
+        cd /home/devbox/.ssh
+        rm -rf ./*
+    fi
+    if [ -f "/usr/start/user_password.txt" ]; then
+        rm /usr/start/user_password.txt
+    fi
+fi
+
 # Check if the password file exists
 if [ ! -f "${PASSWORD_FILE}" ]; then
     # If the password file doesn't exist, check if USER_PASSWORD is already set

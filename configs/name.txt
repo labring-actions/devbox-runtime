@@ -34,3 +34,4 @@ svelte=SvelteKit
 ubuntu=ubuntu
 cpp=C++
 c=c
+quarkus=quarkus

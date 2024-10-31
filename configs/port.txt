@@ -34,3 +34,4 @@ svelte=5173
 ubuntu=8080
 cpp=8080
 c=8080
+quarkus=8080

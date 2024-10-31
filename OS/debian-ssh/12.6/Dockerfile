@@ -6,6 +6,7 @@ RUN chmod +x /usr/start/startup.sh && \
     apt-get update && \
     apt-get install -y \
     dumb-init \
+    wget \
     openssh-client \
     openssh-server && \
     apt-get clean && \
