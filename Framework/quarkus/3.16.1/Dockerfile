@@ -11,7 +11,9 @@ chmod -R +x /home/devbox/project/entrypoint.sh
 
 USER devbox
 RUN cd /home/devbox/project && \
-    ./mvnw package
+    curl -Ls https://sh.jbang.dev | bash -s - trust add https://repo1.maven.org/maven2/io/quarkus/quarkus-cli/ --global && \
+    curl -Ls https://sh.jbang.dev | bash -s - app install --fresh --force quarkus@quarkusio --global && \
+    ./mvnw package 
 
 USER root
 RUN mkdir /home/devbox/.devbox
