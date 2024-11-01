@@ -1,12 +1,12 @@
 apiVersion: devbox.sealos.io/v1alpha1
 kind: Runtime
 metadata:
-  name: rocket-0-5-1-2024-10-28-0256
+  name: rocket-0-5-1-2024-11-01-1412
   namespace: devbox-system
 spec:
   classRef: rocket
   config:
-    image: ghcr.io/labring-actions/devbox/rocket-0.5.1:fd2491
+    image: ghcr.io/labring-actions/devbox/rocket-0.5.1:542999
     ports:
       - containerPort: 22
         name: devbox-ssh-port
@@ -24,7 +24,7 @@ spec:
       - /home/devbox/project/entrypoint.sh
   description: rocket 0.5.1
   version: "0.5.1"
-  runtimeVersion: 2024-10-28-0256
+  runtimeVersion: 2024-11-01-1412
   state: active  
 ---
 apiVersion: devbox.sealos.io/v1alpha1
