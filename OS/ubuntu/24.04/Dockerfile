@@ -43,8 +43,10 @@ RUN chmod +x /usr/start/startup.sh && \
 USER devbox
 COPY /OS/debian-ssh/project /home/devbox/project
 RUN sudo chown -R devbox:devbox /home/devbox/project && \
-    sudo chmod -R 777 /home/devbox/project
- 
+    sudo chmod -R 777 /home/devbox/project && \
+    sudo chmod -R +x /home/devbox/project/entrypoint.sh
+
+
 USER root
 
 ENTRYPOINT ["/usr/bin/dumb-init", "--"]
