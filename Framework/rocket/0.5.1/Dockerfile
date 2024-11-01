@@ -2,7 +2,7 @@ FROM ghcr.io/labring-actions/devbox/rust-1.81.0:669362
 
 RUN cd /home/devbox/project && \
 rm -rf ./*
-
+ 
 USER root
 COPY /Framework/rocket/0.5.1/project /home/devbox/project
 

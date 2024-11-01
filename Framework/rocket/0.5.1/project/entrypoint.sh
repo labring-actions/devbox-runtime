@@ -1,3 +1,3 @@
 #!/bin/bash
-cd /home/sealos/project/target/release
+cd /home/devbox/project/target/release
 ./hello
