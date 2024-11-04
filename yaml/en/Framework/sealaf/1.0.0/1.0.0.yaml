@@ -1,12 +1,12 @@
 apiVersion: devbox.sealos.io/v1alpha1
 kind: Runtime
 metadata:
-  name: sealaf-1-0-0-2024-11-04-0339
+  name: sealaf-1-0-0-2024-11-04-0344
   namespace: devbox-system
 spec:
   classRef: sealaf
   config:
-    image: ghcr.io/labring-actions/devbox/sealaf-1.0.0:81ef09
+    image: ghcr.io/labring-actions/devbox/sealaf-1.0.0:e86eb8
     ports:
       - containerPort: 22
         name: devbox-ssh-port
@@ -24,7 +24,7 @@ spec:
       - /home/devbox/project/entrypoint.sh
   description: sealaf 1.0.0
   version: "1.0.0"
-  runtimeVersion: 2024-11-04-0339
+  runtimeVersion: 2024-11-04-0344
   state: active  
 ---
 apiVersion: devbox.sealos.io/v1alpha1
