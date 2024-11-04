@@ -36,3 +36,4 @@ cpp=C++
 c=c
 quarkus=quarkus
 nginx=nginx
+sealaf=sealaf
