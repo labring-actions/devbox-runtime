@@ -1,12 +1,12 @@
 apiVersion: devbox.sealos.io/v1alpha1
 kind: Runtime
 metadata:
-  name: nginx-1-22-1-2024-11-01-0400
+  name: nginx-1-22-1-2024-11-05-0533
   namespace: devbox-system
 spec:
   classRef: nginx
   config:
-    image: ghcr.io/labring-actions/devbox/nginx-1.22.1:b0567d
+    image: ghcr.io/labring-actions/devbox/nginx-1.22.1:f8d3c1
     ports:
       - containerPort: 22
         name: devbox-ssh-port
@@ -24,7 +24,7 @@ spec:
       - /home/devbox/project/entrypoint.sh
   description: nginx 1.22.1
   version: "1.22.1"
-  runtimeVersion: 2024-11-01-0400
+  runtimeVersion: 2024-11-05-0533
   state: active  
 ---
 apiVersion: devbox.sealos.io/v1alpha1
