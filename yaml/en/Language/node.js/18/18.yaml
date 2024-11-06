@@ -1,12 +1,12 @@
 apiVersion: devbox.sealos.io/v1alpha1
 kind: Runtime
 metadata:
-  name: node.js-18-2024-10-25-0711
+  name: node.js-18-2024-11-06-0717
   namespace: devbox-system
 spec:
   classRef: node.js
   config:
-    image: ghcr.io/labring-actions/devbox/node.js-18:b3361c
+    image: ghcr.io/labring-actions/devbox/node.js-18:d39c0f
     ports:
       - containerPort: 22
         name: devbox-ssh-port
@@ -24,7 +24,7 @@ spec:
       - /home/devbox/project/entrypoint.sh
   description: node.js 18
   version: "18"
-  runtimeVersion: 2024-10-25-0711
+  runtimeVersion: 2024-11-06-0717
   state: active  
 ---
 apiVersion: devbox.sealos.io/v1alpha1
