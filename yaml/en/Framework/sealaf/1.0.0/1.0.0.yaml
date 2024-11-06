@@ -32,6 +32,6 @@ kind: RuntimeClass
 metadata:
   name: sealaf
 spec:
-  title: "sealaf"
+  title: "Laf"
   kind: Framework
   description: sealaf
