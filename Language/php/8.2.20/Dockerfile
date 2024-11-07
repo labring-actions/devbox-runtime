@@ -4,7 +4,7 @@ RUN cd /home/devbox/project && \
 rm -rf ./*
 
 COPY  /Language/php/project /home/devbox/project
- 
+
 RUN apt update && \
     apt install -y apt-transport-https lsb-release ca-certificates wget  && \
     wget -O /etc/apt/trusted.gpg.d/php.gpg https://packages.sury.org/php/apt.gpg && \
