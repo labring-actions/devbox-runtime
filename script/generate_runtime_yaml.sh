@@ -19,6 +19,11 @@ while IFS='=' read -r key value; do
     PORT_MAP["$key"]="$value"
 done < "configs/port.txt" 
 
+declare -A VERSION_MAP
+while IFS='=' read -r key value; do
+    VERSION_MAP["$key"]="$value"
+done < "configs/version.txt" 
+
 for i in "${!DIFF_OUTPUT_ARRAY[@]}"; do
   DOCKERFILE_PATH=${DIFF_OUTPUT_ARRAY[$i]}
   IFS='/' read -ra ADDR <<< $DOCKERFILE_PATH
@@ -56,6 +61,8 @@ kind: Runtime
 metadata:
   name: ${ADDR[1]}-${PARENT_DIR//./-}-$(date +"%Y-%m-%d-%H%M")
   namespace: devbox-system
+  annotations:
+    devbox.sealos.io/defaultVersion: $( [ "$PARENT_DIR" == "${VERSION_MAP[${ADDR[1]}]}" ] && echo "true" || echo "false" )
 spec:
   classRef: ${ADDR[1]}
   config:
@@ -96,6 +103,8 @@ kind: Runtime
 metadata:
   name: ${ADDR[1]}-${PARENT_DIR//./-}-$(date +"%Y-%m-%d-%H%M")
   namespace: devbox-system
+  annotations:
+    devbox.sealos.io/defaultVersion: $( [ "$PARENT_DIR" == "${VERSION_MAP[${ADDR[1]}]}" ] && echo "true" || echo "false" )
 spec:
   classRef: ${ADDR[1]}
   config:
