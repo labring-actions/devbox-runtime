@@ -62,7 +62,7 @@ metadata:
   name: ${ADDR[1]}-${PARENT_DIR//./-}-$(date +"%Y-%m-%d-%H%M")
   namespace: devbox-system
   annotations:
-    devbox.sealos.io/defaultVersion: $( [ "$PARENT_DIR" == "${VERSION_MAP[${ADDR[1]}]}" ] && echo "true" || echo "false" )
+    devbox.sealos.io/defaultVersion: "$( [ "$PARENT_DIR" == "${VERSION_MAP[${ADDR[1]}]}" ] && echo "true" || echo "false" )"
 spec:
   classRef: ${ADDR[1]}
   config:
@@ -104,7 +104,7 @@ metadata:
   name: ${ADDR[1]}-${PARENT_DIR//./-}-$(date +"%Y-%m-%d-%H%M")
   namespace: devbox-system
   annotations:
-    devbox.sealos.io/defaultVersion: $( [ "$PARENT_DIR" == "${VERSION_MAP[${ADDR[1]}]}" ] && echo "true" || echo "false" )
+    devbox.sealos.io/defaultVersion: "$( [ "$PARENT_DIR" == "${VERSION_MAP[${ADDR[1]}]}" ] && echo "true" || echo "false" )"
 spec:
   classRef: ${ADDR[1]}
   config:
