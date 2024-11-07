@@ -1,14 +1,14 @@
 apiVersion: devbox.sealos.io/v1alpha1
 kind: Runtime
 metadata:
-  name: php-8-2-20-2024-11-07-0306
+  name: php-8-2-20-2024-11-07-0320
   namespace: devbox-system
   annotations:
-    devbox.sealos.io/defaultVersion: true
+    devbox.sealos.io/defaultVersion: "true"
 spec:
   classRef: php
   config:
-    image: ghcr.io/labring-actions/devbox/php-8.2.20:ec015f
+    image: ghcr.io/labring-actions/devbox/php-8.2.20:477761
     ports:
       - containerPort: 22
         name: devbox-ssh-port
@@ -26,7 +26,7 @@ spec:
       - /home/devbox/project/entrypoint.sh
   description: php 8.2.20
   version: "8.2.20"
-  runtimeVersion: 2024-11-07-0306
+  runtimeVersion: 2024-11-07-0320
   state: active  
 ---
 apiVersion: devbox.sealos.io/v1alpha1
