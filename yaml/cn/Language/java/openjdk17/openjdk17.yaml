@@ -1,14 +1,14 @@
 apiVersion: devbox.sealos.io/v1alpha1
 kind: Runtime
 metadata:
-  name: java-openjdk17-2024-11-12-0310
+  name: java-openjdk17-2024-11-12-0651
   namespace: devbox-system
   annotations:
     devbox.sealos.io/defaultVersion: "false"
 spec:
   classRef: java
   config:
-    image: ghcr.io/labring-actions/devbox/java-openjdk17:da7a93f
+    image: ghcr.io/labring-actions/devbox/java-openjdk17:13aacd8
     ports:
       - containerPort: 22
         name: devbox-ssh-port
@@ -26,7 +26,7 @@ spec:
       - /home/devbox/project/entrypoint.sh
   description: java openjdk17
   version: "openjdk17"
-  runtimeVersion: 2024-11-12-0310
+  runtimeVersion: 2024-11-12-0651
   state: active  
 ---
 apiVersion: devbox.sealos.io/v1alpha1

@@ -1,12 +1,14 @@
 apiVersion: devbox.sealos.io/v1alpha1
 kind: Runtime
 metadata:
-  name: rust-1-81-0-2024-10-25-0719
+  name: rust-1-81-0-2024-11-12-0651
   namespace: devbox-system
+  annotations:
+    devbox.sealos.io/defaultVersion: "false"
 spec:
   classRef: rust
   config:
-    image: ghcr.io/labring-actions/devbox/rust-1.81.0:669362
+    image: ghcr.io/labring-actions/devbox/rust-1.81.0:13aacd
     ports:
       - containerPort: 22
         name: devbox-ssh-port
@@ -24,7 +26,7 @@ spec:
       - /home/devbox/project/entrypoint.sh
   description: rust 1.81.0
   version: "1.81.0"
-  runtimeVersion: 2024-10-25-0719
+  runtimeVersion: 2024-11-12-0651
   state: active  
 ---
 apiVersion: devbox.sealos.io/v1alpha1
