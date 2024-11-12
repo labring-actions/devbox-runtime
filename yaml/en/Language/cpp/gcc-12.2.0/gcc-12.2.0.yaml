@@ -1,12 +1,14 @@
 apiVersion: devbox.sealos.io/v1alpha1
 kind: Runtime
 metadata:
-  name: cpp-gcc-12-2-0-2024-11-01-1132
+  name: cpp-gcc-12-2-0-2024-11-12-0310
   namespace: devbox-system
+  annotations:
+    devbox.sealos.io/defaultVersion: "false"
 spec:
   classRef: cpp
   config:
-    image: ghcr.io/labring-actions/devbox/cpp-gcc-12.2.0:de143e
+    image: ghcr.io/labring-actions/devbox/cpp-gcc-12.2.0:da7a93
     ports:
       - containerPort: 22
         name: devbox-ssh-port
@@ -24,7 +26,7 @@ spec:
       - /home/devbox/project/entrypoint.sh
   description: cpp gcc-12.2.0
   version: "gcc-12.2.0"
-  runtimeVersion: 2024-11-01-1132
+  runtimeVersion: 2024-11-12-0310
   state: active  
 ---
 apiVersion: devbox.sealos.io/v1alpha1
