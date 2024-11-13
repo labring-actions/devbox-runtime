@@ -1,4 +1,4 @@
-FROM ghcr.io/labring-actions/devbox/go-1.22.5:d988c9
+FROM ghcr.io/labring-actions/devbox/go-1.22.5:13aacd
 
 RUN rm -r /home/devbox/project 
 

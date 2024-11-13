@@ -1,4 +1,4 @@
-FROM ghcr.io/labring-actions/devbox/java-openjdk17:d988c9
+FROM ghcr.io/labring-actions/devbox/java-openjdk17:13aacd
 
 RUN cd /home/devbox/project && \
 rm -rf ./*
