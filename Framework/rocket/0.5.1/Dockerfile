@@ -13,6 +13,6 @@ chmod -R +x /home/devbox/project/entrypoint.sh
 USER devbox
 RUN cd /home/devbox/project && \
 cargo build --release
-
+ 
 USER root
 RUN mkdir -p /home/devbox/.devbox

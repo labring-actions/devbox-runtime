@@ -14,4 +14,4 @@ RUN cd /home/devbox/project && \
     mvn install
 
 USER root
-RUN mkdir /home/devbox/.devbox
+RUN mkdir -p /home/devbox/.devbox

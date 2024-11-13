@@ -16,4 +16,4 @@ RUN python3 -m venv /home/devbox/project && \
     deactivate 
 
 USER root
-RUN mkdir /home/devbox/.devbox
+RUN mkdir -p /home/devbox/.devbox

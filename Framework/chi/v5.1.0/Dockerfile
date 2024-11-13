@@ -15,4 +15,4 @@ go mod tidy && \
 go build -o main main.go
 
 USER root
-RUN mkdir /home/devbox/.devbox
+RUN mkdir -p /home/devbox/.devbox

@@ -15,4 +15,4 @@ RUN python3 -m venv /home/devbox/project && \
     pip3 install  django==4.2.16 && \
     deactivate 
 
-RUN mkdir /home/devbox/.devbox
+RUN mkdir -p /home/devbox/.devbox
