@@ -25,5 +25,6 @@ RUN apt-get update && \
     chown -R devbox:devbox /home/devbox/project && \
     chmod -R u+rw /home/devbox/project && \
     chmod -R +x /home/devbox/project/entrypoint.sh
- 
-RUN mkdir /root/.devbox
+USER devbox
+
+RUN mkdir -p /home/devbox/.devbox
