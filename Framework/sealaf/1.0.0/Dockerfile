@@ -1,5 +1,5 @@
-FROM ghcr.io/labring-actions/devbox/node.js-22:b3361c
-# 删除nodejs中的旧项目
+FROM ghcr.io/labring-actions/devbox/node.js-20:1323f9
+USER root
 RUN cd /home/devbox/project && \
 rm -rf ./*
 
@@ -15,4 +15,4 @@ pnpm install && \
 pnpm build
 
 USER root
-RUN mkdir /home/devbox/.devbox
+RUN mkdir -p /home/devbox/.devbox

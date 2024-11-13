@@ -1,5 +1,6 @@
-FROM ghcr.io/labring-actions/devbox/node.js-20:b3361c
+FROM ghcr.io/labring-actions/devbox/node.js-20:1323f9
 
+USER root
 RUN rm -r /home/devbox/project && \
 mkdir -p /home/devbox/project && \
 chown -R devbox:devbox /home/devbox/project && \
@@ -16,4 +17,4 @@ USER root
 RUN chown -R devbox:devbox /home/devbox/project/entrypoint.sh && \
 chmod -R 777 /home/devbox/project/entrypoint.sh
 
-RUN mkdir /home/devbox/.devbox
+RUN mkdir -p /home/devbox/.devbox

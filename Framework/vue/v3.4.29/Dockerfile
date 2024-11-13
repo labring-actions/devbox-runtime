@@ -1,5 +1,5 @@
-FROM ghcr.io/labring-actions/devbox/node.js-20:b3361c
-
+FROM ghcr.io/labring-actions/devbox/node.js-20:1323f9
+USER root
 RUN cd /home/devbox/project && \
 rm -rf ./*
 
@@ -14,4 +14,4 @@ npm install && \
 npm run build
  
 USER root
-RUN mkdir /home/devbox/.devbox
+RUN mkdir -p /home/devbox/.devbox
