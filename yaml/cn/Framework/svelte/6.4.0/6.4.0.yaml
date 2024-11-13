@@ -1,12 +1,14 @@
 apiVersion: devbox.sealos.io/v1alpha1
 kind: Runtime
 metadata:
-  name: svelte-6-4-0-2024-10-28-0326
+  name: svelte-6-4-0-2024-11-13-0835
   namespace: devbox-system
+  annotations:
+    devbox.sealos.io/defaultVersion: "false"
 spec:
   classRef: svelte
   config:
-    image: ghcr.io/labring-actions/devbox/svelte-6.4.0:5034c7a
+    image: ghcr.io/labring-actions/devbox/svelte-6.4.0:3ac184e
     ports:
       - containerPort: 22
         name: devbox-ssh-port
@@ -24,7 +26,7 @@ spec:
       - /home/devbox/project/entrypoint.sh
   description: svelte 6.4.0
   version: "6.4.0"
-  runtimeVersion: 2024-10-28-0326
+  runtimeVersion: 2024-11-13-0835
   state: active  
 ---
 apiVersion: devbox.sealos.io/v1alpha1
