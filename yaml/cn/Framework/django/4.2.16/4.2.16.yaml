@@ -1,12 +1,14 @@
 apiVersion: devbox.sealos.io/v1alpha1
 kind: Runtime
 metadata:
-  name: django-4-2-16-2024-10-28-0256
+  name: django-4-2-16-2024-11-13-0721
   namespace: devbox-system
+  annotations:
+    devbox.sealos.io/defaultVersion: "false"
 spec:
   classRef: django
   config:
-    image: ghcr.io/labring-actions/devbox/django-4.2.16:fd24912
+    image: ghcr.io/labring-actions/devbox/django-4.2.16:5365cd6
     ports:
       - containerPort: 22
         name: devbox-ssh-port
@@ -24,7 +26,7 @@ spec:
       - /home/devbox/project/entrypoint.sh
   description: django 4.2.16
   version: "4.2.16"
-  runtimeVersion: 2024-10-28-0256
+  runtimeVersion: 2024-11-13-0721
   state: active  
 ---
 apiVersion: devbox.sealos.io/v1alpha1

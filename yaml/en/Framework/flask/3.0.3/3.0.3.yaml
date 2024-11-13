@@ -1,12 +1,14 @@
 apiVersion: devbox.sealos.io/v1alpha1
 kind: Runtime
 metadata:
-  name: flask-3-0-3-2024-10-28-0256
+  name: flask-3-0-3-2024-11-13-0721
   namespace: devbox-system
+  annotations:
+    devbox.sealos.io/defaultVersion: "false"
 spec:
   classRef: flask
   config:
-    image: ghcr.io/labring-actions/devbox/flask-3.0.3:fd2491
+    image: ghcr.io/labring-actions/devbox/flask-3.0.3:5365cd
     ports:
       - containerPort: 22
         name: devbox-ssh-port
@@ -24,7 +26,7 @@ spec:
       - /home/devbox/project/entrypoint.sh
   description: flask 3.0.3
   version: "3.0.3"
-  runtimeVersion: 2024-10-28-0256
+  runtimeVersion: 2024-11-13-0721
   state: active  
 ---
 apiVersion: devbox.sealos.io/v1alpha1

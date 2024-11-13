@@ -1,12 +1,14 @@
 apiVersion: devbox.sealos.io/v1alpha1
 kind: Runtime
 metadata:
-  name: iris-v12-2-11-2024-10-25-1000
+  name: iris-v12-2-11-2024-11-13-0721
   namespace: devbox-system
+  annotations:
+    devbox.sealos.io/defaultVersion: "false"
 spec:
   classRef: iris
   config:
-    image: ghcr.io/labring-actions/devbox/iris-v12.2.11:1a7252e
+    image: ghcr.io/labring-actions/devbox/iris-v12.2.11:5365cd6
     ports:
       - containerPort: 22
         name: devbox-ssh-port
@@ -24,7 +26,7 @@ spec:
       - /home/devbox/project/entrypoint.sh
   description: iris v12.2.11
   version: "v12.2.11"
-  runtimeVersion: 2024-10-25-1000
+  runtimeVersion: 2024-11-13-0721
   state: active  
 ---
 apiVersion: devbox.sealos.io/v1alpha1
