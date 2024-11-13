@@ -1,14 +1,14 @@
 apiVersion: devbox.sealos.io/v1alpha1
 kind: Runtime
 metadata:
-  name: gin-v1-10-0-2024-11-13-0721
+  name: gin-v1-10-0-2024-11-13-0740
   namespace: devbox-system
   annotations:
     devbox.sealos.io/defaultVersion: "false"
 spec:
   classRef: gin
   config:
-    image: ghcr.io/labring-actions/devbox/gin-v1.10.0:5365cd6
+    image: ghcr.io/labring-actions/devbox/gin-v1.10.0:a9e4136
     ports:
       - containerPort: 22
         name: devbox-ssh-port
@@ -26,7 +26,7 @@ spec:
       - /home/devbox/project/entrypoint.sh
   description: gin v1.10.0
   version: "v1.10.0"
-  runtimeVersion: 2024-11-13-0721
+  runtimeVersion: 2024-11-13-0740
   state: active  
 ---
 apiVersion: devbox.sealos.io/v1alpha1
