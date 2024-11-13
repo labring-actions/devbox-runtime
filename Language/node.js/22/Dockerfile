@@ -1,10 +1,20 @@
-FROM ghcr.io/labring-actions/devbox/debian-ssh-12.6:501781
+FROM ghcr.io/labring-actions/devbox/debian-ssh-12.6:547a61
 
 RUN cd /home/devbox/project && \
 rm -rf ./*
 
+USER devbox
+ENV NODE_VERSION 22
+ENV NVM_DIR /home/devbox/.nvm
+RUN curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.40.0/install.sh | bash \
+    && . $NVM_DIR/nvm.sh \
+    && nvm install $NODE_VERSION \
+    && nvm alias default $NODE_VERSION \
+    && nvm use default
+
+USER root
 COPY /Language/node.js/project /home/devbox/project
- 
+
 RUN apt-get update && \
     apt-get install -y curl && \
     curl -sL https://deb.nodesource.com/setup_22.x | bash - && \
