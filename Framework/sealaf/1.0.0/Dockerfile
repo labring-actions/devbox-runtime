@@ -4,7 +4,7 @@ RUN cd /home/devbox/project && \
 rm -rf ./*
 
 COPY /Framework/sealaf/1.0.0/project /home/devbox/project
- 
+
 RUN chown -R devbox:devbox /home/devbox/project && \
 chmod -R u+rw /home/devbox/project && \
 chmod -R +x /home/devbox/project/entrypoint.sh
