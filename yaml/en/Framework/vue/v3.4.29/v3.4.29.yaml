@@ -1,14 +1,14 @@
 apiVersion: devbox.sealos.io/v1alpha1
 kind: Runtime
 metadata:
-  name: vue-v3-4-29-2024-11-13-0835
+  name: vue-v3-4-29-2024-11-18-0957
   namespace: devbox-system
   annotations:
     devbox.sealos.io/defaultVersion: "false"
 spec:
   classRef: vue
   config:
-    image: ghcr.io/labring-actions/devbox/vue-v3.4.29:3ac184
+    image: ghcr.io/labring-actions/devbox/vue-v3.4.29:c71eb2
     ports:
       - containerPort: 22
         name: devbox-ssh-port
@@ -26,7 +26,7 @@ spec:
       - /home/devbox/project/entrypoint.sh
   description: vue v3.4.29
   version: "v3.4.29"
-  runtimeVersion: 2024-11-13-0835
+  runtimeVersion: 2024-11-18-0957
   state: active  
 ---
 apiVersion: devbox.sealos.io/v1alpha1
