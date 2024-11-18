@@ -15,4 +15,4 @@ sed -i '$i\
 USER devbox' "$TMP_DOCKERFILE"
 
 sed -i '$i\
-RUN npm config set -g registry https://registry.npmmirror.com' "$TMP_DOCKERFILE"
+RUN npm config set registry https://registry.npmmirror.com' "$TMP_DOCKERFILE"
