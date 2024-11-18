@@ -1,4 +1,4 @@
-FROM ghcr.io/labring-actions/devbox/node.js-20:1323f9
+FROM ghcr.io/labring-actions/devbox/node.js-18:a49ab6
 
 USER root
 RUN rm -r /home/devbox/project && \
@@ -16,5 +16,6 @@ COPY /Framework/hexo/7.3.0/entrypoint.sh /home/devbox/project/entrypoint.sh
 USER root
 RUN chown -R devbox:devbox /home/devbox/project/entrypoint.sh && \
 chmod -R 777 /home/devbox/project/entrypoint.sh
+USER devbox
  
 RUN mkdir -p /home/devbox/.devbox
