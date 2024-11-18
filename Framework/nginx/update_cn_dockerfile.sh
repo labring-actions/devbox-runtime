@@ -9,4 +9,4 @@ sed -i '$i\
 COPY /OS/debian-ssh/debian.sources /etc/apt/sources.list.d/debian.sources' "$TMP_DOCKERFILE"
 
 sed -i '$i\
-RUN npm config set registry https://registry.npmmirror.com' "$TMP_DOCKERFILE"
+RUN npm config set -g registry https://registry.npmmirror.com' "$TMP_DOCKERFILE"
