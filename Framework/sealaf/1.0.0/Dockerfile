@@ -1,4 +1,4 @@
-FROM ghcr.io/labring-actions/devbox/node.js-20:1323f9
+FROM ghcr.io/labring-actions/devbox/node.js-18:a49ab6
 USER root
 RUN cd /home/devbox/project && \
 rm -rf ./*
@@ -14,5 +14,5 @@ RUN cd /home/devbox/project && \
 pnpm install && \
 pnpm build
  
-USER root
+
 RUN mkdir -p /home/devbox/.devbox
