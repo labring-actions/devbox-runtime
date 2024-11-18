@@ -16,5 +16,5 @@ COPY /Framework/hexo/7.3.0/entrypoint.sh /home/devbox/project/entrypoint.sh
 USER root
 RUN chown -R devbox:devbox /home/devbox/project/entrypoint.sh && \
 chmod -R 777 /home/devbox/project/entrypoint.sh
- 
+
 RUN mkdir -p /home/devbox/.devbox

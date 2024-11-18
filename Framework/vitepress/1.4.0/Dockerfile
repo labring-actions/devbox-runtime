@@ -2,7 +2,7 @@ FROM ghcr.io/labring-actions/devbox/node.js-20:1323f9
 USER root
 RUN cd /home/devbox/project && \
 rm -rf ./*
-
+ 
 COPY /Framework/vitepress/1.4.0/project /home/devbox/project
 RUN chown -R devbox:devbox /home/devbox/project && \
 chmod -R u+rw /home/devbox/project && \
