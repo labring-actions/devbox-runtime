@@ -1,14 +1,14 @@
 apiVersion: devbox.sealos.io/v1alpha1
 kind: Runtime
 metadata:
-  name: hexo-7-3-0-2024-11-18-0836
+  name: hexo-7-3-0-2024-11-18-0842
   namespace: devbox-system
   annotations:
     devbox.sealos.io/defaultVersion: "false"
 spec:
   classRef: hexo
   config:
-    image: ghcr.io/labring-actions/devbox/hexo-7.3.0:62f0cf
+    image: ghcr.io/labring-actions/devbox/hexo-7.3.0:6308ba
     ports:
       - containerPort: 22
         name: devbox-ssh-port
@@ -26,7 +26,7 @@ spec:
       - /home/devbox/project/entrypoint.sh
   description: hexo 7.3.0
   version: "7.3.0"
-  runtimeVersion: 2024-11-18-0836
+  runtimeVersion: 2024-11-18-0842
   state: active  
 ---
 apiVersion: devbox.sealos.io/v1alpha1
