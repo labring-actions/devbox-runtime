@@ -1,4 +1,4 @@
-FROM ghcr.io/labring-actions/devbox/node.js-20:219d11
+FROM ghcr.io/labring-actions/devbox/node.js-22:219d11
 USER root
 RUN cd /home/devbox/project && \
 rm -rf ./*
@@ -10,8 +10,7 @@ chmod -R +x /home/devbox/project/entrypoint.sh
 
 USER devbox
 RUN cd /home/devbox/project && \
-npm install && \
-npm run build
+npm install 
 
 
 RUN mkdir -p /home/devbox/.devbox
