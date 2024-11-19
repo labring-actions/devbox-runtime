@@ -1,14 +1,14 @@
 apiVersion: devbox.sealos.io/v1alpha1
 kind: Runtime
 metadata:
-  name: docusaurus-3-5-2-2024-11-18-0957
+  name: docusaurus-3-5-2-2024-11-19-0839
   namespace: devbox-system
   annotations:
     devbox.sealos.io/defaultVersion: "false"
 spec:
   classRef: docusaurus
   config:
-    image: ghcr.io/labring-actions/devbox/docusaurus-3.5.2:c71eb28
+    image: ghcr.io/labring-actions/devbox/docusaurus-3.5.2:22f026b
     ports:
       - containerPort: 22
         name: devbox-ssh-port
@@ -26,7 +26,7 @@ spec:
       - /home/devbox/project/entrypoint.sh
   description: docusaurus 3.5.2
   version: "3.5.2"
-  runtimeVersion: 2024-11-18-0957
+  runtimeVersion: 2024-11-19-0839
   state: active  
 ---
 apiVersion: devbox.sealos.io/v1alpha1
