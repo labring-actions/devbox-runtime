@@ -158,11 +158,6 @@
             "name": "3.16.1",
             "image": "ghcr.io/labring-actions/devbox/quarkus-3.16.1:a9e413",
             "config": "{ports:\n  [ {containerPort: 22,\n  name: devbox-ssh-port,\n protocol: TCP}]\n  appPorts:\n  [{port: 8080,\n  name: devbox-app-port,\n  protocol: TCP}]\n  user: devbox,\n  workingDir: /home/devbox/project,\n  releaseCommand:\n    [/bin/bash\n , -c]\n  releaseArgs:\n   [/home/devbox/project/entrypoint.sh]}"
-          },
-          {
-            "name": "docker",
-            "image": "ghcr.io/labring-actions/devbox/quarkus-docker:90b07c",
-            "config": "{ports:\n  [ {containerPort: 22,\n  name: devbox-ssh-port,\n protocol: TCP}]\n  appPorts:\n  [{port: 8080,\n  name: devbox-app-port,\n  protocol: TCP}]\n  user: devbox,\n  workingDir: /home/devbox/project,\n  releaseCommand:\n    [/bin/bash\n , -c]\n  releaseArgs:\n   [/home/devbox/project/entrypoint.sh]}"
           }
         ]
       },
