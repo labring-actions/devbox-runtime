@@ -59,7 +59,9 @@ jobs:
         TAG=${COMMIT_ID::6}
         CN_TAG=${COMMIT_ID::7}
         chmod +x script/generate_runtime_yaml.sh
+        chmod +x script/generate_json.sh
         script/generate_runtime_yaml.sh $TAG $CN_TAG
+        script/generate_json.sh $TAG $CN_TAG
       env:
         DOCKER_USERNAME: ${{ github.repository_owner }}
         COMMIT_ID: ${{ github.sha }}
