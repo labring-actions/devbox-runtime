@@ -47,4 +47,5 @@ for i in "${!DIFF_OUTPUT_ARRAY[@]}"; do
   fi
 
   ./runtimectl gen --kind=${ADDR[0]} --name=${ADDR[1]} --version=$PARENT_DIR --image=ghcr.io/$DOCKER_USERNAME/devbox/$EN_IMAGE_NAME
+  ./runtimectl gen --kind=${ADDR[0]} --name=${ADDR[1]} --version=$PARENT_DIR --image=ghcr.io/$DOCKER_USERNAME/devbox/$CN_IMAGE_NAME --path="config-cn.json" 
 done
