@@ -18,7 +18,7 @@ for line in "${runtime_lines[@]:1}"; do
       runtime_version=""
     fi
 
-    if [ "$state" = "active" ];
+    if [ "$state" = "active" ];then
       read class version image < <(kubectl get runtime $name -n devbox-system -o json | jq -r 'select(.spec.state == "active") | [.spec.classRef, .spec.version, .spec.config.image] | @tsv')
       read kind < <(kubectl get runtimeclass.devbox "$class" -n devbox-system -o json | jq -r '.spec.kind')
       ./runtimectl gen --kind=$kind --name=$class --version=$version --image=$image --path=$1
