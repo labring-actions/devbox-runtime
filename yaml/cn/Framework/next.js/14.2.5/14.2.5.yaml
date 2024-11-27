@@ -1,14 +1,14 @@
 apiVersion: devbox.sealos.io/v1alpha1
 kind: Runtime
 metadata:
-  name: next.js-14-2-5-2024-11-19-0839
+  name: next.js-14-2-5-2024-11-27-0319
   namespace: devbox-system
   annotations:
     devbox.sealos.io/defaultVersion: "false"
 spec:
   classRef: next.js
   config:
-    image: ghcr.io/labring-actions/devbox/next.js-14.2.5:22f026b
+    image: ghcr.io/labring-actions/devbox/next.js-14.2.5:8738187
     ports:
       - containerPort: 22
         name: devbox-ssh-port
@@ -26,7 +26,7 @@ spec:
       - /home/devbox/project/entrypoint.sh
   description: next.js 14.2.5
   version: "14.2.5"
-  runtimeVersion: 2024-11-19-0839
+  runtimeVersion: 2024-11-27-0319
   state: active  
 ---
 apiVersion: devbox.sealos.io/v1alpha1
