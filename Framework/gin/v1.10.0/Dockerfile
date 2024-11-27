@@ -13,6 +13,6 @@ USER devbox
 RUN cd /home/devbox/project && \
 go mod tidy && \
 go build -o main main.go
-
+ 
 USER root
 RUN mkdir -p /home/devbox/.devbox

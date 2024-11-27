@@ -9,6 +9,8 @@ CN_TAG=$2
 IFS=',' read -r -a DIFF_OUTPUT_ARRAY <<< "$DIFF_OUTPUT"
 IFS=',' read -r -a PARENT_DIRS_ARRAY <<< "$PARENT_DIRS"
 
+chmod +x runtimectl
+
 declare -A NAME_MAP
 while IFS='=' read -r key value; do
     NAME_MAP["$key"]="$value"
@@ -44,5 +46,5 @@ for i in "${!DIFF_OUTPUT_ARRAY[@]}"; do
     CN_IMAGE_NAME="${ADDR[1]}-$PARENT_DIR:$TAG"
   fi
 
-  /runtimectl --kind=${ADDR[0]} --name=${ADDR[1]} --version=$PARENT_DIR --image=ghcr.io/$DOCKER_USERNAME/devbox/$EN_IMAGE_NAME --port=${PORT_MAP[${ADDR[1]}]} --output=$en_output_file
+  ./runtimectl --kind=${ADDR[0]} --name=${ADDR[1]} --version=$PARENT_DIR --image=ghcr.io/$DOCKER_USERNAME/devbox/$EN_IMAGE_NAME --port=${PORT_MAP[${ADDR[1]}]} --output=$en_output_file
 done
