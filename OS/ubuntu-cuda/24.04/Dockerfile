@@ -1,4 +1,4 @@
-FROM nvidia/cuda:12.6.3-cudnn-devel-ubuntu24.04
+FROM nvidia/cuda:12.6.3-devel-ubuntu24.04
 
 COPY /script/startup.sh /usr/start/startup.sh
 
