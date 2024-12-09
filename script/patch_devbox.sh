@@ -22,7 +22,7 @@ for line in "${runtime_lines[@]:1}"; do
     read class version < <(kubectl get runtime $class -n devbox-system -o json | jq -r '[.spec.classRef, .spec.version] | @tsv')
     id =jq '.["$class"-"$version"]' output.json
     read templateID < <(kubectl get devbox $name -n $namespace -o json | jq -r '.spec.templateID')
-    kubectl patch devbox $name -n $namespace --type='json' -p='[{"op": "add", "path": "/spec/templateID", "value": "$id"}]'
+    kubectl patch devbox $name -n $namespace --type='json' -p='[{"op": "replace", "path": "/spec/templateID", "value": "$id"}]'
     fi
 
 done

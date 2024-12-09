@@ -37,3 +37,4 @@ c=c
 quarkus=quarkus
 nginx=nginx
 sealaf=Laf
+ubuntu-cuda=ubuntu-cuda
