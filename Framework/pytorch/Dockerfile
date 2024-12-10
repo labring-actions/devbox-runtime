@@ -2,7 +2,7 @@ FROM ghcr.io/labring-actions/devbox/ubuntu-cuda-24.04:898890
 RUN cd /home/devbox/project && \
 rm -rf ./*
 
-COPY /GPU/pytorch/project /home/devbox/project
+COPY /Framework/pytorch/project /home/devbox/project
 
 RUN apt-get update && \
     curl -O https://repo.anaconda.com/archive/Anaconda3-2024.10-1-Linux-x86_64.sh && \
