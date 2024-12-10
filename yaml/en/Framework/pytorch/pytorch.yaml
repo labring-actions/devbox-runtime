@@ -1,14 +1,14 @@
 apiVersion: devbox.sealos.io/v1alpha1
 kind: Runtime
 metadata:
-  name: pytorch-pytorch-2024-12-10-0431
+  name: pytorch-pytorch-2024-12-10-0518
   namespace: devbox-system
   annotations:
     devbox.sealos.io/defaultVersion: "false"
 spec:
   classRef: pytorch
   config:
-    image: ghcr.io/labring-actions/devbox/pytorch-pytorch:d40e5f
+    image: ghcr.io/labring-actions/devbox/pytorch-pytorch:2ea40f
     ports:
       - containerPort: 22
         name: devbox-ssh-port
@@ -26,7 +26,7 @@ spec:
       - /home/devbox/project/entrypoint.sh
   description: pytorch pytorch
   version: "pytorch"
-  runtimeVersion: 2024-12-10-0431
+  runtimeVersion: 2024-12-10-0518
   state: active  
 ---
 apiVersion: devbox.sealos.io/v1alpha1
