@@ -32,6 +32,7 @@ RUN chmod +x /usr/start/startup.sh && \
     echo 'GatewayPorts yes' >> /etc/ssh/sshd_config && \
     echo 'X11Forwarding yes' >> /etc/ssh/sshd_config && \ 
     echo 'Port 22' >> /etc/ssh/sshd_config && \
+    echo 'PermitRootLogin yes' >> /etc/ssh/sshd_config && \
     useradd -m -s /bin/bash devbox && \
     usermod -aG sudo devbox && \
     echo 'devbox ALL=(ALL) NOPASSWD: ALL' >> /etc/sudoers && \
@@ -45,7 +46,6 @@ COPY /OS/debian-ssh/project /home/devbox/project
 RUN sudo chown -R devbox:devbox /home/devbox/project && \
     sudo chmod -R 777 /home/devbox/project && \
     sudo chmod -R +x /home/devbox/project/entrypoint.sh
-
 
 USER root
 
