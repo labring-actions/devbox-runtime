@@ -12,7 +12,7 @@ RUN apt-get update && \
     . /root/.bashrc && \
     conda create -y -n hello python=3.12 && \
     conda activate hello && \
-    pip3 install torch torchvision torchaudio && \
+    pip3 install --timeout 10000 torch torchvision torchaudio && \
     chown -R devbox:devbox /home/devbox/project && \
     chmod -R u+rw /home/devbox/project && \
     chmod -R +x /home/devbox/project/entrypoint.sh && \
