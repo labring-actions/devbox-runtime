@@ -7,6 +7,8 @@ metadata:
     devbox.sealos.io/defaultVersion: "false"
 spec:
   classRef: ubuntu-cuda
+  category: 
+  - gpu
   config:
     image: ghcr.io/labring-actions/devbox/ubuntu-cuda-24.04:13ebfe8
     ports:
@@ -17,7 +19,7 @@ spec:
       - port: 8080
         name: devbox-app-port
         protocol: TCP
-    user: devbox
+    user: root
     workingDir: /home/devbox/project
     releaseCommand:
       - /bin/bash
