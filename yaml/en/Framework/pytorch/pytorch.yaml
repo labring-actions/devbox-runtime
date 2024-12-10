@@ -1,14 +1,16 @@
 apiVersion: devbox.sealos.io/v1alpha1
 kind: Runtime
 metadata:
-  name: pytorch-pytorch-2024-12-10-0535
+  name: pytorch-2024-12-10-0535
   namespace: devbox-system
   annotations:
     devbox.sealos.io/defaultVersion: "false"
 spec:
   classRef: pytorch
+  category: 
+  - gpu
   config:
-    image: ghcr.io/labring-actions/devbox/pytorch-pytorch:769de7
+    image: ghcr.io/labring-actions/devbox/pytorch:latest
     ports:
       - containerPort: 22
         name: devbox-ssh-port
