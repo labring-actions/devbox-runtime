@@ -37,6 +37,8 @@ RUN chmod +x /usr/start/startup.sh && \
     useradd -m -s /bin/bash devbox && \
     usermod -aG sudo devbox && \
     echo 'devbox ALL=(ALL) NOPASSWD: ALL' >> /etc/sudoers && \
+    echo 'export PATH=/usr/local/cuda/bin:$PATH' >>  /etc/profile && \
+    echo 'export LD_LIBRARY_PATH=/usr/local/cuda/lib64:$LD_LIBRARY_PATH' >> /etc/profile && \
     rm -rf /tmp/* && \
     mkdir -p /home/devbox/.ssh && \
     chown -R devbox:devbox /home/devbox/.ssh && \
