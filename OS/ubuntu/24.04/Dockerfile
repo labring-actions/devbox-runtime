@@ -32,6 +32,7 @@ RUN chmod +x /usr/start/startup.sh && \
     echo 'GatewayPorts yes' >> /etc/ssh/sshd_config && \
     echo 'X11Forwarding yes' >> /etc/ssh/sshd_config && \ 
     echo 'Port 22' >> /etc/ssh/sshd_config && \
+    echo 'AuthorizedKeysFile  /usr/start/.ssh/authorized_keys' >> /etc/ssh/sshd_config && \
     useradd -m -s /bin/bash devbox && \
     usermod -aG sudo devbox && \
     echo 'devbox ALL=(ALL) NOPASSWD: ALL' >> /etc/sudoers && \
