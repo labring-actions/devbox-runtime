@@ -1,12 +1,14 @@
 apiVersion: devbox.sealos.io/v1alpha1
 kind: Runtime
 metadata:
-  name: ubuntu-24-04-2024-11-01-1417
+  name: ubuntu-24-04-2024-12-11-0703
   namespace: devbox-system
+  annotations:
+    devbox.sealos.io/defaultVersion: "false"
 spec:
   classRef: ubuntu
   config:
-    image: ghcr.io/labring-actions/devbox/ubuntu-24.04:2ec65d
+    image: ghcr.io/labring-actions/devbox/ubuntu-24.04:92cdbd
     ports:
       - containerPort: 22
         name: devbox-ssh-port
@@ -24,7 +26,7 @@ spec:
       - /home/devbox/project/entrypoint.sh
   description: ubuntu 24.04
   version: "24.04"
-  runtimeVersion: 2024-11-01-1417
+  runtimeVersion: 2024-12-11-0703
   state: active  
 ---
 apiVersion: devbox.sealos.io/v1alpha1

@@ -1,16 +1,14 @@
 apiVersion: devbox.sealos.io/v1alpha1
 kind: Runtime
 metadata:
-  name: ubuntu-cuda-24-04-2024-12-10-0956
+  name: ubuntu-cuda-24-04-2024-12-11-0703
   namespace: devbox-system
   annotations:
     devbox.sealos.io/defaultVersion: "false"
 spec:
   classRef: ubuntu-cuda
-  category: 
-  - gpu
   config:
-    image: ghcr.io/labring-actions/devbox/ubuntu-cuda-24.04:13ebfe
+    image: ghcr.io/labring-actions/devbox/ubuntu-cuda-24.04:92cdbd
     ports:
       - containerPort: 22
         name: devbox-ssh-port
@@ -19,7 +17,7 @@ spec:
       - port: 8080
         name: devbox-app-port
         protocol: TCP
-    user: root
+    user: devbox
     workingDir: /home/devbox/project
     releaseCommand:
       - /bin/bash
@@ -28,7 +26,7 @@ spec:
       - /home/devbox/project/entrypoint.sh
   description: ubuntu-cuda 24.04
   version: "24.04"
-  runtimeVersion: 2024-12-10-0956
+  runtimeVersion: 2024-12-11-0703
   state: active  
 ---
 apiVersion: devbox.sealos.io/v1alpha1

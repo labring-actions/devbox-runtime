@@ -401,7 +401,7 @@
         "version": [
           {
             "name": "24.04",
-            "image": "ghcr.io/labring-actions/devbox/ubuntu-24.04:ad4936",
+            "image": "ghcr.io/labring-actions/devbox/ubuntu-24.04:92cdbd",
             "config": "{ports:\n  [ {containerPort: 22,\n  name: devbox-ssh-port,\n protocol: TCP}]\n  appPorts:\n  [{port: 8080,\n  name: devbox-app-port,\n  protocol: TCP}]\n  user: devbox,\n  workingDir: /home/devbox/project,\n  releaseCommand:\n    [/bin/bash\n , -c]\n  releaseArgs:\n   [/home/devbox/project/entrypoint.sh]}"
           }
         ]
@@ -411,7 +411,7 @@
         "version": [
           {
             "name": "24.04",
-            "image": "ghcr.io/labring-actions/devbox/ubuntu-cuda-24.04:13ebfe",
+            "image": "ghcr.io/labring-actions/devbox/ubuntu-cuda-24.04:92cdbd",
             "config": "{ports:\n  [ {containerPort: 22,\n  name: devbox-ssh-port,\n protocol: TCP}]\n  appPorts:\n  [{port: 8080,\n  name: devbox-app-port,\n  protocol: TCP}]\n  user: devbox,\n  workingDir: /home/devbox/project,\n  releaseCommand:\n    [/bin/bash\n , -c]\n  releaseArgs:\n   [/home/devbox/project/entrypoint.sh]}"
           }
         ]
