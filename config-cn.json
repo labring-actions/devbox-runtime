@@ -8,6 +8,23 @@
             "name": "v3.4.29",
             "image": "ghcr.io/labring-actions/devbox/vue-v3.4.29:21501ba",
             "config": "{\"appPorts\":[{\"name\":\"devbox-app-port\",\"port\":8080,\"protocol\":\"TCP\"}],\"ports\":[{\"containerPort\":22,\"name\":\"devbox-ssh-port\",\"protocol\":\"TCP\"}],\"releaseArgs\":[\"/home/devbox/project/entrypoint.sh\"],\"releaseCommand\":[\"/bin/bash\",\"-c\"],\"user\":\"devbox\",\"workingDir\":\"/home/devbox/project\"}",
+            "state": "deprecated"
+          },
+          {
+            "name": "v3.4.29",
+            "image": "ghcr.io/labring-actions/devbox/vue-v3.4.29:4f84e72",
+            "config": "{\"appPorts\":[{\"name\":\"devbox-app-port\",\"port\":8080,\"protocol\":\"TCP\"}],\"ports\":[{\"containerPort\":22,\"name\":\"devbox-ssh-port\",\"protocol\":\"TCP\"}],\"releaseArgs\":[\"/home/devbox/project/entrypoint.sh\"],\"releaseCommand\":[\"/bin/bash\",\"-c\"],\"user\":\"devbox\",\"workingDir\":\"/home/devbox/project\"}",
+            "state": "active"
+          }
+        ]
+      },
+      {
+        "name": "gin",
+        "version": [
+          {
+            "name": "v1.10.0",
+            "image": "ghcr.io/labring-actions/devbox/gin-v1.10.0:4f84e72",
+            "config": "{\"appPorts\":[{\"name\":\"devbox-app-port\",\"port\":8080,\"protocol\":\"TCP\"}],\"ports\":[{\"containerPort\":22,\"name\":\"devbox-ssh-port\",\"protocol\":\"TCP\"}],\"releaseArgs\":[\"/home/devbox/project/entrypoint.sh\"],\"releaseCommand\":[\"/bin/bash\",\"-c\"],\"user\":\"devbox\",\"workingDir\":\"/home/devbox/project\"}",
             "state": "active"
           }
         ]
