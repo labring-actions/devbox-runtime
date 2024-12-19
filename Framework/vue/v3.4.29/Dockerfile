@@ -13,5 +13,4 @@ RUN cd /home/devbox/project && \
 npm install && \
 npm run build
  
-
 RUN mkdir -p /home/devbox/.devbox
