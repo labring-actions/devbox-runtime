@@ -46,6 +46,6 @@ for i in "${!DIFF_OUTPUT_ARRAY[@]}"; do
     CN_IMAGE_NAME="${ADDR[1]}-$PARENT_DIR:$TAG"
   fi
 
-  ./runtimectl gen --kind=${ADDR[0]} --name=${ADDR[1]} --version=$PARENT_DIR --image=ghcr.io/$DOCKER_USERNAME/devbox/$EN_IMAGE_NAME
-  ./runtimectl gen --kind=${ADDR[0]} --name=${ADDR[1]} --version=$PARENT_DIR --image=ghcr.io/$DOCKER_USERNAME/devbox/$CN_IMAGE_NAME --path="config-cn.json" 
+  ./runtimectl gen --kind=${ADDR[0]} --name=${NAME_MAP[${ADDR[1]}]} --version=$PARENT_DIR --image=ghcr.io/$DOCKER_USERNAME/devbox/$EN_IMAGE_NAME
+  ./runtimectl gen --kind=${ADDR[0]} --name=${NAME_MAP[${ADDR[1]}]} --version=$PARENT_DIR --image=ghcr.io/$DOCKER_USERNAME/devbox/$CN_IMAGE_NAME --path="config-cn.json" 
 done
