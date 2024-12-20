@@ -10,7 +10,6 @@ chmod -R +x /home/devbox/project/entrypoint.sh
 
 USER devbox
 RUN cd /home/devbox/project && \
-npm install
+pnpm run build
  
-
 RUN mkdir -p /home/devbox/.devbox

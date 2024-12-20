@@ -1,3 +1,3 @@
 #!/bin/bash
 cd /home/devbox/project
-npm run start
+serve -s /home/devbox/project/dist/project/browser

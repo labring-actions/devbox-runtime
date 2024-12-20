@@ -13,5 +13,5 @@ RUN cd /home/devbox/project && \
 npm config set fetch-retry-maxtimeout 10000000 && \
 pnpm install && \
 pnpm run build
- 
+
 RUN mkdir -p /home/devbox/.devbox
