@@ -80,6 +80,12 @@
             "name": "v3.13",
             "image": "ghcr.io/labring-actions/devbox/nuxt3-v3.13:4fa8443",
             "config": "{\"appPorts\":[{\"name\":\"devbox-app-port\",\"port\":8080,\"protocol\":\"TCP\"}],\"ports\":[{\"containerPort\":22,\"name\":\"devbox-ssh-port\",\"protocol\":\"TCP\"}],\"releaseArgs\":[\"/home/devbox/project/entrypoint.sh\"],\"releaseCommand\":[\"/bin/bash\",\"-c\"],\"user\":\"devbox\",\"workingDir\":\"/home/devbox/project\"}",
+            "state": "deprecated"
+          },
+          {
+            "name": "v3.13",
+            "image": "ghcr.io/labring-actions/devbox/nuxt3-v3.13:f378858",
+            "config": "{\"appPorts\":[{\"name\":\"devbox-app-port\",\"port\":8080,\"protocol\":\"TCP\"}],\"ports\":[{\"containerPort\":22,\"name\":\"devbox-ssh-port\",\"protocol\":\"TCP\"}],\"releaseArgs\":[\"/home/devbox/project/entrypoint.sh\"],\"releaseCommand\":[\"/bin/bash\",\"-c\"],\"user\":\"devbox\",\"workingDir\":\"/home/devbox/project\"}",
             "state": "active"
           }
         ]
