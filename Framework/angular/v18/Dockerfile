@@ -11,6 +11,8 @@ chmod -R +x /home/devbox/project/entrypoint.sh
 
 USER devbox
 RUN cd /home/devbox/project && \
+sudo chmod -R 777 /usr/lib/node_modules  && \
+sudo chmod -R 777 /usr/local/lib/node_modules && \
 npm install -g serve && \
 npm run build
 
