@@ -10,7 +10,7 @@ spec:
   category: 
   - gpu
   config:
-    image: ghcr.io/labring-actions/devbox/pytorch:latest
+    image: crpi-0cfxxemn813jdhyg.cn-hangzhou.personal.cr.aliyuncs.com/cbluebird/pytorch:latest
     ports:
       - containerPort: 22
         name: devbox-ssh-port
@@ -19,7 +19,7 @@ spec:
       - port: 8080
         name: devbox-app-port
         protocol: TCP
-    user: devbox
+    user: root
     workingDir: /home/devbox/project
     releaseCommand:
       - /bin/bash

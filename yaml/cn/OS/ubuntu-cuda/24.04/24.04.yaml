@@ -10,7 +10,7 @@ spec:
   category: 
   - gpu
   config:
-    image: ghcr.io/labring-actions/devbox/ubuntu-cuda-24.04:df331ef
+    image: crpi-0cfxxemn813jdhyg.cn-hangzhou.personal.cr.aliyuncs.com/cbluebird/ubuntu-cuda:latest
     ports:
       - containerPort: 22
         name: devbox-ssh-port
