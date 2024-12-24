@@ -14,5 +14,5 @@ RUN cd /home/devbox/project && \
 sudo chmod -R 777 /usr/lib/node_modules  && \
 sudo npm install -g serve && \
 npm run build
-
+ 
 RUN mkdir -p /home/devbox/.devbox
