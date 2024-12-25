@@ -195,6 +195,18 @@
     ],
     "Language": [],
     "Custom": [],
-    "OS": []
+    "OS": [
+      {
+        "name": "Ubuntu-cuda",
+        "version": [
+          {
+            "name": "24.04",
+            "image": "ghcr.io/labring-actions/devbox/ubuntu-cuda-24.04:30d36f9",
+            "config": "{\"appPorts\":[{\"name\":\"devbox-app-port\",\"port\":8080,\"protocol\":\"TCP\"}],\"ports\":[{\"containerPort\":22,\"name\":\"devbox-ssh-port\",\"protocol\":\"TCP\"}],\"releaseArgs\":[\"/home/devbox/project/entrypoint.sh\"],\"releaseCommand\":[\"/bin/bash\",\"-c\"],\"user\":\"devbox\",\"workingDir\":\"/home/devbox/project\"}",
+            "state": "active"
+          }
+        ]
+      }
+    ]
   }
 }
