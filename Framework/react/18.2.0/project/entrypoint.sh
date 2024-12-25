@@ -1,3 +1,3 @@
 #!/bin/bash
 cd /home/devbox/project
-npm install -g serve
+serve -s build
