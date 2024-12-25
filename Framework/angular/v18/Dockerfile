@@ -19,6 +19,7 @@ npm config set prefix '/home/devbox/.npm-global' && \
 cd /home/devbox/project && \
 npm install -g @angular/cli && \
 npm install -g serve && \
+npm install && \
 npm run build
  
 RUN mkdir -p /home/devbox/.devbox
