@@ -1,14 +1,14 @@
 apiVersion: devbox.sealos.io/v1alpha1
 kind: Runtime
 metadata:
-  name: angular-v18-2024-12-25-0737
+  name: angular-v18-2024-12-25-0747
   namespace: devbox-system
   annotations:
     devbox.sealos.io/defaultVersion: "false"
 spec:
   classRef: angular
   config:
-    image: ghcr.io/labring-actions/devbox/angular-v18:4f3c21
+    image: ghcr.io/labring-actions/devbox/angular-v18:1d7d0f
     ports:
       - containerPort: 22
         name: devbox-ssh-port
@@ -26,7 +26,7 @@ spec:
       - /home/devbox/project/entrypoint.sh
   description: angular v18
   version: "v18"
-  runtimeVersion: 2024-12-25-0737
+  runtimeVersion: 2024-12-25-0747
   state: active  
 ---
 apiVersion: devbox.sealos.io/v1alpha1
