@@ -2,7 +2,9 @@ FROM ghcr.io/labring-actions/devbox/node.js-20:219d11
 
 USER root
 RUN cd /home/devbox/project && \
-rm -rf ./*
+rm -rf ./* && \
+mkdir -p /usr/lib/node_modules && \
+chown -R devbox:devbox /usr/lib/node_modules
  
 COPY /Framework/angular/v18/project /home/devbox/project
 RUN chown -R devbox:devbox /home/devbox/project && \
