@@ -1,3 +1,3 @@
 #!/bin/bash
 cd /home/devbox/project
-serve -s build
+serve -s /home/devbox/project/dist/project/browser -l 3000

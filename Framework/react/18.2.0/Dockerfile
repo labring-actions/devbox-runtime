@@ -10,7 +10,7 @@ chmod -R +x /home/devbox/project/entrypoint.sh
 
 USER devbox
 RUN cd /home/devbox/project && \
-npm install serve && \
+npm install -g serve && \
 npm install && \
 npm run build
 

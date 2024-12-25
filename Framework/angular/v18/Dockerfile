@@ -11,7 +11,7 @@ chmod -R +x /home/devbox/project/entrypoint.sh
 
 USER devbox
 RUN cd /home/devbox/project && \
-npm install serve && \
+npm install -g serve && \
 npm run build
  
 RUN mkdir -p /home/devbox/.devbox
