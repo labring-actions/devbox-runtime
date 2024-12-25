@@ -1,14 +1,14 @@
 apiVersion: devbox.sealos.io/v1alpha1
 kind: Runtime
 metadata:
-  name: react-18-2-0-2024-12-25-0709
+  name: react-18-2-0-2024-12-25-0720
   namespace: devbox-system
   annotations:
     devbox.sealos.io/defaultVersion: "false"
 spec:
   classRef: react
   config:
-    image: ghcr.io/labring-actions/devbox/react-18.2.0:d885fdf
+    image: ghcr.io/labring-actions/devbox/react-18.2.0:fb598ac
     ports:
       - containerPort: 22
         name: devbox-ssh-port
@@ -26,7 +26,7 @@ spec:
       - /home/devbox/project/entrypoint.sh
   description: react 18.2.0
   version: "18.2.0"
-  runtimeVersion: 2024-12-25-0709
+  runtimeVersion: 2024-12-25-0720
   state: active  
 ---
 apiVersion: devbox.sealos.io/v1alpha1
