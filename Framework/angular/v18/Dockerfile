@@ -15,6 +15,7 @@ USER devbox
 ENV PATH=/home/devbox/.npm-global/bin:$PATH
 
 RUN mkdir -p /home/devbox/.npm-global && \
+npm install -g @angular/cli && \
 npm config set prefix '/home/devbox/.npm-global' && \
 cd /home/devbox/project && \
 npm install -g serve && \
