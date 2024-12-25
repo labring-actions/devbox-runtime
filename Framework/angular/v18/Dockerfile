@@ -12,7 +12,11 @@ chmod -R u+rw /home/devbox/project && \
 chmod -R +x /home/devbox/project/entrypoint.sh
 
 USER devbox
-RUN cd /home/devbox/project && \
+ENV PATH=/home/devbox/.npm-global/bin:$PATH
+
+RUN mkdir -p /home/devbox/.npm-global && \
+npm config set prefix '/home/devbox/.npm-global' && \
+cd /home/devbox/project && \
 npm install -g serve && \
 npm run build
  
