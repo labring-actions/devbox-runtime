@@ -145,6 +145,17 @@
             "state": "active"
           }
         ]
+      },
+      {
+        "name": "Nginx",
+        "version": [
+          {
+            "name": "1.22.1",
+            "image": "ghcr.io/labring-actions/devbox/nginx-1.22.1:d0f066",
+            "config": "{\"appPorts\":[{\"name\":\"devbox-app-port\",\"port\":8080,\"protocol\":\"TCP\"}],\"ports\":[{\"containerPort\":22,\"name\":\"devbox-ssh-port\",\"protocol\":\"TCP\"}],\"releaseArgs\":[\"/home/devbox/project/entrypoint.sh\"],\"releaseCommand\":[\"/bin/bash\",\"-c\"],\"user\":\"devbox\",\"workingDir\":\"/home/devbox/project\"}",
+            "state": "active"
+          }
+        ]
       }
     ],
     "Language": [],
