@@ -13,7 +13,7 @@ chmod -R +x /home/devbox/project/entrypoint.sh
 
 USER devbox
 ENV PATH=/home/devbox/.npm-global/bin:$PATH
-
+ 
 RUN mkdir -p /home/devbox/.npm-global && \
 npm config set prefix '/home/devbox/.npm-global' && \
 echo 'export PATH=/home/devbox/.npm-global/bin:$PATH' >> /home/devbox/.bashrc && \
