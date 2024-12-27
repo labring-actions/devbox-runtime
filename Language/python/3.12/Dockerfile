@@ -8,7 +8,8 @@ RUN apt-get update && \
     apt-get install -y python3.12 python3-pip python3-venv && \
     apt-get clean && \
     rm -rf /var/lib/apt/lists/* && \
-    python3 -m venv /home/devbox/project && \
+    ln -s /usr/bin/python3 /usr/bin/python && \
+    python -m venv /home/devbox/project && \
     chown -R devbox:devbox /home/devbox/project && \
     chmod -R u+rw /home/devbox/project && \
     chmod -R +x /home/devbox/project/entrypoint.sh
