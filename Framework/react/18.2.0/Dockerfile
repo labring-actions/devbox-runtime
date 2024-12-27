@@ -16,6 +16,7 @@ ENV PATH=/home/devbox/.npm-global/bin:$PATH
 
 RUN mkdir -p /home/devbox/.npm-global && \
 npm config set prefix '/home/devbox/.npm-global' && \
+echo 'export PATH=/home/devbox/.npm-global/bin:$PATH' >> /home/devbox/.bashrc && \
 cd /home/devbox/project && \
 npm install -g serve && \
 npm install && \
