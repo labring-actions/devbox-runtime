@@ -1,4 +1,5 @@
 FROM ghcr.io/labring-actions/devbox/node.js-22:219d11
+
 USER root
 RUN cd /home/devbox/project && \
 rm -rf ./* && \
