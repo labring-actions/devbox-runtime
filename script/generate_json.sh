@@ -11,20 +11,19 @@ IFS=',' read -r -a PARENT_DIRS_ARRAY <<< "$PARENT_DIRS"
 
 chmod +x runtimectl
 
-declare -A NAME_MAP
-while IFS='=' read -r key value; do
-    NAME_MAP["$key"]="$value"
-done < "configs/name.txt" 
+declare -A NAME_MAP PORT_MAP VERSION_MAP
 
-declare -A PORT_MAP
-while IFS='=' read -r key value; do
-    PORT_MAP["$key"]="$value"
-done < "configs/port.txt" 
+load_mappings() {
+  local file=$1
+  local -n map=$2
+  while IFS='=' read -r key value; do
+    map["$key"]="$value"
+  done < "$file"
+}
 
-declare -A VERSION_MAP
-while IFS='=' read -r key value; do
-    VERSION_MAP["$key"]="$value"
-done < "configs/version.txt" 
+load_mappings "configs/name.txt" NAME_MAP
+load_mappings "configs/port.txt" PORT_MAP
+load_mappings "configs/version.txt" VERSION_MAP
 
 for i in "${!DIFF_OUTPUT_ARRAY[@]}"; do
   DOCKERFILE_PATH=${DIFF_OUTPUT_ARRAY[$i]}

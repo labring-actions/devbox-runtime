@@ -1,39 +1,88 @@
 #!/bin/bash
 
-echo "PARENT_DIRS=$PARENT_DIRS"
-echo "DIFF_OUTPUT=$DIFF_OUTPUT"
-
 TAG=$1
 CN_TAG=$2
 
 IFS=',' read -r -a DIFF_OUTPUT_ARRAY <<< "$DIFF_OUTPUT"
 IFS=',' read -r -a PARENT_DIRS_ARRAY <<< "$PARENT_DIRS"
 
-declare -A NAME_MAP
-while IFS='=' read -r key value; do
-    NAME_MAP["$key"]="$value"
-done < "configs/name.txt" 
+declare -A NAME_MAP PORT_MAP VERSION_MAP
 
-declare -A PORT_MAP
-while IFS='=' read -r key value; do
-    PORT_MAP["$key"]="$value"
-done < "configs/port.txt" 
+load_mappings() {
+  local file=$1
+  local -n map=$2
+  while IFS='=' read -r key value; do
+    map["$key"]="$value"
+  done < "$file"
+}
 
-declare -A VERSION_MAP
-while IFS='=' read -r key value; do
-    VERSION_MAP["$key"]="$value"
-done < "configs/version.txt" 
+load_mappings "configs/name.txt" NAME_MAP
+load_mappings "configs/port.txt" PORT_MAP
+load_mappings "configs/version.txt" VERSION_MAP
 
+mkdir -p yaml/en
+mkdir -p yaml/cn
+
+generate_yaml() {
+  local output_file=$1
+  local image_name=$2
+  local parent_dir=$3
+  local kind=$4
+  local runtime=$5
+
+  cat << EOF > "$output_file"
+apiVersion: devbox.sealos.io/v1alpha1
+kind: Runtime
+metadata:
+  name: $runtime-${parent_dir//./-}-$(date +"%Y-%m-%d-%H%M")
+  namespace: devbox-system
+  annotations:
+    devbox.sealos.io/defaultVersion: "$( [ "$parent_dir" == "$runtime" ] && echo "true" || echo "false" )"
+spec:
+  classRef: $runtime
+  config:
+    image: ghcr.io/$DOCKER_USERNAME/devbox/$image_name
+    ports:
+      - containerPort: 22
+        name: devbox-ssh-port
+        protocol: TCP
+    appPorts:
+      - port: ${PORT_MAP[$runtime]}
+        name: devbox-app-port
+        protocol: TCP
+    user: devbox
+    workingDir: /home/devbox/project
+    releaseCommand:
+      - /bin/bash
+      - -c
+    releaseArgs:
+      - /home/devbox/project/entrypoint.sh
+  description: $runtime $parent_dir
+  version: "$parent_dir"
+---
+apiVersion: devbox.sealos.io/v1alpha1
+kind: RuntimeClass
+metadata:
+  name: $runtime
+spec:
+  title: "${NAME_MAP[$runtime]}"
+  kind: $kind
+  description: $runtime
+EOF
+}
+
+# Iterate over the changed Dockerfiles
 for i in "${!DIFF_OUTPUT_ARRAY[@]}"; do
   DOCKERFILE_PATH=${DIFF_OUTPUT_ARRAY[$i]}
-  IFS='/' read -ra ADDR <<< $DOCKERFILE_PATH
-
+  IFS='/' read -ra ADDR <<< "$DOCKERFILE_PATH"
   PARENT_DIR=${PARENT_DIRS_ARRAY[$i]}
 
-  if [ "${NAME_MAP[${ADDR[1]}]}" == "none" ]; then
+  # Check if the name is mapped to "none"
+  if [[ "${NAME_MAP[${ADDR[1]}]}" == "none" ]]; then
     exit 1
   fi
 
+  # Define paths for YAML files and the image names
   YAML_PATH="${DOCKERFILE_PATH%/*}"
   parent_path=$(dirname "$YAML_PATH")
 
@@ -44,10 +93,13 @@ for i in "${!DIFF_OUTPUT_ARRAY[@]}"; do
     CN_IMAGE_NAME="${ADDR[1]}-$PARENT_DIR:$TAG"
   fi
 
-  mkdir -p "yaml/en/${YAML_PATH}"
-  mkdir -p "yaml/cn/${YAML_PATH}"
+  # Define output files
   en_output_file="yaml/en/${YAML_PATH}/$PARENT_DIR.yaml"
   cn_output_file="yaml/cn/${YAML_PATH}/$PARENT_DIR.yaml"
+
+  # Create the output files if they don’t exist
+  mkdir -p "yaml/en/${YAML_PATH}"
+  mkdir -p "yaml/cn/${YAML_PATH}"
   if [ ! -f "$en_output_file" ]; then
     touch "$en_output_file"
   fi
@@ -55,88 +107,7 @@ for i in "${!DIFF_OUTPUT_ARRAY[@]}"; do
     touch "$cn_output_file"
   fi
 
-  cat << EOF > "$en_output_file"
-apiVersion: devbox.sealos.io/v1alpha1
-kind: Runtime
-metadata:
-  name: ${ADDR[1]}-${PARENT_DIR//./-}-$(date +"%Y-%m-%d-%H%M")
-  namespace: devbox-system
-  annotations:
-    devbox.sealos.io/defaultVersion: "$( [ "$PARENT_DIR" == "${VERSION_MAP[${ADDR[1]}]}" ] && echo "true" || echo "false" )"
-spec:
-  classRef: ${ADDR[1]}
-  config:
-    image: ghcr.io/$DOCKER_USERNAME/devbox/$EN_IMAGE_NAME
-    ports:
-      - containerPort: 22
-        name: devbox-ssh-port
-        protocol: TCP
-    appPorts:
-      - port: ${PORT_MAP[${ADDR[1]}]}
-        name: devbox-app-port
-        protocol: TCP
-    user: devbox
-    workingDir: /home/devbox/project
-    releaseCommand:
-      - /bin/bash
-      - -c
-    releaseArgs:
-      - /home/devbox/project/entrypoint.sh
-  description: ${ADDR[1]} $PARENT_DIR
-  version: "$PARENT_DIR"
-  runtimeVersion: $(date +"%Y-%m-%d-%H%M")
-  state: active  
----
-apiVersion: devbox.sealos.io/v1alpha1
-kind: RuntimeClass
-metadata:
-  name: ${ADDR[1]}
-spec:
-  title: "${NAME_MAP[${ADDR[1]}]}"
-  kind: ${ADDR[0]}
-  description: ${ADDR[1]}
-EOF
-
-  cat << EOF > "$cn_output_file"
-apiVersion: devbox.sealos.io/v1alpha1
-kind: Runtime
-metadata:
-  name: ${ADDR[1]}-${PARENT_DIR//./-}-$(date +"%Y-%m-%d-%H%M")
-  namespace: devbox-system
-  annotations:
-    devbox.sealos.io/defaultVersion: "$( [ "$PARENT_DIR" == "${VERSION_MAP[${ADDR[1]}]}" ] && echo "true" || echo "false" )"
-spec:
-  classRef: ${ADDR[1]}
-  config:
-    image: ghcr.io/$DOCKER_USERNAME/devbox/$CN_IMAGE_NAME
-    ports:
-      - containerPort: 22
-        name: devbox-ssh-port
-        protocol: TCP
-    appPorts:
-      - port: ${PORT_MAP[${ADDR[1]}]}
-        name: devbox-app-port
-        protocol: TCP
-    user: devbox
-    workingDir: /home/devbox/project
-    releaseCommand:
-      - /bin/bash
-      - -c
-    releaseArgs:
-      - /home/devbox/project/entrypoint.sh
-  description: ${ADDR[1]} $PARENT_DIR
-  version: "$PARENT_DIR"
-  runtimeVersion: $(date +"%Y-%m-%d-%H%M")
-  state: active  
----
-apiVersion: devbox.sealos.io/v1alpha1
-kind: RuntimeClass
-metadata:
-  name: ${ADDR[1]}
-spec:
-  title: "${NAME_MAP[${ADDR[1]}]}"
-  kind: ${ADDR[0]}
-  description: ${ADDR[1]}
-EOF
-
+  # Generate and write the English and Chinese YAML configurations
+  generate_yaml "$en_output_file" "$EN_IMAGE_NAME" "$PARENT_DIR" "${ADDR[0]}" "${ADDR[1]}"
+  generate_yaml "$cn_output_file" "$CN_IMAGE_NAME" "$PARENT_DIR" "${ADDR[0]}" "${ADDR[1]}"
 done

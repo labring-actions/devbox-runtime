@@ -1,5 +1,10 @@
 #!/bin/bash
 
+if [ "$#" -ne 2 ]; then
+  echo "Usage: $0 <commit1> <commit2>"
+  exit 1
+fi
+
 DIFF_OUTPUT=$(git diff --name-only "$1" "$2"|grep Dockerfile)
 
 PARENT_DIRS=()
@@ -9,7 +14,7 @@ for FILE_PATH in $DIFF_OUTPUT; do
     echo "File $FILE_PATH does not exist, skipping."
     continue
   fi
-  PARENT_DIR=$(dirname "$FILE_PATH" | awk -F'/' '{print $(NF)}')
+  PARENT_DIR=$(basename "$(dirname "$FILE_PATH")")
   PARENT_DIRS+=("$PARENT_DIR")
   FILE_PATHS+=("$FILE_PATH")
 done
