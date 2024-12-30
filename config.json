@@ -186,6 +186,17 @@
             "state": "active"
           }
         ]
+      },
+      {
+        "name": "Gin",
+        "version": [
+          {
+            "name": "v1.10.0",
+            "image": "ghcr.io/labring-actions/devbox/gin-v1.10.0:0afe6b",
+            "config": "{\"appPorts\":[{\"name\":\"devbox-app-port\",\"port\":8080,\"protocol\":\"TCP\"}],\"ports\":[{\"containerPort\":22,\"name\":\"devbox-ssh-port\",\"protocol\":\"TCP\"}],\"releaseArgs\":[\"/home/devbox/project/entrypoint.sh\"],\"releaseCommand\":[\"/bin/bash\",\"-c\"],\"user\":\"devbox\",\"workingDir\":\"/home/devbox/project\"}",
+            "state": "active"
+          }
+        ]
       }
     ],
     "Language": [
