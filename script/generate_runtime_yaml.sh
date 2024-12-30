@@ -59,6 +59,8 @@ spec:
       - /home/devbox/project/entrypoint.sh
   description: $runtime $parent_dir
   version: "$parent_dir"
+  runtimeVersion: $(date +"%Y-%m-%d-%H%M")
+  state: active  
 ---
 apiVersion: devbox.sealos.io/v1alpha1
 kind: RuntimeClass
