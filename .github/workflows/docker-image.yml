@@ -19,9 +19,9 @@ jobs:
       build_targets: ${{ steps.get_build_matrix.outputs.build_targets }}
     steps:
       - name: Checkout code
-      uses: actions/checkout@v4
-      with:
-        fetch-depth: 0
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
       - name: Set up tag
         id: set_tag
         run: |
