@@ -65,7 +65,7 @@ jobs:
         password: ${{ secrets.GH_PAT }}
     - name: Build and push image
       run: |
-        echo "build_target=$build_target"
+        echo "build_target=${{ matrix.build_target }}"
         echo "tag=${{ needs.define-matrix.outputs.tag }}"
         echo "tag_cn=${{ needs.define-matrix.outputs.tag_cn }}"
         image_name=$(bash script/get_image_name.sh ${{ github.repository_owner }} $build_target ${{ needs.define-matrix.outputs.tag }})
