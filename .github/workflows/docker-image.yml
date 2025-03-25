@@ -4,82 +4,74 @@ on:
   workflow_dispatch:
     inputs:
       tag:
-        description: 'Tag for the Docker image'
+        description: 'tag for the Docker image'
         required: true
         default: 'latest'
   push:
     branches:
       - 'main'
-    paths:
-      - '**/Dockerfile'
-
 jobs:
+  define-matrix:
+    runs-on: ubuntu-latest
+    outputs:
+      tag: ${{ steps.set_tag.outputs.tag }}
+      tag_cn: ${{ steps.set_tag.outputs.tag_cn }}
+      build_targets: ${{ steps.get_build_matrix.outputs.build_targets }}
+    steps:
+      - name: Checkout code
+      uses: actions/checkout@v4
+      with:
+        fetch-depth: 0
+      - name: Set up tag
+        id: set_tag
+        run: |
+          if [ -n "${{ inputs.tag }}" ]; then
+            tag=${{ inputs.tag }}
+          else
+            tag=${{ github.sha }}::6
+          fi
+          tag_cn=$tag-cn
+          echo "tag=$tag" >> $GITHUB_OUTPUT
+          echo "tag_cn=$tag_cn" >> $GITHUB_OUTPUT
+      - name: Get build matrix
+        id: get_build_matrix
+        run: |
+          if [ -n "${{ inputs.tag }}" ]; then
+            build_targets=$(bash script/get_all_dockerfile.sh)
+          else
+            build_targets=$(bash script/get_changed_dockerfile.sh ${{ github.event.before }} ${{ github.sha }})
+          fi
+          echo "build_targets=$build_targets" >> $GITHUB_OUTPUT
   build:
     runs-on: ubuntu-latest
-
+    needs: define-matrix
+    strategy:
+      matrix:
+        build_target: ${{ fromJson(needs.define-matrix.outputs.build_targets) }}
     steps:
     - name: Checkout code
       uses: actions/checkout@v4
       with:
         fetch-depth: 0
-
     - name: Set up QEMU
       uses: docker/setup-qemu-action@v3
-
-    - name: Set up tag
-      id: set_tag
-      run: |
-        if [ -n "$INPUT_TAG" ]; then
-          TAG=$INPUT_TAG
-        else
-          TAG=${COMMIT_ID::6}
-        fi
-        CN_TAG=$INPUT_TAG-cn
-
-        echo "TAG=$TAG" >> $GITHUB_ENV
-        echo "CN_TAG=$CN_TAG" >> $GITHUB_ENV
-        echo "TAG=$TAG" >> $GITHUB_OUTPUT
-        echo "CN_TAG=$CN_TAG" >> $GITHUB_OUTPUT
-
-    - name: Get changed files
-      id: getfile
-      run: |
-        bash script/get_changed_files.sh ${{ github.event.before }} ${{ github.sha }}
-      shell: bash
-
-    - name: Echo output
-      run: |
-        echo "Changed files: ${{ env.DIFF_OUTPUT }}"
-        echo "Parent directories: ${{ env.PARENT_DIRS }}"
-
     - name: Set up Docker Buildx
       uses: docker/setup-buildx-action@v3
-
     - name: Login to ghcr.io
       uses: docker/login-action@v3
       with:
         registry: ghcr.io
         username: ${{ github.repository_owner }}
         password: ${{ secrets.GH_PAT }}
-
     - name: Build and push image
       run: |
-        bash script/build_and_push_images.sh ${{ steps.set_tag.outputs.TAG }} ${{ steps.set_tag.outputs.CN_TAG }}
-      env:
-        USERNAME: ${{ github.repository_owner }}
-        COMMIT_ID: ${{ github.sha }}
-      shell: bash
-
-    - uses: actions/checkout@v3
-    - name: generate runtime yaml
-      run: |
-        bash script/generate_runtime_yaml.sh ${{ steps.set_tag.outputs.TAG }} ${{ steps.set_tag.outputs.CN_TAG }}
-        bash script/generate_json.sh ${{ steps.set_tag.outputs.TAG }} ${{ steps.set_tag.outputs.CN_TAG }}
-      env:
-        DOCKER_USERNAME: ${{ github.repository_owner }}
-        COMMIT_ID: ${{ github.sha }}
-      shell: bash
-
-    - uses: stefanzweifel/git-auto-commit-action@v5
-      with:
-        commit_message: auto generate runtime yaml
+        echo "build_target=$build_target"
+        echo "tag=${{ needs.define-matrix.outputs.tag }}"
+        echo "tag_cn=${{ needs.define-matrix.outputs.tag_cn }}"
+        image_name=$(bash script/get_image_name.sh ${{ github.repository_owner }} $build_target ${{ needs.define-matrix.outputs.tag }})
+        image_name_cn=$(bash script/get_image_name.sh ${{ github.repository_owner }} $build_target ${{ needs.define-matrix.outputs.tag_cn }})
+        echo "image_name=$image_name" >> $GITHUB_OUTPUT
+        echo "image_name_cn=$image_name_cn" >> $GITHUB_OUTPUT
+        is_cn=0 bash script/build_and_push_images.sh $build_target $image_name $is_cn
+        is_cn=1 bash script/build_and_push_images.sh $build_target $image_name_cn $is_cn
+    # TODO: generate runtime yaml and json
