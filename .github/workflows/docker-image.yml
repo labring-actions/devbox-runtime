@@ -68,10 +68,12 @@ jobs:
         echo "build_target=${{ matrix.build_target }}"
         echo "tag=${{ needs.define-matrix.outputs.tag }}"
         echo "tag_cn=${{ needs.define-matrix.outputs.tag_cn }}"
-        image_name=$(bash script/get_image_name.sh ${{ github.repository_owner }} $build_target ${{ needs.define-matrix.outputs.tag }})
-        image_name_cn=$(bash script/get_image_name.sh ${{ github.repository_owner }} $build_target ${{ needs.define-matrix.outputs.tag_cn }})
+        image_name=$(bash script/get_image_name.sh ${{ github.repository_owner }} "${{ matrix.build_target }}" "${{ needs.define-matrix.outputs.tag }}")
+        image_name_cn=$(bash script/get_image_name.sh ${{ github.repository_owner }} "${{ matrix.build_target }}" "${{ needs.define-matrix.outputs.tag_cn }}")
         echo "image_name=$image_name" >> $GITHUB_OUTPUT
         echo "image_name_cn=$image_name_cn" >> $GITHUB_OUTPUT
-        is_cn=0 bash script/build_and_push_images.sh $build_target $image_name $is_cn
-        is_cn=1 bash script/build_and_push_images.sh $build_target $image_name_cn $is_cn
+        echo "building image $image_name"
+        is_cn=0 bash script/build_and_push_images.sh "${{ matrix.build_target }}" "$image_name" $is_cn
+        echo "building image $image_name_cn"
+        is_cn=1 bash script/build_and_push_images.sh "${{ matrix.build_target }}" "$image_name_cn" $is_cn
     # TODO: generate runtime yaml and json
