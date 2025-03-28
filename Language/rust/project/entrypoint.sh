@@ -12,12 +12,8 @@ dev_commands() {
 # Production environment commands
 prod_commands() {
     echo "Running production environment commands..."
-    if [ -f "target/release/$build_target" ]; then
-        ./target/release/$build_target
-    else
-        cargo build --release --bin $build_target
-        ./target/release/$build_target
-    fi
+    cargo build --release --bin $build_target
+    ./target/release/$build_target
 }
 
 # Check environment variables to determine the running environment

@@ -12,14 +12,11 @@ dev_commands() {
 # Production environment commands
 prod_commands() {
     echo "Running production environment commands..."
-    if [ -f "$build_target" ]; then
-        ./$build_target
-    else
-        go build -o $build_target main.go
-        ./$build_target
-    fi
+    go build -o $build_target main.go
+    ./$build_target
 }
 
+# prod_commands
 # Check environment variables to determine the running environment
 if [ -n "$SEALOS_DEVBOX_NAME" ] ; then
     echo "Production environment detected"

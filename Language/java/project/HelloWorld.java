@@ -9,6 +9,7 @@ import java.net.InetSocketAddress;
 public class HelloWorld {
     public static void main(String[] args) throws IOException {
         HttpServer server = HttpServer.create(new InetSocketAddress(8080), 0);
+        System.out.println("Server running at http://0.0.0.0:8080/");
         server.createContext("/", new MyHandler());
         server.setExecutor(null);
         server.start();
