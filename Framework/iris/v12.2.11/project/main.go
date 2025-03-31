@@ -10,6 +10,21 @@ func main() {
     app := iris.New()
     app.Use(myMiddleware)
 
+    app.Get("/", func(ctx iris.Context) {
+        ctx.HTML(`
+            <!DOCTYPE html>
+            <html>
+            <head>
+                <title>Hello World Page</title>
+            </head>
+            <body>
+                <h1>Hello World</h1>
+                <p>Welcome to my Iris web application!</p>
+            </body>
+            </html>
+        `)
+    })
+
     app.Get("/ping", func(ctx iris.Context) {
         res := PingResponse{
             Message: "pong",
