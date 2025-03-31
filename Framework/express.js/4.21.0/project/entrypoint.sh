@@ -1,4 +1,5 @@
 #!/bin/bash
+app_env=${1:-development}
 
 # Development environment commands
 dev_commands() {
@@ -19,7 +20,7 @@ prod_commands() {
 }
 
 # Check environment variables to determine the running environment
-if [ -n "$SEALOS_DEVBOX_NAME" ] ; then
+if [ "$app_env" = "production" ] || [ "$app_env" = "prod" ] ; then
     echo "Production environment detected"
     prod_commands
 else

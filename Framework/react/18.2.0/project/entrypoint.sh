@@ -1,5 +1,7 @@
 #!/bin/bash
 
+app_env=${1:-development}
+
 # Install dependencies if node_modules doesn't exist
 if [ ! -d "node_modules" ]; then
     echo "Installing dependencies..."
@@ -25,8 +27,8 @@ prod_commands() {
     npx serve -s build
 }
 
-Check environment variables to determine the running environment
-if [ -n "$SEALOS_DEVBOX_NAME" ] ; then
+# Check environment variables to determine the running environment
+if [ "$app_env" = "production" ] || [ "$app_env" = "prod" ] ; then
     echo "Production environment detected"
     prod_commands
 else
