@@ -1,5 +1,7 @@
 #!/bin/bash
 
+app_env=${1:-development}
+
 # Development environment commands
 dev_commands() {
     echo "Running development environment commands..."
@@ -13,8 +15,8 @@ prod_commands() {
     dotnet ./bin/Release/net8.0/publish/hello_world.dll
 }
 
-Check environment variables to determine the running environment
-if [ -n "$SEALOS_DEVBOX_NAME" ] ; then
+# Check environment variables to determine the running environment
+if [ "$app_env" = "production" ] || [ "$app_env" = "prod" ] ; then
     echo "Production environment detected"
     prod_commands
 else
