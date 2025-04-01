@@ -7,5 +7,8 @@ fn index() -> &'static str {
 
 #[launch]
 fn rocket() -> _ {
-    rocket::build().mount("/", routes![index])
+    rocket::build()
+        .configure(rocket::Config::figment()
+            .merge(("address", "0.0.0.0")))
+        .mount("/", routes![index])
 }

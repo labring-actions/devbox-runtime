@@ -74,7 +74,7 @@ jobs:
         echo "image_name=$image_name" >> $GITHUB_OUTPUT
         echo "image_name_cn=$image_name_cn" >> $GITHUB_OUTPUT
         echo "building image $image_name"
-        is_cn=0 bash script/build_and_push_images.sh "${{ matrix.build_target }}" "$image_name" $is_cn
+        is_cn="0" bash script/build_and_push_images.sh "${{ matrix.build_target }}" "$image_name" $is_cn
         echo "building image $image_name_cn"
-        is_cn=1 bash script/build_and_push_images.sh "${{ matrix.build_target }}" "$image_name_cn" $is_cn
+        is_cn="1" bash script/build_and_push_images.sh "${{ matrix.build_target }}" "$image_name_cn" $is_cn
     # TODO: generate runtime yaml and json

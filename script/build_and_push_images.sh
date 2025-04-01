@@ -17,7 +17,7 @@ function execute_cn_patch() {
   bash "$script_dir/update_cn_dockerfile.sh" "$build_target"
 }
 
-if [ "$is_cn" -eq 1 ]; then
+if [ "$is_cn" == "1" ]; then
   execute_cn_patch
 fi
 

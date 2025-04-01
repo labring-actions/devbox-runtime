@@ -1,4 +1,5 @@
 #!/bin/bash
+app_env=${1:-development}
 
 # Define build target
 build_target="hello_world"
@@ -12,16 +13,13 @@ dev_commands() {
 # Production environment commands
 prod_commands() {
     echo "Running production environment commands..."
-    if [ -f "$build_target" ]; then
-        ./$build_target
-    else
-        go build -o $build_target main.go
-        ./$build_target
-    fi
+    go build -o $build_target main.go
+    ./$build_target
 }
 
+# prod_commands
 # Check environment variables to determine the running environment
-if [ -n "$SEALOS_DEVBOX_NAME" ] ; then
+if [ "$app_env" = "production" ] || [ "$app_env" = "prod" ] ; then
     echo "Production environment detected"
     prod_commands
 else
