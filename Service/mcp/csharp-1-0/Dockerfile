@@ -16,8 +16,8 @@ sudo wget https://dot.net/v1/dotnet-install.sh -O dotnet-install.sh && \
 sudo chmod -R +x ./dotnet-install.sh && \
 sudo ./dotnet-install.sh --version 9.0.100 -InstallDir /usr/share/dotnet/ && \
 sudo echo 'export PATH=$PATH:/usr/share/dotnet/' >> ~/.bashrc && \
-sudo source ~/.bashrc && \
-sudo apt-get update && sudo apt-get install -y libicu-dev && \
+sudo apt-get update && \
+sudo apt-get install -y libicu-dev
 
 
 RUN mkdir -p /home/devbox/.devbox
