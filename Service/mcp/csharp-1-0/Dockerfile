@@ -18,9 +18,6 @@ RUN apt update && \
     rm packages-microsoft-prod.deb && \
     sudo apt-get update && \
     sudo apt-get install -y dotnet-sdk-9.0 && \
-    cd /home/devbox/project && \
-    dotnet new console && \
-    dotnet build && \
     chown -R devbox:devbox /home/devbox/project && \
     chmod -R u+rw /home/devbox/project && \
     chmod -R +x /home/devbox/project/entrypoint.sh && \
