@@ -2,7 +2,7 @@ FROM ghcr.io/labring-actions/devbox/python-3.12:13aacd
 
 RUN cd /home/devbox/project && \
 rm -rf ./*
-COPY /MCP/Python/1.6.0/project /home/devbox/project
+COPY /Service/mcp/python-3-12/project /home/devbox/project
 
 RUN chown -R devbox:devbox /home/devbox/project && \
     chmod -R u+rw /home/devbox/project && \
