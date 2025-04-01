@@ -17,7 +17,7 @@ RUN apt update && \
     sudo dpkg -i packages-microsoft-prod.deb && \
     rm packages-microsoft-prod.deb && \
     sudo apt-get update && \
-    sudo apt-get install -y dotnet-sdk-9.0.100 && \
+    sudo apt-get install -y dotnet-sdk-9.0 && \
     cd /home/devbox/project && \
     dotnet new console && \
     dotnet build && \
