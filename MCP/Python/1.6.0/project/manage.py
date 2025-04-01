@@ -45,8 +45,13 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser(description='Run MCP SSE-based server')
     parser.add_argument('--host', default='0.0.0.0', help='Host to bind to')
     parser.add_argument('--port', type=int, default=8080, help='Port to listen on')
+    parser.add_argument('--env', default='dev', help='Environment (dev/prod)')
     args = parser.parse_args()
-
+    # Configure based on environment
+    if args.env == 'prod':
+        debug = False
+    else:
+        debug = True
     # Bind SSE request handling to MCP server
-    starlette_app = create_starlette_app(mcp_server, debug=True)
+    starlette_app = create_starlette_app(mcp_server, debug=debug)
     uvicorn.run(starlette_app, host=args.host, port=args.port)
