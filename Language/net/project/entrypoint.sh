@@ -1,5 +1,7 @@
 #!/bin/bash
 
+cd /home/devbox/project
+
 app_env=${1:-development}
 
 # Development environment commands

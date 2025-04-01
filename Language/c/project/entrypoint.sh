@@ -17,7 +17,7 @@ prod_commands() {
     echo "Running production environment commands..."
     export ENV="production"
     gcc -O2 -Wall ${build_target}.c -o $build_target || exit 1
-    nohup ./$build_target > server.log 2>&1 &
+    ./$build_target
     echo "Server started in background. Check server.log for details."
 }
 
