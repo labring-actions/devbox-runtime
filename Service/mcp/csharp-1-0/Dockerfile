@@ -1,4 +1,4 @@
-FROM ghcr.io/labring-actions/devbox/node.js-20:219d11
+FROM ghcr.io/labring-actions/devbox/debian-ssh-12.6:547a61
 
 USER root
 RUN cd /home/devbox/project && \
