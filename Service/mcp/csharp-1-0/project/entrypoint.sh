@@ -4,15 +4,15 @@ app_env=${1:-development}
 
 # Development environment commands
 dev_commands() {
-    echo "Running Svelte development environment..."
+    echo "Running MCP Csharp development environment..."
     dotnet run
 }
 
 # Production environment commands
 prod_commands() {
-    echo "Running Svelte production build..."
+    echo "Running MCP Csharp production build..."
     dotnet publish
-    echo "Starting Svelte production preview server..."
+    echo "Starting MCP Csharp production preview server..."
     dotnet run -- --host 0.0.0.0 --port 3001
 }
 
