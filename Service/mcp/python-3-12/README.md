@@ -1,6 +1,6 @@
 # Python MCP Server Example
 
-This is a simple Springboot MCP server application that uses Claude's official MCP-related dependencies to implement the remote server function of SSE communication.
+This is a simple Python MCP server application that uses Claude's official MCP-related dependencies to implement the remote server function of SSE communication.
 
 ## Project Description
 
