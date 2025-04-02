@@ -1,36 +1,64 @@
-# 简单 WEB 后端框架
+# Sealaf Web Application Framework Example
 
-仓库地址：[simple-web](https://github.com/HUAHUAI23/simple-web)
+This is a modern function-based web application framework example built with Sealaf 1.0.0, providing a clean and powerful API development experience.
 
-一个轻量级的 **函数编程式 Web 服务框架**，支持 **函数式** 编写后端接口，内置 WebSocket、XML 解析、CORS 等特性，方便 **小程序，函数计算，腾讯云开发用户** 快速进行后端服务开发。方便集成到各种公有云平台，容器平台，进行各种 **插件式开发，敏捷开发**。
+## Project Description
 
-- [sealos 操作系统 公有云环境](https://gzg.sealos.run)
-- [sealos devbox 快速开发](https://gzg.sealos.run/?openapp=system-devbox)
-- [sealos 云开发](https://gzg.sealos.run/?openapp=system-sealaf)
+This project creates a lightweight function-programming web service framework showcasing Simple Web's file-system routing capabilities. The application uses a functional approach for writing backend APIs with zero configuration and automatic route generation. The server listens on port 2342 and provides a clean, intuitive API development experience. The framework supports WebSocket, XML parsing, CORS, and other features, making it suitable for rapid development of small applications, microservices, and cloud functions.
 
-## 🌟 核心特性
+## Environment
 
-- **零配置开发** - 快速启动项目，无需繁琐配置
-- **自动路由生成** - 基于文件系统的路由组织方式
-- **函数式编程** - 直观的接口编写方式
-- **丰富的内置功能**
-  - WebSocket 支持
-  - XML 解析能力
-  - CORS 配置
-  - 函数缓存
-  - 可配置日志级别
-  - Express.js 扩展能力
+This project runs on a Debian 12 system with Node.js and Sealaf 1.0.0, which is pre-configured in the Devbox environment. You don't need to worry about setting up Node.js, npm, or Sealaf dependencies yourself. The development environment includes all necessary tools for building and running Sealaf applications. If you need to make adjustments to match your specific requirements, you can modify the configuration files accordingly.
 
-## 🚀 快速开始
+## Project Execution
 
-> 第一个 hello world 接口
+**Development mode:** For normal development environment, simply enter Devbox and run `bash entrypoint.sh` in the terminal. This will start the Simple Web development server with hot-reload enabled.
 
-### 环境要求
+**Production mode:** After release, the project will be automatically packaged into a Docker image and deployed according to the `entrypoint.sh` script with production parameters (run `bash entrypoint.sh production`). This will build an optimized production build and run the application.
+
+
+DevBox: Code. Build. Deploy. We've Got the Rest.
+
+With DevBox, you can focus entirely on writing great code while we handle the infrastructure, scaling, and deployment. Seamless development from start to production.
+
+
+
+
+
+
+# Simple WEB Backend Framework
+
+Repository: [simple-web](https://github.com/HUAHUAI23/simple-web)
+
+A lightweight **function-programming Web service framework** that supports **functional** backend interface development with built-in features like WebSocket, XML parsing, CORS, etc. It enables rapid backend service development for **mini-programs, function computing, and cloud development users**. The framework easily integrates with various public cloud platforms and container platforms, supporting **plugin-based development and agile development**.
+
+- [sealos operating system public cloud environment](https://gzg.sealos.run)
+- [sealos devbox rapid development](https://gzg.sealos.run/?openapp=system-devbox)
+- [sealos cloud development](https://gzg.sealos.run/?openapp=system-sealaf)
+
+## 🌟 Core Features
+
+- **Zero Configuration Development** - Quick project startup without complex configuration
+- **Automatic Route Generation** - File system-based routing organization
+- **Functional Programming** - Intuitive interface development approach
+- **Rich Built-in Features**
+  - WebSocket support
+  - XML parsing capability
+  - CORS configuration
+  - Function caching
+  - Configurable logging levels
+  - Express.js extension capabilities
+
+## 🚀 Quick Start
+
+> Your first hello world API
+
+### Environment Requirements
 
 - Node.js >= 22.0.0
-- pnpm（推荐的包管理工具）
+- pnpm (recommended package manager)
 
-### 安装
+### Installation
 
 `package.json`:
 
@@ -69,7 +97,7 @@
 }
 ```
 
-tsconfig.json:
+`tsconfig.json`:
 
 ```json
 {
@@ -128,9 +156,9 @@ tsconfig.json:
 }
 ```
 
-下面的示例，项目根目录均为 `demo` 在项目根目录下添加上面三个文件 package.json 、tsconfig.json 和 nodemon.json，然后执行 `pnpm install simple-web` 安装依赖, 如果没有安装 pnpm 请先安装 pnpm，`npm install -g pnpm`
+For the examples below, create the above three files (package.json, tsconfig.json, and nodemon.json) in your project root directory 'demo', then run `pnpm install simple-web` to install dependencies. If pnpm is not installed, first install it using `npm install -g pnpm`.
 
-项目结构示例
+Example project structure:
 
 ```plain
 demo
@@ -140,9 +168,9 @@ demo
 ├── nodemon.json
 ```
 
-### 使用
+### Usage
 
-下面给出入口文件为 `index.ts` ，在 `index.ts` 中引入 SimpleWeb 并启动服务的示例。
+Below is an example of the entry file `index.ts` that imports SimpleWeb and starts the service.
 
 `demo/index.ts`
 
@@ -160,15 +188,15 @@ const app = new SimpleWeb(config)
 app.start()
 ```
 
-启动项目，在项目根目录下执行 `pnpm dev`
+To start the project, run `pnpm dev` in the project root directory.
 
-默认服务监听端口为 `2342`，默认在根目录中生成 `functions` 目录，所有 **接口函数** 必须都写在这个目录下，只有该目录下的函数才会被注册为路由。
+The default service port is `2342`, and a `functions` directory is automatically generated in the root directory. All **API functions** must be written in this directory, as only functions in this directory will be registered as routes.
 
-simple web 框架的路由组织方式为文件系统组织方式，例如 `functions/hello.ts` 对应的路由为 `/hello` ，`functions/user/info.ts` 对应的路由为 `/user/info`
+The simple web framework uses a file system-based routing organization. For example, `functions/hello.ts` corresponds to the route `/hello`, and `functions/user/info.ts` corresponds to the route `/user/info`.
 
-访问每个接口时，默认执行 `default` 函数，因此需要定义默认导出函数 `export default async function` 或者 `export default function`
+When accessing each API, the `default` function is executed by default, so you need to define a default export function using `export default async function` or `export default function`.
 
-开始第一个 hello 接口
+Let's create your first hello API:
 
 `functions/hello.ts`
 
@@ -182,258 +210,28 @@ export default async function (ctx: FunctionContext) {
 }
 ```
 
-```plain
-demo
-├── functions
-│   ├── hello.ts
-├── index.ts
-├── package.json
-├── tsconfig.json
-├── nodemon.json
-```
+Most web development requires **databases** and **object storage**. Below are examples of using MongoDB and S3 object storage.
 
-在项目根目录运行项目，`pnpm dev` 后,访问 `http://localhost:2342/hello`， 可以利用 curl 工具模拟访问 `curl http://localhost:2342/hello`，可以看到数据返回
+The simple web framework supports writing persistent clients outside the API function directory, such as database clients, S3 object storage clients, and cron jobs. It's recommended to write these clients and cron jobs outside the API function directory.
 
-```json
-{
-    "data": "hello world"
-}
-```
+### Using MongoDB
 
-### 📚进阶指南
-
-simple web 框架使用 mongo 数据库，s3 对象存储，请看 [跳到更多示例](#更多示例)
-获取 simple web 框架的函数上下文，配置项，请看 [跳到函数上下文](#simple-web-框架函数上下文)
-
-## simple web 框架函数上下文
-
-接口函数的默认导出函数为 `default` 函数，`default` 函数接收一个 `FunctionContext` 参数，`FunctionContext` 为 simple web 框架的函数上下文，包含以下属性：
-
-### FunctionContext 属性说明
-
-- `files`: 上传文件信息
-  - 类型: `{ [fieldname: string]: Express.Multer.File[] } | Express.Multer.File[] | undefined`
-  - 说明: 包含通过表单上传的文件信息
-
-- `headers`: 请求头信息
-  - 类型: `Request['headers']`
-  - 说明: HTTP 请求头部信息
-
-- `query`: URL 查询参数
-  - 类型: `Request['query']`
-  - 说明: URL 中的查询字符串参数
-
-- `body`: 请求体数据
-  - 类型: `Request['body']`
-  - 说明: HTTP 请求体中的数据
-
-- `params`: 路由参数
-  - 类型: `Request['params']`
-  - 说明: URL 路径中的动态参数
-
-- `method`: 请求方法
-  - 类型: `Request['method']`
-  - 说明: HTTP 请求方法（GET、POST 等）
-
-- `webSocket`: WebSocket 连接对象
-  - 类型: `WebSocket`
-  - 说明: WebSocket 连接实例（仅在 WebSocket 连接时可用）
-
-- `request`: 原始请求对象
-  - 类型: `Request`
-  - 说明: Express 原始请求对象
-
-- `response`: 原始响应对象
-  - 类型: `Response`
-  - 说明: Express 原始响应对象
-
-- `__function_name`: 函数名称
-  - 类型: `string`
-  - 说明: 当前执行的函数名称
-
-- `requestId`: 请求 ID
-  - 类型: `string`
-  - 说明: 用于追踪请求的唯一标识符
-
-- `url`: 请求 URL
-  - 类型: `string`
-  - 说明: 完整的请求 URL
-
-#### 使用示例 FunctionContext 示例
-
-```typescript
-import type { FunctionContext } from 'simple-web23'
-
-export default async function (ctx: FunctionContext) {
-    // 获取查询参数
-    const { name } = ctx.query
-
-    // 获取请求头
-    const userAgent = ctx.headers['user-agent']
-
-    // 获取请求体数据
-    const { data } = ctx.body
-
-    return {
-        name,
-        userAgent,
-        data,
-        requestId: ctx.requestId
-    }
-}
-```
-
-#### 使用原始 Response 对象示例
-
-如果需要更细粒度的控制响应，可以直接使用 `ctx.response` 对象：
-
-```typescript
-import type { FunctionContext } from 'simple-web23'
-
-export default async function (ctx: FunctionContext) {
-    // 使用原始 response 对象设置状态码和发送响应
-    ctx.response
-        .status(201)
-        .send({
-            message: 'Created successfully',
-            timestamp: new Date().toISOString()
-        })
-}
-```
-
-这种方式让你可以：
-
-- 直接设置 HTTP 状态码
-- 自定义响应头
-- 控制响应格式
-- 流式传输数据
-- 使用其他 Express Response 对象的方法
-
-### 接口函数全局上下文
-
-```typescript
-export interface FunctionModuleGlobalContext {
-    __filename: string;
-    module: Module;
-    exports: Module['exports'];
-    console: Console;
-    __require: typeof FunctionModule.functionsImport;
-    RegExp: typeof RegExp;
-    Buffer: typeof Buffer;
-    Float32Array: typeof Float32Array;
-    setInterval: typeof setInterval;
-    clearInterval: typeof clearInterval;
-    setTimeout: typeof setTimeout;
-    clearTimeout: typeof clearTimeout;
-    setImmediate: typeof setImmediate;
-    clearImmediate: typeof clearImmediate;
-    Promise: typeof Promise;
-    process: typeof process;
-    URL: typeof URL;
-    fetch: typeof fetch;
-    global: unknown;
-    __from_modules: string[];
-}
-```
-
-```typescript
-import type { FunctionModuleGlobalContext } from 'simple-web23'
-```
-
-接口函数的全局上下文可以通过 `global` 对象访问，例如 `global.__filename` 可以获取当前接口函数文件路径
-
-## simple web 框架配置项
-
-### 配置项
-
-```typescript
-import type { SimpleWebConfig } from 'simple-web23'
-import { Config } from 'simple-web23'
-```
-
-SimpleWeb 框架支持以下配置选项：
-
-| 配置项 | 类型 | 默认值 | 说明 |
-|--------|------|---------|------|
-| port | number | 2342 | 服务器监听端口 |
-| logLevel | 'debug' \| 'info' \| 'warn' \| 'error' | 'info' | 日志输出级别 |
-| displayLineLogLevel | 'debug' \| 'info' \| 'warn' \| 'error' | 'info' | 显示行号的日志级别 |
-| logDepth | number | 4 | 日志对象递归深度 |
-| requestLimitSize | string | '50mb' | 请求体大小限制 |
-| disableModuleCache | boolean | false | 是否禁用模块缓存 |
-| isProd | boolean | false | 是否为生产环境 |
-| workspacePath | string | \`${process.cwd()}/functions\` | 接口函数目录 |
-
-#### 使用配置项示例
-
-```typescript
-import { SimpleWeb, SimpleWebConfig } from 'simple-web23'
-
-const config: SimpleWebConfig = {
-    port: 3000,
-    logLevel: 'debug',
-    isProd: process.env.NODE_ENV === 'production',
-    requestLimitSize: '100mb'
-}
-
-const app = new SimpleWeb(config)
-app.start()
-```
-
-### 工具函数
-
-simple web 框架提供 `FunctionCache` `FunctionModule` `FunctionExecutor` 三个工具函数
-
-```typescript
-import { FunctionCache, FunctionModule, FunctionExecutor } from 'simple-web23'
-```
-
-使用 `FunctionCache` 可以获取当前所有的接口函数的原始代码缓存
-
-```typescript
-import type { FunctionContext } from 'simple-web23'
-export default async function (ctx: FunctionContext) {
-    const cache = FunctionCache.getAll()
-    console.log(cache)
-}
-```
-
-使用 `FunctionModule` 可以获取当前所有的接口函数模块
-
-```typescript
-import type { FunctionContext } from 'simple-web23'
-export default async function (ctx: FunctionContext) {
-    const modules = FunctionModule.getCache()
-    console.log(modules)
-}
-```
-
-## 更多示例
-
-大部分 web 开发中都需要用到 **数据库** **对象存储** 这些东西, 下面给出使用 mongo 数据库 和 S3 对象存储的示例。
-
-simple web 框架支持在接口函数目录外写一些 持久化的 client，例如 数据库 client，s3 对象存储 client 等和一些 corn job 等，推荐将这些 client 和 cron job 写在接口函数目录外。
-
-### 使用 mongo 数据库
-
-在项目根目录执行 `pnpm install mongodb` 安装 mongodb 客户端，在 `client` 目录下创建 `mongo.ts` 文件，写入 mongodb 客户端代码。
+Run `pnpm install mongodb` in the project root directory to install the MongoDB client. Create a `mongo.ts` file in the `client` directory with the MongoDB client code.
 
 ```typescript
 import { MongoClient } from 'mongodb'
 
-// 生产环境切记将密码和用户 替换成从环境变量中获取，切记不要在代码中写死泄露密码
+// In production, remember to replace username and password with environment variables
 // const username = process.env.MONGO_USERNAME
 // const password = process.env.MONGO_PASSWORD
 // const uri = `mongodb://${username}:${password}@test-mongodb.ns-1k9qk3v6.svc:27017`
 const uri = "mongodb://root:tf44dbrn@dbconn.sealosgzg.site:45222/?directConnection=true"
 
-
-
-// 创建 MongoDB 客户端实例
+// Create MongoDB client instance
 export const client = new MongoClient(uri)
 ```
 
-在 `functions` 目录下创建 `mongo-test.ts` 文件，写入 mongodb 测试代码。
+Create a `mongo-test.ts` file in the `functions` directory with MongoDB test code.
 
 ```typescript
 import { FunctionContext } from 'simple-web23'
@@ -443,87 +241,74 @@ export default async function (ctx: FunctionContext) {
     const database = client.db('test')
     const collection = database.collection('test')
 
-    // 创建测试数据
-    console.log('--- 创建测试数据 ---')
+    // Create test data
+    console.log('--- Creating test data ---')
     const insertResult = await collection.insertMany([
-        { name: '张三', age: 25, city: '北京' },
-        { name: '李四', age: 30, city: '上海' }
+        { name: 'John', age: 25, city: 'Beijing' },
+        { name: 'Jane', age: 30, city: 'Shanghai' }
     ])
-    console.log('插入数据结果:', insertResult)
+    console.log('Insert result:', insertResult)
 
-    // 查询所有数据
-    console.log('\n--- 查询所有数据 ---')
+    // Query all data
+    console.log('\n--- Querying all data ---')
     const allDocs = await collection.find({}).toArray()
-    console.log('所有数据:', allDocs)
+    console.log('All data:', allDocs)
 
-    // 查询单个数据
-    console.log('\n--- 查询单个数据 ---')
-    const oneDoc = await collection.findOne({ name: '张三' })
-    console.log('查询张三的数据:', oneDoc)
+    // Query single document
+    console.log('\n--- Querying single document ---')
+    const oneDoc = await collection.findOne({ name: 'John' })
+    console.log('John\'s data:', oneDoc)
 
-    // 更新数据
-    console.log('\n--- 更新数据 ---')
+    // Update data
+    console.log('\n--- Updating data ---')
     const updateResult = await collection.updateOne(
-        { name: '张三' },
-        { $set: { age: 26, city: '深圳' } }
+        { name: 'John' },
+        { $set: { age: 26, city: 'Shenzhen' } }
     )
-    console.log('更新结果:', updateResult)
+    console.log('Update result:', updateResult)
 
-    // 查看更新后的数据
-    const updatedDoc = await collection.findOne({ name: '张三' })
-    console.log('更新后的张三数据:', updatedDoc)
+    // View updated data
+    const updatedDoc = await collection.findOne({ name: 'John' })
+    console.log('John\'s updated data:', updatedDoc)
 
-    // 删除数据
-    console.log('\n--- 删除数据 ---')
-    const deleteResult = await collection.deleteOne({ name: '李四' })
-    console.log('删除结果:', deleteResult)
+    // Delete data
+    console.log('\n--- Deleting data ---')
+    const deleteResult = await collection.deleteOne({ name: 'Jane' })
+    console.log('Delete result:', deleteResult)
 
-    // 最终查询所有数据
-    console.log('\n--- 最终数据 ---')
+    // Final query of all data
+    console.log('\n--- Final data ---')
     const finalDocs = await collection.find({}).toArray()
-    console.log('最终所有数据:', finalDocs)
+    console.log('Final all data:', finalDocs)
 
-    return { message: '测试完成' }
+    return { message: 'Test completed' }
 }
 ```
 
-```plain
-demo
-├── functions
-│   ├── hello.ts
-│   ├── mongo-test.ts
-├── client
-│   ├── mongo.ts
-├── index.ts
-├── package.json
-├── tsconfig.json
-├── nodemon.json
-```
+### Using S3 Object Storage
 
-### 使用 S3 对象存储
-
-在项目根目录执行 `pnpm install @aws-sdk/client-s3` 安装 s3 客户端，在 `client` 目录下创建 `s3.ts` 文件，写入 s3 客户端代码。
+Run `pnpm install @aws-sdk/client-s3` in the project root directory to install the S3 client. Create an `s3.ts` file in the `client` directory with the S3 client code.
 
 ```typescript
 import { S3Client, ListObjectsV2Command, PutObjectCommand, _Object } from "@aws-sdk/client-s3"
 
-// 创建 S3 客户端
-// 生产环境切记将密码和用户 替换成从环境变量中获取，切记不要在代码中写死泄露密码
+// Create S3 client
+// In production, remember to replace credentials with environment variables
 // const accessKeyId = process.env.S3_ACCESS_KEY_ID
 // const secretAccessKey = process.env.S3_SECRET_ACCESS_KEY
 
 const s3Client = new S3Client({
-    region: "cn-north-1", // 例如 "ap-northeast-1"
-    endpoint: "https://objectstorageapi.gzg.sealos.run", // 例如 "https://s3.amazonaws.com" 或自定义endpoint
+    region: "cn-north-1", // e.g., "ap-northeast-1"
+    endpoint: "https://objectstorageapi.gzg.sealos.run", // e.g., "https://s3.amazonaws.com" or custom endpoint
     credentials: {
         accessKeyId: "xxxxxxxxxx",
         secretAccessKey: "xxxxxxxxxx"
     },
-    // 如果使用自定义endpoint（比如MinIO），可能需要以下配置
-    forcePathStyle: true, // 强制使用路径样式而不是虚拟主机样式
+    // For custom endpoints (like MinIO), you may need these settings
+    forcePathStyle: true, // Force path style instead of virtual hosted style
 })
 
-// 列出 bucket 中的文件
+// List files in bucket
 async function listFiles(bucketName: string) {
     try {
         const command = new ListObjectsV2Command({
@@ -532,19 +317,19 @@ async function listFiles(bucketName: string) {
 
         const response = await s3Client.send(command)
 
-        // 打印文件列表
+        // Print file list
         response.Contents?.forEach((file: _Object) => {
-            console.log(`文件名: ${file.Key}, 大小: ${file.Size} bytes`)
+            console.log(`Filename: ${file.Key}, Size: ${file.Size} bytes`)
         })
 
         return response.Contents
     } catch (error) {
-        console.error("列出文件失败:", error)
+        console.error("Failed to list files:", error)
         throw error
     }
 }
 
-// 上传文件到 S3
+// Upload file to S3
 async function uploadFile(bucketName: string, key: string, fileContent: Buffer) {
     try {
         const command = new PutObjectCommand({
@@ -554,10 +339,10 @@ async function uploadFile(bucketName: string, key: string, fileContent: Buffer) 
         })
 
         const response = await s3Client.send(command)
-        console.log("文件上传成功:", response)
+        console.log("File upload successful:", response)
         return response
     } catch (error) {
-        console.error("文件上传失败:", error)
+        console.error("File upload failed:", error)
         throw error
     }
 }
@@ -565,13 +350,11 @@ async function uploadFile(bucketName: string, key: string, fileContent: Buffer) 
 export { listFiles, uploadFile }
 ```
 
-在 `functions` 目录下创建 `s3-test.ts` 文件，写入 s3 测试代码。
+Create an `s3-test.ts` file in the `functions` directory with S3 test code.
 
 ```typescript
 import { FunctionContext } from 'simple-web23'
 import { listFiles, uploadFile } from '../client/s3'
-
-
 
 export default async function (ctx: FunctionContext) {
     const bucketName = '1k9qk3v6-test2'
@@ -583,15 +366,15 @@ export default async function (ctx: FunctionContext) {
 }
 ```
 
-## 🎯 未来规划
+## 🎯 Future Plans
 
-- [ ] 插件系统支持
-- [ ] 全局上下文定义
-- [ ] 生命周期钩子
-- [ ] Path 路由增强
-- [ ] OpenAPI 集成
-- [ ] 多语言支持 (Python/Go/Java)
+- [ ] Plugin system support
+- [ ] Global context definition
+- [ ] Lifecycle hooks
+- [ ] Path routing enhancement
+- [ ] OpenAPI integration
+- [ ] Multi-language support (Python/Go/Java)
 
-## 🤝 贡献指南
+## 🤝 Contribution Guidelines
 
-欢迎提交 Issue 和 Pull Request。
+Issues and Pull Requests are welcome.
