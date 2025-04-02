@@ -10,7 +10,7 @@ public class DemoService {
      */
     @Tool(description = "demo tool call")
     public String toolCall() {
-        return "test";
+        return "Hello,World!";
     }
 
     public static void main(String[] args) {

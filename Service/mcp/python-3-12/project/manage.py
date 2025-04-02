@@ -7,13 +7,13 @@ from mcp.server import Server
 import uvicorn
 
 """Define your mcp server name"""
-mcp = FastMCP("weather")
+mcp = FastMCP("demo")
 
 
 """Define your mcp server logic"""
 @mcp.tool()
-async def get_forecast() -> str:
-    return "\n---\n"
+async def demo_toolcall() -> str:
+    return "Hello,World!"
 
 
 def create_starlette_app(mcp_server: Server, *, debug: bool = False) -> Starlette:
