@@ -1,0 +1,21 @@
+{
+  "name": "mcp-server-ts",
+  "version": "1.0.0",
+  "description": "A simple MCP server in TypeScript",
+  "type": "module",
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.8.0",
+    "express": "^5.1.0",
+    "zod": "^3.24.2"
+  },
+  "devDependencies": {
+    "@types/express": "^5.0.1",
+    "tsx": "^4.19.3",
+    "typescript": "^5.8.2"
+  },
+  "scripts": {
+    "build": "tsc",
+    "start": "node dist/app.js",
+    "dev": "tsx app.ts & npx @modelcontextprotocol/inspector"
+  }
+}
