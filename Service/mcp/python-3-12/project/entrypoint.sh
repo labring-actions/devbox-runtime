@@ -3,7 +3,7 @@
 app_env=${1:-development}
 
 # ※To use pip, parameters need to be added: --break-system-packages
-. bin/activate
+. .venv/bin/activate
 # Activate virtual environment
 
 # Development environment commands
