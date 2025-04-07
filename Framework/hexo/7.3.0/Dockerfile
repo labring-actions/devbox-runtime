@@ -12,7 +12,7 @@ hexo init /home/devbox/project && \
 cd /home/devbox/project && \
 npm install
 COPY /Framework/hexo/7.3.0/entrypoint.sh /home/devbox/project/entrypoint.sh
-COPY /Framework/hexo/7.3.0/README.md /home/devbox/project/README.md
+# COPY /Framework/hexo/7.3.0/README.md /home/devbox/project/README.md
  
 USER root
 RUN chown -R devbox:devbox /home/devbox/project/entrypoint.sh && \
