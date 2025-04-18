@@ -78,7 +78,8 @@ jobs:
           sql=$(bash script/generate_template_sql.sh $image_name $template_json $template_repo_json)
           # 保存 SQL 到文件
           mkdir -p /sql/templates/
-          echo "$sql" > "/sql/templates/${{ matrix.build_target//\//_ }}.sql"
+          build_target_filename=$(echo "${{ matrix.build_target }}" | sed 's/\//_/g')
+          echo "$sql" > "/sql/templates/${{ build_target_filename }}.sql.tmp"
       - name: Build and push image
         run: |
           echo "building image $image_name"
