@@ -1,10 +1,7 @@
 #!/bin/bash
 
-# 确保脚本在发生错误时立即退出
-set -e
 
-if [ "$#" -ne 4 ]
-then
+if [ "$#" -ne 3 ]; then
     echo "Usage: $0 <image> <template_json> <template_repo_json>"
     exit 1
 fi
@@ -14,12 +11,20 @@ IMAGE=$1
 TEMPLATE_JSON=$2
 TEMPLATE_REPO_JSON=$3
 
+echo "IMAGE=$IMAGE"
+echo "TEMPLATE_JSON=$TEMPLATE_JSON"
+echo "TEMPLATE_REPO_JSON=$TEMPLATE_REPO_JSON"
+
 SQL_DIR="sql"
 SQL_FILE="$SQL_DIR/$RUNTIME_NAME-$SHORT_COMMIT_ID.sql.tmp"
 # IMAGE="ghcr.io/labring-actions/devbox/$RUNTIME_NAME:$SHORT_COMMIT_ID"
 RUNTIME_NAME=$(echo "$TEMPLATE_REPO_JSON" | jq -r '.name')
 IS_PUBLIC=$(echo "$TEMPLATE_REPO_JSON" | jq -r '.isPublic')
 KIND=$(echo "$TEMPLATE_REPO_JSON" | jq -r '.kind')
+VERSION=$(echo "$TEMPLATE_JSON" | jq -r '.name')
+PORT=$(echo "$TEMPLATE_JSON" | jq -r '.port')
+TEMPLATE_CONFIG=$(bash script/generate_template_config.sh --app-port $PORT)
+
 
 # 创建目录（如果不存在）
 mkdir -p $SQL_DIR
@@ -53,7 +58,6 @@ WHERE NOT EXISTS (
 );
 
 -- 2. 更新已存在的 Template为 isDeleted (如果有)
-WITH
 WITH org_uid AS (
     SELECT "uid" FROM "Organization"
     WHERE "name" = 'labring'
@@ -93,5 +97,3 @@ SELECT
     now(),
     now();
 EOF
-
-echo "Generated SQL Template File: $SQL_FILE"

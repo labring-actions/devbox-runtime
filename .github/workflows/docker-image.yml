@@ -64,22 +64,33 @@ jobs:
           registry: ghcr.io
           username: ${{ github.repository_owner }}
           password: ${{ secrets.GH_PAT }}
+      - name: Install jq
+        run: |
+          sudo apt-get install jq
       - name: Generate SQL
         run: |
           echo "build_target=${{ matrix.build_target }}"
           echo "tag=${{ needs.define-matrix.outputs.tag }}"
           echo "tag_cn=${{ needs.define-matrix.outputs.tag_cn }}"
-          echo "image_name=$image_name" >> $GITHUB_OUTPUT
-          echo "image_name_cn=$image_name_cn" >> $GITHUB_OUTPUT
           image_name=$(bash script/get_image_name.sh ${{ github.repository_owner }} "${{ matrix.build_target }}" "${{ needs.define-matrix.outputs.tag }}")
           image_name_cn=$(bash script/get_image_name.sh ${{ github.repository_owner }} "${{ matrix.build_target }}" "${{ needs.define-matrix.outputs.tag_cn }}")
+          echo "image_name=$image_name" >> $GITHUB_OUTPUT
+          echo "image_name_cn=$image_name_cn" >> $GITHUB_OUTPUT
           template_json=$(bash script/get_template_config_json.sh "${{ matrix.build_target }}")
-          template_repo_json=$(bash script/get_template_repo_json.sh "${{ matrix.build_target }}")
-          sql=$(bash script/generate_template_sql.sh $image_name $template_json $template_repo_json)
-          # 保存 SQL 到文件
-          mkdir -p /sql/templates/
-          build_target_filename=$(echo "${{ matrix.build_target }}" | sed 's/\//_/g')
-          echo "$sql" > "/sql/templates/${{ build_target_filename }}.sql.tmp"
+          echo "template_json=$template_json"
+          template_repo_json=$(bash script/get_template_repo_config_json.sh "${{ matrix.build_target }}")
+          echo "template_repo_json=$template_repo_json"
+          sql=$(bash script/generate_template_sql.sh "$image_name" "$template_json" "$template_repo_json")
+          echo "sql=$sql" >> $GITHUB_OUTPUT
+      # - name: Save SQL to GitHub Packages
+      #   run: |
+      #     bash script/save_sql.sh "${{ matrix.build_target }}" "$sql"
+      - run: mkdir -p sql/templates
+      - run: echo $sql > sql/templates/$(echo "$BUILD_TARGET" | sed 's/\//_/g').sql
+      - uses: actions/upload-artifact@v4
+        with:
+          name: upload sql
+          path: sql/templates/$(echo "$BUILD_TARGET" | sed 's/\//_/g').sql
       - name: Build and push image
         run: |
           echo "building image $image_name"
