@@ -4,12 +4,12 @@ on:
   workflow_dispatch:
     inputs:
       tag:
-        description: 'tag for the Docker image'
+        description: "tag for the Docker image"
         required: true
-        default: 'latest'
+        default: "latest"
   push:
     branches:
-      - 'main'
+      - "main"
 jobs:
   define-matrix:
     runs-on: ubuntu-latest
@@ -50,31 +50,39 @@ jobs:
       matrix:
         build_target: ${{ fromJson(needs.define-matrix.outputs.build_targets) }}
     steps:
-    - name: Checkout code
-      uses: actions/checkout@v4
-      with:
-        fetch-depth: 0
-    - name: Set up QEMU
-      uses: docker/setup-qemu-action@v3
-    - name: Set up Docker Buildx
-      uses: docker/setup-buildx-action@v3
-    - name: Login to ghcr.io
-      uses: docker/login-action@v3
-      with:
-        registry: ghcr.io
-        username: ${{ github.repository_owner }}
-        password: ${{ secrets.GH_PAT }}
-    - name: Build and push image
-      run: |
-        echo "build_target=${{ matrix.build_target }}"
-        echo "tag=${{ needs.define-matrix.outputs.tag }}"
-        echo "tag_cn=${{ needs.define-matrix.outputs.tag_cn }}"
-        image_name=$(bash script/get_image_name.sh ${{ github.repository_owner }} "${{ matrix.build_target }}" "${{ needs.define-matrix.outputs.tag }}")
-        image_name_cn=$(bash script/get_image_name.sh ${{ github.repository_owner }} "${{ matrix.build_target }}" "${{ needs.define-matrix.outputs.tag_cn }}")
-        echo "image_name=$image_name" >> $GITHUB_OUTPUT
-        echo "image_name_cn=$image_name_cn" >> $GITHUB_OUTPUT
-        echo "building image $image_name"
-        is_cn="0" bash script/build_and_push_images.sh "${{ matrix.build_target }}" "$image_name" $is_cn
-        echo "building image $image_name_cn"
-        is_cn="1" bash script/build_and_push_images.sh "${{ matrix.build_target }}" "$image_name_cn" $is_cn
-    # TODO: generate runtime yaml and json
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v3
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+      - name: Login to ghcr.io
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.repository_owner }}
+          password: ${{ secrets.GH_PAT }}
+      - name: Generate SQL
+        run: |
+          echo "build_target=${{ matrix.build_target }}"
+          echo "tag=${{ needs.define-matrix.outputs.tag }}"
+          echo "tag_cn=${{ needs.define-matrix.outputs.tag_cn }}"
+          echo "image_name=$image_name" >> $GITHUB_OUTPUT
+          echo "image_name_cn=$image_name_cn" >> $GITHUB_OUTPUT
+          image_name=$(bash script/get_image_name.sh ${{ github.repository_owner }} "${{ matrix.build_target }}" "${{ needs.define-matrix.outputs.tag }}")
+          image_name_cn=$(bash script/get_image_name.sh ${{ github.repository_owner }} "${{ matrix.build_target }}" "${{ needs.define-matrix.outputs.tag_cn }}")
+          template_json=$(bash script/get_template_config_json.sh "${{ matrix.build_target }}")
+          template_repo_json=$(bash script/get_template_repo_json.sh "${{ matrix.build_target }}")
+          sql=$(bash script/generate_template_sql.sh $image_name $template_json $template_repo_json)
+          # 保存 SQL 到文件
+          mkdir -p /sql/templates/
+          echo "$sql" > "/sql/templates/${{ matrix.build_target//\//_ }}.sql"
+      - name: Build and push image
+        run: |
+          echo "building image $image_name"
+          is_cn="0" bash script/build_and_push_images.sh "${{ matrix.build_target }}" "$image_name" $is_cn
+          echo "building image $image_name_cn"
+          is_cn="1" bash script/build_and_push_images.sh "${{ matrix.build_target }}" "$image_name_cn" $is_cn
+          # TODO: generate runtime yaml and json
