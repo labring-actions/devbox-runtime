@@ -1,23 +1,27 @@
 #!/bin/bash
 
-# 激活虚拟环境
+app_env=${1:-development}
+
 source /home/devbox/project/.venv/bin/activate
 
-# 添加当前目录到Python路径
 export PYTHONPATH=$PYTHONPATH:/home/devbox/project
 
-# 检测环境
-if [ "$1" = "dev" ]; then
-  echo "Development environment detected"
-  echo "Running development environment commands..."
-  # 开发环境命令
-  cd /home/devbox/project && python -m project
+dev_commands() {
+    echo "Running development environment commands..."
+    cd /home/devbox/project && python -m project
+}
+
+prod_commands() {
+    echo "Running production environment commands..."
+    cd /home/devbox/project && python -m project
+}
+
+if [ "$app_env" = "production" ] || [ "$app_env" = "prod" ]; then
+    echo "Production environment detected"
+    prod_commands
 else
-  echo "Production environment detected"
-  echo "Running production environment commands..."
-  # 生产环境命令
-  cd /home/devbox/project && python -m project
+    echo "Development environment detected"
+    dev_commands
 fi
 
-# 退出虚拟环境
 deactivate
