@@ -49,6 +49,9 @@ jobs:
       fail-fast: false
       matrix:
         build_target: ${{ fromJson(needs.define-matrix.outputs.build_targets) }}
+    permissions:
+      contents: read
+      packages: write
     steps:
     - name: Checkout code
       uses: actions/checkout@v4
@@ -63,7 +66,7 @@ jobs:
       with:
         registry: ghcr.io
         username: ${{ github.repository_owner }}
-        password: ${{ secrets.GH_PAT }}
+        password: ${{ secrets.GITHUB_TOKEN }}
     - name: Build and push image
       run: |
         echo "build_target=${{ matrix.build_target }}"
