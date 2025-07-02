@@ -5,10 +5,10 @@ rm -rf ./*
 
 COPY /Language/go/project /home/devbox/project
 
-RUN curl -O https://dl.google.com/go/go1.22.5.linux-amd64.tar.gz && \
-    tar -xvf go1.22.5.linux-amd64.tar.gz && \
+RUN curl -O https://dl.google.com/go/go1.24.4.linux-amd64.tar.gz && \
+    tar -xvf go1.24.4.linux-amd64.tar.gz && \
     mv go /usr/local && \
-    rm go1.22.5.linux-amd64.tar.gz && \
+    rm go1.24.4.linux-amd64.tar.gz && \
     mkdir -p /go/bin && \
     echo 'export GOPATH=/go' >> /home/devbox/.bashrc && \
     echo 'export PATH=$PATH:/usr/local/go/bin:/go/bin' >> /home/devbox/.bashrc && \
