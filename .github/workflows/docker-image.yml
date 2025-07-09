@@ -67,17 +67,30 @@ jobs:
         registry: ghcr.io
         username: ${{ github.repository_owner }}
         password: ${{ secrets.GITHUB_TOKEN }}
-    - name: Build and push image
+    - name: Login to Aliyun ACR
+      uses: docker/login-action@v3
+      with:
+        registry: ${{ secrets.ALIYUN_REGISTRY }}
+        username: ${{ secrets.ALIYUN_USERNAME }}
+        password: ${{ secrets.ALIYUN_PASSWORD }}
+    - name: Build and push images
       run: |
         echo "build_target=${{ matrix.build_target }}"
         echo "tag=${{ needs.define-matrix.outputs.tag }}"
+        ghcr_image_name=$(bash script/get_image_name.sh "ghcr.io" "${{ github.repository_owner }}" "${{ matrix.build_target }}" "${{ needs.define-matrix.outputs.tag }}")
+        acr_image_name=$(bash script/get_image_name.sh "${{ secrets.ALIYUN_REGISTRY }}" "${{ github.repository_owner }}" "${{ matrix.build_target }}" "${{ needs.define-matrix.outputs.tag }}")
+        echo "ghcr_image_name=$ghcr_image_name" >> $GITHUB_OUTPUT
+        echo "acr_image_name=$acr_image_name" >> $GITHUB_OUTPUT
+        echo "Building and pushing both images..."
+        is_cn="0" bash script/build_and_push_images.sh "${{ matrix.build_target }}" "$ghcr_image_name" "$acr_image_name" $is_cn
+    - name: Build and push images_cn
+      run: |
+        echo "build_target=${{ matrix.build_target }}"
         echo "tag_cn=${{ needs.define-matrix.outputs.tag_cn }}"
-        image_name=$(bash script/get_image_name.sh ${{ github.repository_owner }} "${{ matrix.build_target }}" "${{ needs.define-matrix.outputs.tag }}")
-        image_name_cn=$(bash script/get_image_name.sh ${{ github.repository_owner }} "${{ matrix.build_target }}" "${{ needs.define-matrix.outputs.tag_cn }}")
-        echo "image_name=$image_name" >> $GITHUB_OUTPUT
-        echo "image_name_cn=$image_name_cn" >> $GITHUB_OUTPUT
-        echo "building image $image_name"
-        is_cn="0" bash script/build_and_push_images.sh "${{ matrix.build_target }}" "$image_name" $is_cn
-        echo "building image $image_name_cn"
-        is_cn="1" bash script/build_and_push_images.sh "${{ matrix.build_target }}" "$image_name_cn" $is_cn
+        ghcr_image_name_cn=$(bash script/get_image_name.sh "ghcr.io" "${{ github.repository_owner }}" "${{ matrix.build_target }}" "${{ needs.define-matrix.outputs.tag_cn }}")
+        acr_image_name_cn=$(bash script/get_image_name.sh "${{ secrets.ALIYUN_REGISTRY }}" "${{ github.repository_owner }}" "${{ matrix.build_target }}" "${{ needs.define-matrix.outputs.tag_cn }}")
+        echo "ghcr_image_name_cn=$ghcr_image_name_cn" >> $GITHUB_OUTPUT
+        echo "acr_image_name_cn=$acr_image_name_cn" >> $GITHUB_OUTPUT
+        echo "Building and pushing both images..."
+        is_cn="1" bash script/build_and_push_images.sh "${{ matrix.build_target }}" "$ghcr_image_name_cn" "$acr_image_name_cn" $is_cn
     # TODO: generate runtime yaml and json
