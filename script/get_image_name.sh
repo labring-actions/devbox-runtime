@@ -11,13 +11,14 @@ REPO=$3
 BUILD_TARGET=$4
 TAG=$5
 
-# 判断 registry 类型
 if [[ "$REGISTRY" == ghcr.io* ]]; then
   # ghcr.io 格式
   IFS='/' read -ra ADDR <<< "$BUILD_TARGET"
   IMAGE_NAME="${ADDR[1]}-${ADDR[2]}"
   echo "$REGISTRY/$NAMESPACE/devbox/$IMAGE_NAME:$TAG"
 else
-  # 默认按阿里云 ACR 格式
-  echo "$REGISTRY/$NAMESPACE/$REPO:$TAG"
+  # ACR 格式，tag 自动拼接镜像标识
+  IFS='/' read -ra ADDR <<< "$BUILD_TARGET"
+  IMAGE_ID="${ADDR[1]}-${ADDR[2]}"
+  echo "$REGISTRY/$NAMESPACE/$REPO:${IMAGE_ID}-$TAG"
 fi
