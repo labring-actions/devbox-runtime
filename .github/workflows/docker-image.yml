@@ -87,8 +87,8 @@ jobs:
       run: |
         echo "build_target=${{ matrix.build_target }}"
         echo "tag_cn=${{ needs.define-matrix.outputs.tag_cn }}"
-        ghcr_image_name=$(bash script/get_image_name.sh "ghcr.io" "${{ github.repository_owner }}" "${{ matrix.build_target }}" "${{ needs.define-matrix.outputs.tag_cn }}" | tr '[:upper:]' '[:lower:]')
-        acr_image_name=$(bash script/get_image_name.sh "${{ secrets.ALIYUN_REGISTRY }}" "${{ secrets.ALIYUN_NAMESPACE }}" "${{ matrix.build_target }}" "${{ needs.define-matrix.outputs.tag_cn }}" | tr '[:upper:]' '[:lower:]')
+        ghcr_image_name_cn=$(bash script/get_image_name.sh "ghcr.io" "${{ github.repository_owner }}" "${{ matrix.build_target }}" "${{ needs.define-matrix.outputs.tag_cn }}" | tr '[:upper:]' '[:lower:]')
+        acr_image_name_cn=$(bash script/get_image_name.sh "${{ secrets.ALIYUN_REGISTRY }}" "${{ secrets.ALIYUN_NAMESPACE }}" "${{ matrix.build_target }}" "${{ needs.define-matrix.outputs.tag_cn }}" | tr '[:upper:]' '[:lower:]')
         echo "ghcr_image_name_cn=$ghcr_image_name_cn" >> $GITHUB_OUTPUT
         echo "acr_image_name_cn=$acr_image_name_cn" >> $GITHUB_OUTPUT
         echo "Building and pushing both images..."
