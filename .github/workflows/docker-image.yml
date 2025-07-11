@@ -9,7 +9,7 @@ on:
         default: 'latest'
   push:
     branches:
-      - '**' # 所有分支（测试使用）
+      - 'main' 
 jobs:
   define-matrix:
     runs-on: ubuntu-latest
