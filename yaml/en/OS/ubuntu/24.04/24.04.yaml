@@ -8,7 +8,7 @@ metadata:
 spec:
   classRef: ubuntu
   config:
-    image: ghcr.io/labring-actions/devbox/ubuntu-24.04:df331e
+    image: ghcr.io/labring-actions/devbox/ubuntu-24.04:a5f75b3
     ports:
       - containerPort: 22
         name: devbox-ssh-port
