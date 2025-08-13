@@ -1,4 +1,4 @@
-FROM ghcr.io/labring-actions/devbox/rust-1.81.0:13aacd
+FROM ghcr.io/labring-actions/devbox/rust-1.81.0:9361af9
 
 RUN cd /home/devbox/project && \
 rm -rf ./*
