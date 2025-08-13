@@ -34,6 +34,8 @@ RUN chmod +x /usr/start/startup.sh && \
     echo 'Port 22' >> /etc/ssh/sshd_config && \
     echo 'PermitRootLogin yes' >> /etc/ssh/sshd_config && \
     echo 'AuthorizedKeysFile  /usr/start/.ssh/authorized_keys' >> /etc/ssh/sshd_config && \
+    echo 'PasswordAuthentication no' >> /etc/ssh/sshd_config && \
+    echo 'PermitRootLogin prohibit-password' >> /etc/ssh/sshd_config && \
     useradd -m -s /bin/bash devbox && \
     usermod -aG sudo devbox && \
     echo 'devbox ALL=(ALL) NOPASSWD: ALL' >> /etc/sudoers && \
@@ -41,6 +43,8 @@ RUN chmod +x /usr/start/startup.sh && \
     echo 'export LD_LIBRARY_PATH=/usr/local/cuda/lib64:$LD_LIBRARY_PATH' >> /etc/profile && \
     rm -rf /tmp/* && \
     mkdir -p /home/devbox/.ssh && \
+    PASS=$(openssl rand -base64 16) && \
+    echo "devbox:$PASS" | sudo chpasswd && \
     chown -R devbox:devbox /home/devbox/.ssh && \
     chmod -R 770 /home/devbox/.ssh 
 
