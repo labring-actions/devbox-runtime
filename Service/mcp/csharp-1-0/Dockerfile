@@ -1,4 +1,4 @@
-FROM ghcr.io/labring-actions/devbox/debian-ssh-12.6:547a61
+FROM ghcr.io/labring-actions/devbox/debian-ssh-12.6:stable
 
 USER root
 RUN cd /home/devbox/project && \
