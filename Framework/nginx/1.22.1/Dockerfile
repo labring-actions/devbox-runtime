@@ -1,4 +1,4 @@
-FROM ghcr.io/labring-actions/devbox/node.js-20:219d11
+FROM ghcr.io/labring-actions/devbox/node.js-20:9361af9
 # Test comment for GitHub Actions trigger
 USER root
 RUN cd /home/devbox/project
