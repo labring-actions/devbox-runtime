@@ -1,4 +1,4 @@
-FROM ubuntu:latest
+FROM ubuntu:24.04
 
 COPY /script/startup.sh /usr/start/startup.sh
 
