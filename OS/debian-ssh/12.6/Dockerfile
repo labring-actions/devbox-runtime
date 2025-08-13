@@ -1,4 +1,4 @@
-FROM debian:12.6
+FROM debian:12.6-slim
 
 COPY ./script/startup.sh /usr/start/startup.sh
 
