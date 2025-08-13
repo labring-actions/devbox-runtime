@@ -1,6 +1,6 @@
 FROM debian:12.6-slim
 
-COPY ./script/startup.sh /usr/start/startup.sh
+COPY /script/startup.sh /usr/start/startup.sh
 
 RUN chmod +x /usr/start/startup.sh && \
     apt-get update && \
@@ -41,7 +41,7 @@ RUN chmod +x /usr/start/startup.sh && \
     chmod -R 770 /home/devbox/.ssh 
  
 USER devbox
-COPY ./OS/debian-ssh/project /home/devbox/project
+COPY /OS/debian-ssh/project /home/devbox/project
 RUN sudo chown -R devbox:devbox /home/devbox/project && \
     sudo chmod -R 777 /home/devbox/project
 
