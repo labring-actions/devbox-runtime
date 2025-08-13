@@ -8,6 +8,15 @@ RUN chmod +x /usr/start/startup.sh && \
     dumb-init \
     wget \
     sudo \
+    net-tools \
+    iproute2 \
+    iputils-ping \
+    curl \
+    netcat-openbsd \
+    vim \
+    openssl \
+    make \
+    git \
     openssh-client \
     openssh-server && \
     apt-get clean && \
