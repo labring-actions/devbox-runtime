@@ -1,4 +1,4 @@
-FROM ghcr.io/labring-actions/devbox/debian-ssh-12.6:547a61
+FROM ghcr.io/labring-actions/devbox/debian-ssh-12.6:a5f75b3
 
 RUN cd /home/devbox/project && \rm -rf ./*
 COPY /Service/mcp/mcp-proxy/project /home/devbox/project/project
