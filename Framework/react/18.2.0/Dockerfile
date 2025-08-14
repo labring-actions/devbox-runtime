@@ -1,4 +1,4 @@
-FROM ghcr.io/labring-actions/devbox/node.js-22:9361af9
+FROM ghcr.io/labring-actions/devbox/node.js-22:3b6f7a9
 
 USER root
 RUN cd /home/devbox/project && \
