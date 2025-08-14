@@ -28,7 +28,7 @@ jobs:
           if [ -n "${{ inputs.tag }}" ]; then
             tag=${{ inputs.tag }}
           else
-            tag=${{ github.sha }}::6
+            tag=$(echo "${{ github.sha }}" | cut -c1-7)
           fi
           tag_cn=$tag-cn
           echo "tag=$tag" >> $GITHUB_OUTPUT
@@ -39,7 +39,7 @@ jobs:
           if [ -n "${{ inputs.tag }}" ]; then
             build_targets=$(bash script/get_all_dockerfile.sh)
           else
-            build_targets=$(bash script/get_changed_dockerfile.sh ${{ github.event.before }} ${{ github.sha }})
+            build_targets=$(bash script/get_changed_dockerfile.sh $(echo "${{ github.event.before }}" | cut -c1-7) $(echo "${{ github.sha }}" | cut -c1-7))
           fi
           echo "build_targets=$build_targets" >> $GITHUB_OUTPUT
   build:
