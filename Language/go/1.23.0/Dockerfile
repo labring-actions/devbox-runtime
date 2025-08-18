@@ -1,24 +1,23 @@
 FROM ghcr.io/labring-actions/devbox/debian-ssh-12.6:a5f75b3
 
-RUN cd /home/devbox/project && \
-rm -rf ./*
-
-COPY /Language/go/project /home/devbox/project
+USER root
 
 RUN curl -O https://dl.google.com/go/go1.23.0.linux-amd64.tar.gz && \
-    tar -xvf go1.23.0.linux-amd64.tar.gz && \
-    mv go /usr/local && \
-    rm go1.23.0.linux-amd64.tar.gz && \
-    mkdir -p /go/bin && \
-    echo 'export GOPATH=/go' >> /home/devbox/.bashrc && \
-    echo 'export PATH=$PATH:/usr/local/go/bin:/go/bin' >> /home/devbox/.bashrc && \
-    echo 'export GOPATH=/go' >> /root/.bashrc && \
-    echo 'export PATH=$PATH:/usr/local/go/bin:/go/bin' >> /root/.bashrc && \
-    chmod -R 777 /go && \
-    chown -R devbox:devbox /home/devbox/project && \
-    chmod -R u+rw /home/devbox/project && \
-    chmod -R +x /home/devbox/project/entrypoint.sh
-    
-ENV GOPATH=/go
-ENV PATH=$PATH:/usr/local/go/bin:/go/bin
-RUN mkdir /root/.devbox
+    rm -rf /usr/local/go && \
+    tar -C /usr/local -xzf go1.23.0.linux-amd64.tar.gz && \
+    rm go1.23.0.linux-amd64.tar.gz
+
+USER devbox
+
+RUN mkdir -p /home/devbox/.devbox && \
+    if [ -d /home/devbox/project ]; then rm -rf /home/devbox/project/*; fi && \
+    mkdir -p /home/devbox/go && \
+    echo 'export GOPATH=/home/devbox/go' >> /home/devbox/.bashrc && \
+    echo 'export PATH=$PATH:/usr/local/go/bin:/home/devbox/go/bin' >> /home/devbox/.bashrc
+
+COPY --chown=devbox:devbox /Language/go/project /home/devbox/project
+
+ENV GOPATH=/home/devbox/go
+ENV PATH=$PATH:/usr/local/go/bin:/home/devbox/go/bin
+
+RUN chmod +x /home/devbox/project/entrypoint.sh
