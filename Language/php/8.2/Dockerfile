@@ -1,9 +1,6 @@
 FROM ghcr.io/labring-actions/devbox/debian-ssh-12.6:a5f75b3
-
-RUN cd /home/devbox/project && \
-rm -rf ./*
- 
-COPY  /Language/php/project /home/devbox/project
+# Set the user to root
+USER root
 
 RUN apt update && \
     apt install -y apt-transport-https lsb-release ca-certificates wget  && \
@@ -12,11 +9,15 @@ RUN apt update && \
     apt update && \
     apt install -y php8.2 php8.2-cli php8.2-common php8.2-xml php-pear php8.2-mbstring php-pgsql php-mysql php-mongo php-redis && \
     curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer && \
-    chown -R devbox:devbox /home/devbox/project && \
-    chmod -R u+rw /home/devbox/project && \
-    rm -rf /var/lib/apt/lists/* && \
-    chmod -R +x /home/devbox/project/entrypoint.sh
+    rm -rf /var/lib/apt/lists/*
 
 COPY /Language/php/php.ini /etc/php/8.2/apache2/php.ini
 
-RUN mkdir /root/.devbox
+USER devbox
+
+RUN mkdir -p /home/devbox/.devbox && \
+    if [ -d /home/devbox/project ]; then rm -rf /home/devbox/project/*; fi
+
+COPY --chown=devbox:devbox /Language/php/project /home/devbox/project
+
+RUN chmod +x /home/devbox/project/entrypoint.sh
