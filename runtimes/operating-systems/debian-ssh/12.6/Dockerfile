@@ -1,6 +1,6 @@
 FROM debian:12.6-slim
 
-COPY /script/startup.sh /usr/start/startup.sh
+COPY ../project/startup.sh /usr/start/startup.sh
 
 RUN chmod +x /usr/start/startup.sh && \
     apt-get update && \
@@ -25,7 +25,7 @@ RUN chmod +x /usr/start/startup.sh && \
     chmod 755 /run/sshd && \
     echo 'AllowTcpForwarding yes' >> /etc/ssh/sshd_config && \
     echo 'GatewayPorts yes' >> /etc/ssh/sshd_config && \
-    echo 'X11Forwarding yes' >> /etc/ssh/sshd_config && \ 
+    echo 'X11Forwarding yes' >> /etc/ssh/sshd_config && \
     echo 'Port 22' >> /etc/ssh/sshd_config && \
     echo 'AuthorizedKeysFile  /usr/start/.ssh/authorized_keys' >> /etc/ssh/sshd_config && \
     echo 'PasswordAuthentication no' >> /etc/ssh/sshd_config && \
@@ -38,15 +38,15 @@ RUN chmod +x /usr/start/startup.sh && \
     PASS=$(openssl rand -base64 16) && \
     echo "devbox:$PASS" | sudo chpasswd && \
     chown -R devbox:devbox /home/devbox/.ssh && \
-    chmod -R 770 /home/devbox/.ssh 
- 
+    chmod -R 770 /home/devbox/.ssh
+
 USER devbox
-COPY /OS/debian-ssh/project /home/devbox/project
+COPY project /home/devbox/project
 RUN sudo chown -R devbox:devbox /home/devbox/project && \
     sudo chmod -R 777 /home/devbox/project
 
 ENTRYPOINT ["/usr/bin/dumb-init", "--"]
 CMD ["sudo", "-E", "/usr/start/startup.sh"]
- 
+
 WORKDIR /home/devbox/project
 EXPOSE 22

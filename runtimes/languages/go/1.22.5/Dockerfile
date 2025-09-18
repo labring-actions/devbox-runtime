@@ -3,7 +3,7 @@ FROM ghcr.io/labring-actions/devbox/debian-ssh-12.6:latest
 RUN cd /home/devbox/project && \
 rm -rf ./*
 
-COPY /Language/go/project /home/devbox/project
+COPY project /home/devbox/project
 
 RUN curl -O https://dl.google.com/go/go1.22.5.linux-amd64.tar.gz && \
     tar -xvf go1.22.5.linux-amd64.tar.gz && \

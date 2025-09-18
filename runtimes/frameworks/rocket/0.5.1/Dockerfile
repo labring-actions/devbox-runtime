@@ -4,7 +4,7 @@ RUN cd /home/devbox/project && \
 rm -rf ./*
 
 USER root
-COPY /Framework/rocket/0.5.1/project /home/devbox/project
+COPY project /home/devbox/project
 
 RUN chown -R devbox:devbox /home/devbox/project && \
 chmod -R u+rw /home/devbox/project && \

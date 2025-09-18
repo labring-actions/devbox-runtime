@@ -6,7 +6,7 @@ rm -rf ./* && \
 mkdir -p /usr/lib/node_modules && \
 chown -R devbox:devbox /usr/lib/node_modules
 
-COPY /Framework/react/18.2.0/project /home/devbox/project
+COPY project /home/devbox/project
 RUN chown -R devbox:devbox /home/devbox/project && \
 chmod -R u+rw /home/devbox/project && \
 chmod -R +x /home/devbox/project/entrypoint.sh

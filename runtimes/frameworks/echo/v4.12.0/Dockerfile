@@ -3,7 +3,7 @@ FROM ghcr.io/labring-actions/devbox/go-1.22.5:latest
 RUN cd /home/devbox/project && \
 rm -rf ./*
 
-COPY /Framework/echo/v4.12.0/project /home/devbox/project
+COPY project /home/devbox/project
 
 RUN chown -R devbox:devbox /home/devbox/project && \
 chmod -R u+rw /home/devbox/project  && \

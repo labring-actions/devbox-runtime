@@ -3,7 +3,7 @@ FROM ghcr.io/labring-actions/devbox/debian-ssh-12.6:latest
 RUN cd /home/devbox/project && \
 rm -rf ./*
 
-COPY /Language/rust/project /home/devbox/project
+COPY project /home/devbox/project
 
 USER devbox
 RUN curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y

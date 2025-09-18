@@ -16,7 +16,7 @@ git submodule add https://github.com/theNewDynamic/gohugo-theme-ananke.git theme
 echo "theme = 'ananke'" >> hugo.toml && \
 hugo
 
-COPY /Framework/hugo/v0.135.0/project /home/devbox/project
+COPY project /home/devbox/project
 
 USER root
 

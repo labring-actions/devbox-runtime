@@ -3,7 +3,7 @@ FROM ghcr.io/labring-actions/devbox/debian-ssh-12.6:latest
 RUN cd /home/devbox/project && \
 rm -rf ./*
 
-COPY /Language/java/project /home/devbox/project
+COPY project /home/devbox/project
 
 RUN apt-get update && \
     apt-get install -y wget && \

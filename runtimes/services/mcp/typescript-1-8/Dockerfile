@@ -11,7 +11,7 @@ RUN curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.40.0/install.sh | b
     && . $NVM_DIR/nvm.sh
 
 USER root
-COPY /Service/mcp/typescript-1-8/project /home/devbox/project
+COPY project /home/devbox/project
 
 RUN apt-get update && \
     apt-get install -y curl && \

@@ -2,7 +2,7 @@ FROM ghcr.io/labring-actions/devbox/python-3.12:latest
 
 RUN cd /home/devbox/project && \
 rm -rf ./*
-COPY /Framework/flask/3.0.3/project /home/devbox/project
+COPY project /home/devbox/project
 
 RUN chown -R devbox:devbox /home/devbox/project && \
     chmod -R u+rw /home/devbox/project && \

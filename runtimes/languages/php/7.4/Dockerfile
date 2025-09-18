@@ -3,7 +3,7 @@ FROM ghcr.io/labring-actions/devbox/debian-ssh-12.6:latest
 RUN cd /home/devbox/project && \
     rm -rf ./*
 
-COPY /Language/php/project /home/devbox/project
+COPY project /home/devbox/project
 
 RUN apt update && \
     apt install -y apt-transport-https lsb-release ca-certificates wget  && \
@@ -17,6 +17,6 @@ RUN apt update && \
     rm -rf /var/lib/apt/lists/* && \
     chmod -R +x /home/devbox/project/entrypoint.sh
 
-COPY /Language/php/php.ini /etc/php/7.4/apache2/php.ini
+COPY ../php.ini /etc/php/7.4/apache2/php.ini
 
 RUN mkdir /root/.devbox

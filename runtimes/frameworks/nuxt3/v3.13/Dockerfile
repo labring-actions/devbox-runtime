@@ -3,7 +3,7 @@ USER root
 RUN cd /home/devbox/project && \
 rm -rf ./*
 
-COPY /Framework/nuxt3/v3.13/project /home/devbox/project
+COPY project /home/devbox/project
 RUN chown -R devbox:devbox /home/devbox/project && \
 chmod -R u+rw /home/devbox/project  && \
 chmod -R +x /home/devbox/project/entrypoint.sh
