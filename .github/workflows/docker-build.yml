@@ -20,7 +20,7 @@ on:
       - 'main'
 
 jobs:
-  # Define build matrix using runtimectl ci build-order
+  # Define build matrix using bin/runtimectl ci build-order
   define-matrix:
     runs-on: ubuntu-latest
     outputs:
@@ -33,8 +33,8 @@ jobs:
         with:
           fetch-depth: 0
 
-      - name: Setup Runtimectl
-        uses: ./.github/actions/setup-runtimectl
+      - name: Setup bin/runtimectl
+        uses: ./.github/actions/setup-bin/runtimectl
 
       - name: Set up tag
         id: set_tag
@@ -53,17 +53,17 @@ jobs:
         run: |
           if [ "${{ inputs.build_all }}" = "true" ] || [ -n "${{ inputs.tag }}" ]; then
             # Get all images in dependency order
-            build_order=$(./runtimectl ci build-order)
+            build_order=$(./bin/runtimectl ci build-order)
           else
             # Get changed images with dependencies
-            changed_files=$(./runtimectl ci build-matrix --changed --commit1 $(echo "${{ github.event.before }}" | cut -c1-7) --commit2 $(echo "${{ github.sha }}" | cut -c1-7) --with-dependencies)
-            build_order=$(./runtimectl ci build-order | jq --argjson changed "$changed_files" '[.[] | select(. as $item | $changed | index($item))]')
+            changed_files=$(./bin/runtimectl ci build-matrix --changed --commit1 $(echo "${{ github.event.before }}" | cut -c1-7) --commit2 $(echo "${{ github.sha }}" | cut -c1-7) --with-dependencies)
+            build_order=$(./bin/runtimectl ci build-order | jq --argjson changed "$changed_files" '[.[] | select(. as $item | $changed | index($item))]')
           fi
           echo "build_order=$build_order" >> $GITHUB_OUTPUT
 
       - name: Validate dependencies
         run: |
-          ./runtimectl ci validate-dependencies
+          ./bin/runtimectl ci validate-dependencies
 
   # Build images in dependency order
   build-images:
@@ -82,8 +82,8 @@ jobs:
         with:
           fetch-depth: 0
 
-      - name: Setup Runtimectl
-        uses: ./.github/actions/setup-runtimectl
+      - name: Setup bin/runtimectl
+        uses: ./.github/actions/setup-bin/runtimectl
 
       - name: Setup Docker
         uses: ./.github/actions/setup-docker
@@ -95,22 +95,22 @@ jobs:
 
       - name: Validate build
         run: |
-          ./runtimectl ci validate-build "${{ matrix.build_target }}"
+          ./bin/runtimectl ci validate-build "${{ matrix.build_target }}"
 
       - name: Update base image references
         run: |
           # Get dependencies for this image
-          dependencies=$(./runtimectl ci analyze-dependencies | jq -r --arg path "${{ matrix.build_target }}" '.nodes[] | select(.path == $path) | .dependencies[]')
+          dependencies=$(./bin/runtimectl ci analyze-dependencies | jq -r --arg path "${{ matrix.build_target }}" '.nodes[] | select(.path == $path) | .dependencies[]')
 
           for dep in $dependencies; do
             # Find the corresponding dockerfile for this dependency
-            dep_dockerfile=$(./runtimectl ci analyze-dependencies | jq -r --arg dep "$dep" '.nodes[] | select(.name + "-" + .version == $dep) | .path')
+            dep_dockerfile=$(./bin/runtimectl ci analyze-dependencies | jq -r --arg dep "$dep" '.nodes[] | select(.name + "-" + .version == $dep) | .path')
 
             if [ -n "$dep_dockerfile" ]; then
               # Generate the image name for the dependency
-              dep_image_name=$(./runtimectl ci image-name "$dep_dockerfile" "ghcr.io" "${{ github.repository_owner }}" "${{ needs.define-matrix.outputs.tag }}" | tr '[:upper:]' '[:lower:]')
+              dep_image_name=$(./bin ci image-name "$dep_dockerfile" "ghcr.io" "${{ github.repository_owner }}" "${{ needs.define-matrix.outputs.tag }}" | tr '[:upper:]' '[:lower:]')
               echo "Updating dependency $dep to: $dep_image_name"
-              ./runtimectl ci update-base-image "${{ matrix.build_target }}" "$dep_image_name"
+              ./bin/runtimectl ci update-base-image "${{ matrix.build_target }}" "$dep_image_name"
             fi
           done
 
@@ -156,14 +156,14 @@ jobs:
         with:
           fetch-depth: 0
 
-      - name: Setup Runtimectl
-        uses: ./.github/actions/setup-runtimectl
+      - name: Setup bin/runtimectl
+        uses: ./.github/actions/setup-bin/runtimectl
 
       - name: Generate runtime configuration
         run: |
           echo "Generating runtime configuration..."
-          ./runtimectl ci generate-config --tag "${{ needs.define-matrix.outputs.tag }}"
-          ./runtimectl ci generate-config --cn --tag "${{ needs.define-matrix.outputs.tag_cn }}"
+          ./bin/runtimectl ci generate-config --tag "${{ needs.define-matrix.outputs.tag }}"
+          ./bin/runtimectl ci generate-config --cn --tag "${{ needs.define-matrix.outputs.tag_cn }}"
 
   # Generate dependency graph visualization
   generate-dependency-graph:
@@ -175,10 +175,10 @@ jobs:
         with:
           fetch-depth: 0
 
-      - name: Setup Runtimectl
-        uses: ./.github/actions/setup-runtimectl
+      - name: Setup bin/runtimectl
+        uses: ./.github/actions/setup-bin/runtimectl
 
       - name: Generate dependency graph
         run: |
           echo "## Dependency Graph" >> $GITHUB_STEP_SUMMARY
-          ./runtimectl ci dependency-graph >> $GITHUB_STEP_SUMMARY
+          ./bin/runtimectl ci dependency-graph >> $GITHUB_STEP_SUMMARY

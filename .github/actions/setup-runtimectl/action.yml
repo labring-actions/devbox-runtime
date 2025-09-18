@@ -6,5 +6,4 @@ runs:
     - name: Build runtimectl
       shell: bash
       run: |
-        go build -o runtimectl cmd/main.go cmd/commands.go
-        chmod +x runtimectl
+        make build

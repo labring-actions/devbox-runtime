@@ -68,6 +68,14 @@ type CLI struct {
 }
 
 func main() {
+	// Check for version flag before parsing other flags
+	for _, arg := range os.Args[1:] {
+		if arg == "-v" || arg == "--version" {
+			fmt.Printf("runtimectl version %s\n", Version)
+			os.Exit(0)
+		}
+	}
+
 	cli := &CLI{}
 
 	// Parse flags
@@ -79,9 +87,6 @@ func main() {
 	}
 	flag.Parse()
 
-	// Initialize runtime manager
-	cli.manager = api.NewRuntimeManager(cli.registryPath)
-
 	// Get command
 	args := flag.Args()
 	if len(args) == 0 {
@@ -89,6 +94,9 @@ func main() {
 		fmt.Fprintf(os.Stderr, Usage)
 		os.Exit(1)
 	}
+
+	// Initialize runtime manager
+	cli.manager = api.NewRuntimeManager(cli.registryPath)
 
 	command := args[0]
 	commandArgs := args[1:]
