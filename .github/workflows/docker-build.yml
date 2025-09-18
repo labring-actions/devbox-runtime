@@ -34,7 +34,7 @@ jobs:
           fetch-depth: 0
 
       - name: Setup bin/runtimectl
-        uses: ./.github/actions/setup-bin/runtimectl
+        uses: ./.github/actions/setup-runtimectl/action.yml
 
       - name: Set up tag
         id: set_tag
@@ -83,7 +83,7 @@ jobs:
           fetch-depth: 0
 
       - name: Setup bin/runtimectl
-        uses: ./.github/actions/setup-bin/runtimectl
+        uses: ./.github/actions/setup-runtimectl/action.yml
 
       - name: Setup Docker
         uses: ./.github/actions/setup-docker
@@ -157,7 +157,7 @@ jobs:
           fetch-depth: 0
 
       - name: Setup bin/runtimectl
-        uses: ./.github/actions/setup-bin/runtimectl
+        uses: ./.github/actions/setup-runtimectl/action.yml
 
       - name: Generate runtime configuration
         run: |
@@ -176,7 +176,7 @@ jobs:
           fetch-depth: 0
 
       - name: Setup bin/runtimectl
-        uses: ./.github/actions/setup-bin/runtimectl
+        uses: ./.github/actions/setup-runtimectl/action.yml
 
       - name: Generate dependency graph
         run: |
