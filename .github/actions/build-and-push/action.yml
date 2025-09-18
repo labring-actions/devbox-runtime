@@ -1,0 +1,39 @@
+name: 'Build and Push Docker Images'
+description: 'Build and push Docker images to multiple registries'
+inputs:
+  dockerfile:
+    description: 'Dockerfile path'
+    required: true
+  ghcr_image_name:
+    description: 'ghcr.io image name'
+    required: true
+  acr_image_name:
+    description: 'Aliyun ACR image name'
+    required: false
+    default: ''
+  aliyun_enabled:
+    description: 'Whether to push to Aliyun ACR'
+    required: false
+    default: 'true'
+runs:
+  using: 'composite'
+  steps:
+    - name: Build and push to ghcr.io
+      shell: bash
+      run: |
+        echo "Building and pushing to ghcr.io: ${{ inputs.ghcr_image_name }}"
+        docker buildx build --push \
+          --file "${{ inputs.dockerfile }}" \
+          --platform linux/amd64 \
+          --tag "${{ inputs.ghcr_image_name }}" \
+          .
+    - name: Build and push to Aliyun ACR
+      if: inputs.aliyun_enabled == 'true' && inputs.acr_image_name != ''
+      shell: bash
+      run: |
+        echo "Building and pushing to Aliyun ACR: ${{ inputs.acr_image_name }}"
+        docker buildx build --push \
+          --file "${{ inputs.dockerfile }}" \
+          --platform linux/amd64 \
+          --tag "${{ inputs.acr_image_name }}" \
+          .

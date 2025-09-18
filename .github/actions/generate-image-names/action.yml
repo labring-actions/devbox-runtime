@@ -1,0 +1,41 @@
+name: 'Generate Image Names'
+description: 'Generate image names for both ghcr.io and Aliyun ACR'
+inputs:
+  dockerfile:
+    description: 'Dockerfile path'
+    required: true
+  tag:
+    description: 'Image tag'
+    required: true
+  aliyun_enabled:
+    description: 'Whether to generate Aliyun ACR names'
+    required: false
+    default: 'true'
+outputs:
+  ghcr_image_name:
+    description: 'Generated ghcr.io image name'
+    value: ${{ steps.generate.outputs.ghcr_image_name }}
+  acr_image_name:
+    description: 'Generated Aliyun ACR image name'
+    value: ${{ steps.generate.outputs.acr_image_name }}
+runs:
+  using: 'composite'
+  steps:
+    - name: Generate image names
+      id: generate
+      shell: bash
+      run: |
+        echo "dockerfile=${{ inputs.dockerfile }}"
+        echo "tag=${{ inputs.tag }}"
+
+        # Generate ghcr.io image name
+        ghcr_image_name=$(./runtimectl ci image-name "${{ inputs.dockerfile }}" "ghcr.io" "${{ github.repository_owner }}" "${{ inputs.tag }}" | tr '[:upper:]' '[:lower:]')
+        echo "ghcr_image_name=$ghcr_image_name" >> $GITHUB_OUTPUT
+
+        # Generate Aliyun ACR image name if enabled
+        if [ "${{ inputs.aliyun_enabled }}" = "true" ]; then
+          acr_image_name=$(./runtimectl ci image-name "${{ inputs.dockerfile }}" "${{ secrets.ALIYUN_REGISTRY }}" "${{ secrets.ALIYUN_NAMESPACE }}" "${{ inputs.tag }}" | tr '[:upper:]' '[:lower:]')
+          echo "acr_image_name=$acr_image_name" >> $GITHUB_OUTPUT
+        else
+          echo "acr_image_name=" >> $GITHUB_OUTPUT
+        fi

@@ -1,0 +1,10 @@
+name: 'Setup Runtimectl'
+description: 'Build and setup runtimectl binary'
+runs:
+  using: 'composite'
+  steps:
+    - name: Build runtimectl
+      shell: bash
+      run: |
+        go build -o runtimectl cmd/main.go cmd/commands.go
+        chmod +x runtimectl

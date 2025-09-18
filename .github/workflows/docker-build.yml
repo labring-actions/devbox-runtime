@@ -1,0 +1,184 @@
+name: Build Docker Images
+
+on:
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: 'Tag for the Docker image'
+        required: true
+        default: 'latest'
+      build_all:
+        description: 'Build all images (ignore changes)'
+        required: false
+        default: 'true'
+      aliyun_enabled:
+        description: 'Enable Aliyun ACR builds'
+        required: false
+        default: 'false'
+  push:
+    branches:
+      - 'main'
+
+jobs:
+  # Define build matrix using runtimectl ci build-order
+  define-matrix:
+    runs-on: ubuntu-latest
+    outputs:
+      tag: ${{ steps.set_tag.outputs.tag }}
+      tag_cn: ${{ steps.set_tag.outputs.tag_cn }}
+      build_order: ${{ steps.get_build_order.outputs.build_order }}
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup Runtimectl
+        uses: ./.github/actions/setup-runtimectl
+
+      - name: Set up tag
+        id: set_tag
+        run: |
+          if [ -n "${{ inputs.tag }}" ]; then
+            tag=${{ inputs.tag }}
+          else
+            tag=$(echo "${{ github.sha }}" | cut -c1-7)
+          fi
+          tag_cn=$tag-cn
+          echo "tag=$tag" >> $GITHUB_OUTPUT
+          echo "tag_cn=$tag_cn" >> $GITHUB_OUTPUT
+
+      - name: Get build order
+        id: get_build_order
+        run: |
+          if [ "${{ inputs.build_all }}" = "true" ] || [ -n "${{ inputs.tag }}" ]; then
+            # Get all images in dependency order
+            build_order=$(./runtimectl ci build-order)
+          else
+            # Get changed images with dependencies
+            changed_files=$(./runtimectl ci build-matrix --changed --commit1 $(echo "${{ github.event.before }}" | cut -c1-7) --commit2 $(echo "${{ github.sha }}" | cut -c1-7) --with-dependencies)
+            build_order=$(./runtimectl ci build-order | jq --argjson changed "$changed_files" '[.[] | select(. as $item | $changed | index($item))]')
+          fi
+          echo "build_order=$build_order" >> $GITHUB_OUTPUT
+
+      - name: Validate dependencies
+        run: |
+          ./runtimectl ci validate-dependencies
+
+  # Build images in dependency order
+  build-images:
+    runs-on: ubuntu-latest
+    needs: define-matrix
+    strategy:
+      fail-fast: false
+      matrix:
+        build_target: ${{ fromJson(needs.define-matrix.outputs.build_order) }}
+    permissions:
+      contents: read
+      packages: write
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup Runtimectl
+        uses: ./.github/actions/setup-runtimectl
+
+      - name: Setup Docker
+        uses: ./.github/actions/setup-docker
+
+      - name: Docker Login
+        uses: ./.github/actions/docker-login
+        with:
+          aliyun_enabled: ${{ inputs.aliyun_enabled }}
+
+      - name: Validate build
+        run: |
+          ./runtimectl ci validate-build "${{ matrix.build_target }}"
+
+      - name: Update base image references
+        run: |
+          # Get dependencies for this image
+          dependencies=$(./runtimectl ci analyze-dependencies | jq -r --arg path "${{ matrix.build_target }}" '.nodes[] | select(.path == $path) | .dependencies[]')
+
+          for dep in $dependencies; do
+            # Find the corresponding dockerfile for this dependency
+            dep_dockerfile=$(./runtimectl ci analyze-dependencies | jq -r --arg dep "$dep" '.nodes[] | select(.name + "-" + .version == $dep) | .path')
+
+            if [ -n "$dep_dockerfile" ]; then
+              # Generate the image name for the dependency
+              dep_image_name=$(./runtimectl ci image-name "$dep_dockerfile" "ghcr.io" "${{ github.repository_owner }}" "${{ needs.define-matrix.outputs.tag }}" | tr '[:upper:]' '[:lower:]')
+              echo "Updating dependency $dep to: $dep_image_name"
+              ./runtimectl ci update-base-image "${{ matrix.build_target }}" "$dep_image_name"
+            fi
+          done
+
+      - name: Generate image names
+        id: image_names
+        uses: ./.github/actions/generate-image-names
+        with:
+          dockerfile: ${{ matrix.build_target }}
+          tag: ${{ needs.define-matrix.outputs.tag }}
+          aliyun_enabled: ${{ inputs.aliyun_enabled }}
+
+      - name: Build and push images
+        uses: ./.github/actions/build-and-push
+        with:
+          dockerfile: ${{ matrix.build_target }}
+          ghcr_image_name: ${{ steps.image_names.outputs.ghcr_image_name }}
+          acr_image_name: ${{ steps.image_names.outputs.acr_image_name }}
+          aliyun_enabled: ${{ inputs.aliyun_enabled }}
+
+      - name: Generate CN image names
+        id: image_names_cn
+        uses: ./.github/actions/generate-image-names
+        with:
+          dockerfile: ${{ matrix.build_target }}
+          tag: ${{ needs.define-matrix.outputs.tag_cn }}
+          aliyun_enabled: ${{ inputs.aliyun_enabled }}
+
+      - name: Build and push CN images
+        uses: ./.github/actions/build-cn-images
+        with:
+          dockerfile: ${{ matrix.build_target }}
+          ghcr_image_name: ${{ steps.image_names_cn.outputs.ghcr_image_name }}
+          acr_image_name: ${{ steps.image_names_cn.outputs.acr_image_name }}
+          aliyun_enabled: ${{ inputs.aliyun_enabled }}
+
+  # Generate runtime configuration
+  generate-config:
+    runs-on: ubuntu-latest
+    needs: [define-matrix, build-images]
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup Runtimectl
+        uses: ./.github/actions/setup-runtimectl
+
+      - name: Generate runtime configuration
+        run: |
+          echo "Generating runtime configuration..."
+          ./runtimectl ci generate-config --tag "${{ needs.define-matrix.outputs.tag }}"
+          ./runtimectl ci generate-config --cn --tag "${{ needs.define-matrix.outputs.tag_cn }}"
+
+  # Generate dependency graph visualization
+  generate-dependency-graph:
+    runs-on: ubuntu-latest
+    needs: [define-matrix]
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup Runtimectl
+        uses: ./.github/actions/setup-runtimectl
+
+      - name: Generate dependency graph
+        run: |
+          echo "## Dependency Graph" >> $GITHUB_STEP_SUMMARY
+          ./runtimectl ci dependency-graph >> $GITHUB_STEP_SUMMARY

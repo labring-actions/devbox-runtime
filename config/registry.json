@@ -1,0 +1,624 @@
+{
+  "runtime": {
+    "Framework": [
+      {
+        "name": "docusaurus",
+        "kind": "framework",
+        "version": [
+          {
+            "name": "3.5.2",
+            "image": "ghcr.io/labring-actions/devbox/docusaurus-3.5.2:latest",
+            "config": "{\"appPorts\":null,\"ports\":null,\"releaseArgs\":null,\"releaseCommand\":null,\"user\":\"devbox\",\"workingDir\":\"/home/devbox/project\"}",
+            "state": "active",
+            "created": "0001-01-01T00:00:00Z",
+            "updated": "0001-01-01T00:00:00Z"
+          }
+        ]
+      },
+      {
+        "name": "react",
+        "kind": "framework",
+        "version": [
+          {
+            "name": "18.2.0",
+            "image": "ghcr.io/labring-actions/devbox/react-18.2.0:latest",
+            "config": "{\"appPorts\":null,\"ports\":null,\"releaseArgs\":null,\"releaseCommand\":null,\"user\":\"devbox\",\"workingDir\":\"/home/devbox/project\"}",
+            "state": "active",
+            "created": "0001-01-01T00:00:00Z",
+            "updated": "0001-01-01T00:00:00Z"
+          }
+        ]
+      },
+      {
+        "name": "umi",
+        "kind": "framework",
+        "version": [
+          {
+            "name": "4.3.27",
+            "image": "ghcr.io/labring-actions/devbox/umi-4.3.27:latest",
+            "config": "{\"appPorts\":null,\"ports\":null,\"releaseArgs\":null,\"releaseCommand\":null,\"user\":\"devbox\",\"workingDir\":\"/home/devbox/project\"}",
+            "state": "active",
+            "created": "0001-01-01T00:00:00Z",
+            "updated": "0001-01-01T00:00:00Z"
+          }
+        ]
+      },
+      {
+        "name": "chi",
+        "kind": "framework",
+        "version": [
+          {
+            "name": "v5.1.0",
+            "image": "ghcr.io/labring-actions/devbox/chi-v5.1.0:latest",
+            "config": "{\"appPorts\":null,\"ports\":null,\"releaseArgs\":null,\"releaseCommand\":null,\"user\":\"devbox\",\"workingDir\":\"/home/devbox/project\"}",
+            "state": "active",
+            "created": "0001-01-01T00:00:00Z",
+            "updated": "0001-01-01T00:00:00Z"
+          }
+        ]
+      },
+      {
+        "name": "svelte",
+        "kind": "framework",
+        "version": [
+          {
+            "name": "6.4.0",
+            "image": "ghcr.io/labring-actions/devbox/svelte-6.4.0:latest",
+            "config": "{\"appPorts\":null,\"ports\":null,\"releaseArgs\":null,\"releaseCommand\":null,\"user\":\"devbox\",\"workingDir\":\"/home/devbox/project\"}",
+            "state": "active",
+            "created": "0001-01-01T00:00:00Z",
+            "updated": "0001-01-01T00:00:00Z"
+          }
+        ]
+      },
+      {
+        "name": "vue",
+        "kind": "framework",
+        "version": [
+          {
+            "name": "v3.4.29",
+            "image": "ghcr.io/labring-actions/devbox/vue-v3.4.29:latest",
+            "config": "{\"appPorts\":null,\"ports\":null,\"releaseArgs\":null,\"releaseCommand\":null,\"user\":\"devbox\",\"workingDir\":\"/home/devbox/project\"}",
+            "state": "active",
+            "created": "0001-01-01T00:00:00Z",
+            "updated": "0001-01-01T00:00:00Z"
+          }
+        ]
+      },
+      {
+        "name": "spring-boot",
+        "kind": "framework",
+        "version": [
+          {
+            "name": "3.3.2",
+            "image": "ghcr.io/labring-actions/devbox/spring-boot-3.3.2:latest",
+            "config": "{\"appPorts\":null,\"ports\":null,\"releaseArgs\":null,\"releaseCommand\":null,\"user\":\"devbox\",\"workingDir\":\"/home/devbox/project\"}",
+            "state": "active",
+            "created": "0001-01-01T00:00:00Z",
+            "updated": "0001-01-01T00:00:00Z"
+          }
+        ]
+      },
+      {
+        "name": "angular",
+        "kind": "framework",
+        "version": [
+          {
+            "name": "v18",
+            "image": "ghcr.io/labring-actions/devbox/angular-v18:latest",
+            "config": "{\"appPorts\":null,\"ports\":null,\"releaseArgs\":null,\"releaseCommand\":null,\"user\":\"devbox\",\"workingDir\":\"/home/devbox/project\"}",
+            "state": "active",
+            "created": "0001-01-01T00:00:00Z",
+            "updated": "0001-01-01T00:00:00Z"
+          }
+        ]
+      },
+      {
+        "name": "flask",
+        "kind": "framework",
+        "version": [
+          {
+            "name": "3.0.3",
+            "image": "ghcr.io/labring-actions/devbox/flask-3.0.3:latest",
+            "config": "{\"appPorts\":null,\"ports\":null,\"releaseArgs\":null,\"releaseCommand\":null,\"user\":\"devbox\",\"workingDir\":\"/home/devbox/project\"}",
+            "state": "active",
+            "created": "0001-01-01T00:00:00Z",
+            "updated": "0001-01-01T00:00:00Z"
+          }
+        ]
+      },
+      {
+        "name": "hugo",
+        "kind": "framework",
+        "version": [
+          {
+            "name": "v0.135.0",
+            "image": "ghcr.io/labring-actions/devbox/hugo-v0.135.0:latest",
+            "config": "{\"appPorts\":null,\"ports\":null,\"releaseArgs\":null,\"releaseCommand\":null,\"user\":\"devbox\",\"workingDir\":\"/home/devbox/project\"}",
+            "state": "active",
+            "created": "0001-01-01T00:00:00Z",
+            "updated": "0001-01-01T00:00:00Z"
+          }
+        ]
+      },
+      {
+        "name": "vitepress",
+        "kind": "framework",
+        "version": [
+          {
+            "name": "1.4.0",
+            "image": "ghcr.io/labring-actions/devbox/vitepress-1.4.0:latest",
+            "config": "{\"appPorts\":null,\"ports\":null,\"releaseArgs\":null,\"releaseCommand\":null,\"user\":\"devbox\",\"workingDir\":\"/home/devbox/project\"}",
+            "state": "active",
+            "created": "0001-01-01T00:00:00Z",
+            "updated": "0001-01-01T00:00:00Z"
+          }
+        ]
+      },
+      {
+        "name": "iris",
+        "kind": "framework",
+        "version": [
+          {
+            "name": "v12.2.11",
+            "image": "ghcr.io/labring-actions/devbox/iris-v12.2.11:latest",
+            "config": "{\"appPorts\":null,\"ports\":null,\"releaseArgs\":null,\"releaseCommand\":null,\"user\":\"devbox\",\"workingDir\":\"/home/devbox/project\"}",
+            "state": "active",
+            "created": "0001-01-01T00:00:00Z",
+            "updated": "0001-01-01T00:00:00Z"
+          }
+        ]
+      },
+      {
+        "name": "sealaf",
+        "kind": "framework",
+        "version": [
+          {
+            "name": "1.0.0",
+            "image": "ghcr.io/labring-actions/devbox/sealaf-1.0.0:latest",
+            "config": "{\"appPorts\":null,\"ports\":null,\"releaseArgs\":null,\"releaseCommand\":null,\"user\":\"devbox\",\"workingDir\":\"/home/devbox/project\"}",
+            "state": "active",
+            "created": "0001-01-01T00:00:00Z",
+            "updated": "0001-01-01T00:00:00Z"
+          }
+        ]
+      },
+      {
+        "name": "astro",
+        "kind": "framework",
+        "version": [
+          {
+            "name": "4.10.0",
+            "image": "ghcr.io/labring-actions/devbox/astro-4.10.0:latest",
+            "config": "{\"appPorts\":null,\"ports\":null,\"releaseArgs\":null,\"releaseCommand\":null,\"user\":\"devbox\",\"workingDir\":\"/home/devbox/project\"}",
+            "state": "active",
+            "created": "0001-01-01T00:00:00Z",
+            "updated": "0001-01-01T00:00:00Z"
+          }
+        ]
+      },
+      {
+        "name": "vert.x",
+        "kind": "framework",
+        "version": [
+          {
+            "name": "4.5.10",
+            "image": "ghcr.io/labring-actions/devbox/vert.x-4.5.10:latest",
+            "config": "{\"appPorts\":null,\"ports\":null,\"releaseArgs\":null,\"releaseCommand\":null,\"user\":\"devbox\",\"workingDir\":\"/home/devbox/project\"}",
+            "state": "active",
+            "created": "0001-01-01T00:00:00Z",
+            "updated": "0001-01-01T00:00:00Z"
+          }
+        ]
+      },
+      {
+        "name": "quarkus",
+        "kind": "framework",
+        "version": [
+          {
+            "name": "3.16.1",
+            "image": "ghcr.io/labring-actions/devbox/quarkus-3.16.1:latest",
+            "config": "{\"appPorts\":null,\"ports\":null,\"releaseArgs\":null,\"releaseCommand\":null,\"user\":\"devbox\",\"workingDir\":\"/home/devbox/project\"}",
+            "state": "active",
+            "created": "0001-01-01T00:00:00Z",
+            "updated": "0001-01-01T00:00:00Z"
+          }
+        ]
+      },
+      {
+        "name": "gin",
+        "kind": "framework",
+        "version": [
+          {
+            "name": "v1.10.0",
+            "image": "ghcr.io/labring-actions/devbox/gin-v1.10.0:latest",
+            "config": "{\"appPorts\":null,\"ports\":null,\"releaseArgs\":null,\"releaseCommand\":null,\"user\":\"devbox\",\"workingDir\":\"/home/devbox/project\"}",
+            "state": "active",
+            "created": "0001-01-01T00:00:00Z",
+            "updated": "0001-01-01T00:00:00Z"
+          }
+        ]
+      },
+      {
+        "name": "nginx",
+        "kind": "framework",
+        "version": [
+          {
+            "name": "1.22.1",
+            "image": "ghcr.io/labring-actions/devbox/nginx-1.22.1:latest",
+            "config": "{\"appPorts\":null,\"ports\":null,\"releaseArgs\":null,\"releaseCommand\":null,\"user\":\"devbox\",\"workingDir\":\"/home/devbox/project\"}",
+            "state": "active",
+            "created": "0001-01-01T00:00:00Z",
+            "updated": "0001-01-01T00:00:00Z"
+          }
+        ]
+      },
+      {
+        "name": "echo",
+        "kind": "framework",
+        "version": [
+          {
+            "name": "v4.12.0",
+            "image": "ghcr.io/labring-actions/devbox/echo-v4.12.0:latest",
+            "config": "{\"appPorts\":null,\"ports\":null,\"releaseArgs\":null,\"releaseCommand\":null,\"user\":\"devbox\",\"workingDir\":\"/home/devbox/project\"}",
+            "state": "active",
+            "created": "0001-01-01T00:00:00Z",
+            "updated": "0001-01-01T00:00:00Z"
+          }
+        ]
+      },
+      {
+        "name": "express.js",
+        "kind": "framework",
+        "version": [
+          {
+            "name": "4.21.0",
+            "image": "ghcr.io/labring-actions/devbox/express.js-4.21.0:latest",
+            "config": "{\"appPorts\":null,\"ports\":null,\"releaseArgs\":null,\"releaseCommand\":null,\"user\":\"devbox\",\"workingDir\":\"/home/devbox/project\"}",
+            "state": "active",
+            "created": "0001-01-01T00:00:00Z",
+            "updated": "0001-01-01T00:00:00Z"
+          }
+        ]
+      },
+      {
+        "name": "django",
+        "kind": "framework",
+        "version": [
+          {
+            "name": "4.2.16",
+            "image": "ghcr.io/labring-actions/devbox/django-4.2.16:latest",
+            "config": "{\"appPorts\":null,\"ports\":null,\"releaseArgs\":null,\"releaseCommand\":null,\"user\":\"devbox\",\"workingDir\":\"/home/devbox/project\"}",
+            "state": "active",
+            "created": "0001-01-01T00:00:00Z",
+            "updated": "0001-01-01T00:00:00Z"
+          }
+        ]
+      },
+      {
+        "name": "rocket",
+        "kind": "framework",
+        "version": [
+          {
+            "name": "0.5.1",
+            "image": "ghcr.io/labring-actions/devbox/rocket-0.5.1:latest",
+            "config": "{\"appPorts\":null,\"ports\":null,\"releaseArgs\":null,\"releaseCommand\":null,\"user\":\"devbox\",\"workingDir\":\"/home/devbox/project\"}",
+            "state": "active",
+            "created": "0001-01-01T00:00:00Z",
+            "updated": "0001-01-01T00:00:00Z"
+          }
+        ]
+      },
+      {
+        "name": "hexo",
+        "kind": "framework",
+        "version": [
+          {
+            "name": "7.3.0",
+            "image": "ghcr.io/labring-actions/devbox/hexo-7.3.0:latest",
+            "config": "{\"appPorts\":null,\"ports\":null,\"releaseArgs\":null,\"releaseCommand\":null,\"user\":\"devbox\",\"workingDir\":\"/home/devbox/project\"}",
+            "state": "active",
+            "created": "0001-01-01T00:00:00Z",
+            "updated": "0001-01-01T00:00:00Z"
+          }
+        ]
+      },
+      {
+        "name": "next.js",
+        "kind": "framework",
+        "version": [
+          {
+            "name": "14.2.5",
+            "image": "ghcr.io/labring-actions/devbox/next.js-14.2.5:latest",
+            "config": "{\"appPorts\":null,\"ports\":null,\"releaseArgs\":null,\"releaseCommand\":null,\"user\":\"devbox\",\"workingDir\":\"/home/devbox/project\"}",
+            "state": "active",
+            "created": "0001-01-01T00:00:00Z",
+            "updated": "0001-01-01T00:00:00Z"
+          }
+        ]
+      },
+      {
+        "name": "nuxt3",
+        "kind": "framework",
+        "version": [
+          {
+            "name": "v3.13",
+            "image": "ghcr.io/labring-actions/devbox/nuxt3-v3.13:latest",
+            "config": "{\"appPorts\":null,\"ports\":null,\"releaseArgs\":null,\"releaseCommand\":null,\"user\":\"devbox\",\"workingDir\":\"/home/devbox/project\"}",
+            "state": "active",
+            "created": "0001-01-01T00:00:00Z",
+            "updated": "0001-01-01T00:00:00Z"
+          }
+        ]
+      }
+    ],
+    "Language": [
+      {
+        "name": "python",
+        "kind": "language",
+        "version": [
+          {
+            "name": "3.11",
+            "image": "ghcr.io/labring-actions/devbox/python-3.11:latest",
+            "config": "{\"appPorts\":null,\"ports\":null,\"releaseArgs\":null,\"releaseCommand\":null,\"user\":\"devbox\",\"workingDir\":\"/home/devbox/project\"}",
+            "state": "active",
+            "created": "0001-01-01T00:00:00Z",
+            "updated": "0001-01-01T00:00:00Z"
+          },
+          {
+            "name": "3.12",
+            "image": "ghcr.io/labring-actions/devbox/python-3.12:latest",
+            "config": "{\"appPorts\":null,\"ports\":null,\"releaseArgs\":null,\"releaseCommand\":null,\"user\":\"devbox\",\"workingDir\":\"/home/devbox/project\"}",
+            "state": "active",
+            "created": "0001-01-01T00:00:00Z",
+            "updated": "0001-01-01T00:00:00Z"
+          },
+          {
+            "name": "3.10",
+            "image": "ghcr.io/labring-actions/devbox/python-3.10:latest",
+            "config": "{\"appPorts\":null,\"ports\":null,\"releaseArgs\":null,\"releaseCommand\":null,\"user\":\"devbox\",\"workingDir\":\"/home/devbox/project\"}",
+            "state": "active",
+            "created": "0001-01-01T00:00:00Z",
+            "updated": "0001-01-01T00:00:00Z"
+          }
+        ]
+      },
+      {
+        "name": "rust",
+        "kind": "language",
+        "version": [
+          {
+            "name": "1.81.0",
+            "image": "ghcr.io/labring-actions/devbox/rust-1.81.0:latest",
+            "config": "{\"appPorts\":null,\"ports\":null,\"releaseArgs\":null,\"releaseCommand\":null,\"user\":\"devbox\",\"workingDir\":\"/home/devbox/project\"}",
+            "state": "active",
+            "created": "0001-01-01T00:00:00Z",
+            "updated": "0001-01-01T00:00:00Z"
+          }
+        ]
+      },
+      {
+        "name": "c",
+        "kind": "language",
+        "version": [
+          {
+            "name": "gcc-12.2.0",
+            "image": "ghcr.io/labring-actions/devbox/c-gcc-12.2.0:latest",
+            "config": "{\"appPorts\":null,\"ports\":null,\"releaseArgs\":null,\"releaseCommand\":null,\"user\":\"devbox\",\"workingDir\":\"/home/devbox/project\"}",
+            "state": "active",
+            "created": "0001-01-01T00:00:00Z",
+            "updated": "0001-01-01T00:00:00Z"
+          }
+        ]
+      },
+      {
+        "name": "java",
+        "kind": "language",
+        "version": [
+          {
+            "name": "openjdk17",
+            "image": "ghcr.io/labring-actions/devbox/java-openjdk17:latest",
+            "config": "{\"appPorts\":null,\"ports\":null,\"releaseArgs\":null,\"releaseCommand\":null,\"user\":\"devbox\",\"workingDir\":\"/home/devbox/project\"}",
+            "state": "active",
+            "created": "0001-01-01T00:00:00Z",
+            "updated": "0001-01-01T00:00:00Z"
+          }
+        ]
+      },
+      {
+        "name": "cpp",
+        "kind": "language",
+        "version": [
+          {
+            "name": "gcc-12.2.0",
+            "image": "ghcr.io/labring-actions/devbox/cpp-gcc-12.2.0:latest",
+            "config": "{\"appPorts\":null,\"ports\":null,\"releaseArgs\":null,\"releaseCommand\":null,\"user\":\"devbox\",\"workingDir\":\"/home/devbox/project\"}",
+            "state": "active",
+            "created": "0001-01-01T00:00:00Z",
+            "updated": "0001-01-01T00:00:00Z"
+          }
+        ]
+      },
+      {
+        "name": "php",
+        "kind": "language",
+        "version": [
+          {
+            "name": "7.4",
+            "image": "ghcr.io/labring-actions/devbox/php-7.4:latest",
+            "config": "{\"appPorts\":null,\"ports\":null,\"releaseArgs\":null,\"releaseCommand\":null,\"user\":\"devbox\",\"workingDir\":\"/home/devbox/project\"}",
+            "state": "active",
+            "created": "0001-01-01T00:00:00Z",
+            "updated": "0001-01-01T00:00:00Z"
+          },
+          {
+            "name": "8.2.20",
+            "image": "ghcr.io/labring-actions/devbox/php-8.2.20:latest",
+            "config": "{\"appPorts\":null,\"ports\":null,\"releaseArgs\":null,\"releaseCommand\":null,\"user\":\"devbox\",\"workingDir\":\"/home/devbox/project\"}",
+            "state": "active",
+            "created": "0001-01-01T00:00:00Z",
+            "updated": "0001-01-01T00:00:00Z"
+          }
+        ]
+      },
+      {
+        "name": "net",
+        "kind": "language",
+        "version": [
+          {
+            "name": "8.0",
+            "image": "ghcr.io/labring-actions/devbox/net-8.0:latest",
+            "config": "{\"appPorts\":null,\"ports\":null,\"releaseArgs\":null,\"releaseCommand\":null,\"user\":\"devbox\",\"workingDir\":\"/home/devbox/project\"}",
+            "state": "active",
+            "created": "0001-01-01T00:00:00Z",
+            "updated": "0001-01-01T00:00:00Z"
+          }
+        ]
+      },
+      {
+        "name": "go",
+        "kind": "language",
+        "version": [
+          {
+            "name": "1.22.5",
+            "image": "ghcr.io/labring-actions/devbox/go-1.22.5:latest",
+            "config": "{\"appPorts\":null,\"ports\":null,\"releaseArgs\":null,\"releaseCommand\":null,\"user\":\"devbox\",\"workingDir\":\"/home/devbox/project\"}",
+            "state": "active",
+            "created": "0001-01-01T00:00:00Z",
+            "updated": "0001-01-01T00:00:00Z"
+          },
+          {
+            "name": "1.23.0",
+            "image": "ghcr.io/labring-actions/devbox/go-1.23.0:latest",
+            "config": "{\"appPorts\":null,\"ports\":null,\"releaseArgs\":null,\"releaseCommand\":null,\"user\":\"devbox\",\"workingDir\":\"/home/devbox/project\"}",
+            "state": "active",
+            "created": "0001-01-01T00:00:00Z",
+            "updated": "0001-01-01T00:00:00Z"
+          }
+        ]
+      },
+      {
+        "name": "node.js",
+        "kind": "language",
+        "version": [
+          {
+            "name": "20",
+            "image": "ghcr.io/labring-actions/devbox/node.js-20:latest",
+            "config": "{\"appPorts\":null,\"ports\":null,\"releaseArgs\":null,\"releaseCommand\":null,\"user\":\"devbox\",\"workingDir\":\"/home/devbox/project\"}",
+            "state": "active",
+            "created": "0001-01-01T00:00:00Z",
+            "updated": "0001-01-01T00:00:00Z"
+          },
+          {
+            "name": "18",
+            "image": "ghcr.io/labring-actions/devbox/node.js-18:latest",
+            "config": "{\"appPorts\":null,\"ports\":null,\"releaseArgs\":null,\"releaseCommand\":null,\"user\":\"devbox\",\"workingDir\":\"/home/devbox/project\"}",
+            "state": "active",
+            "created": "0001-01-01T00:00:00Z",
+            "updated": "0001-01-01T00:00:00Z"
+          },
+          {
+            "name": "22",
+            "image": "ghcr.io/labring-actions/devbox/node.js-22:latest",
+            "config": "{\"appPorts\":null,\"ports\":null,\"releaseArgs\":null,\"releaseCommand\":null,\"user\":\"devbox\",\"workingDir\":\"/home/devbox/project\"}",
+            "state": "active",
+            "created": "0001-01-01T00:00:00Z",
+            "updated": "0001-01-01T00:00:00Z"
+          }
+        ]
+      }
+    ],
+    "OS": [
+      {
+        "name": "ubuntu-cuda",
+        "kind": "os",
+        "version": [
+          {
+            "name": "24.04",
+            "image": "ghcr.io/labring-actions/devbox/ubuntu-cuda-24.04:latest",
+            "config": "{\"appPorts\":null,\"ports\":null,\"releaseArgs\":null,\"releaseCommand\":null,\"user\":\"devbox\",\"workingDir\":\"/home/devbox/project\"}",
+            "state": "active",
+            "created": "0001-01-01T00:00:00Z",
+            "updated": "0001-01-01T00:00:00Z"
+          }
+        ]
+      },
+      {
+        "name": "debian-ssh",
+        "kind": "os",
+        "version": [
+          {
+            "name": "12.6",
+            "image": "ghcr.io/labring-actions/devbox/debian-ssh-12.6:latest",
+            "config": "{\"appPorts\":null,\"ports\":null,\"releaseArgs\":null,\"releaseCommand\":null,\"user\":\"devbox\",\"workingDir\":\"/home/devbox/project\"}",
+            "state": "active",
+            "created": "0001-01-01T00:00:00Z",
+            "updated": "0001-01-01T00:00:00Z"
+          }
+        ]
+      },
+      {
+        "name": "ubuntu",
+        "kind": "os",
+        "version": [
+          {
+            "name": "24.04",
+            "image": "ghcr.io/labring-actions/devbox/ubuntu-24.04:latest",
+            "config": "{\"appPorts\":null,\"ports\":null,\"releaseArgs\":null,\"releaseCommand\":null,\"user\":\"devbox\",\"workingDir\":\"/home/devbox/project\"}",
+            "state": "active",
+            "created": "0001-01-01T00:00:00Z",
+            "updated": "0001-01-01T00:00:00Z"
+          }
+        ]
+      }
+    ],
+    "Custom": [
+      {
+        "name": "mcp",
+        "kind": "service",
+        "version": [
+          {
+            "name": "csharp-1-0",
+            "image": "ghcr.io/labring-actions/devbox/mcp-csharp-1-0:latest",
+            "config": "{\"appPorts\":null,\"ports\":null,\"releaseArgs\":null,\"releaseCommand\":null,\"user\":\"devbox\",\"workingDir\":\"/home/devbox/project\"}",
+            "state": "active",
+            "created": "0001-01-01T00:00:00Z",
+            "updated": "0001-01-01T00:00:00Z"
+          },
+          {
+            "name": "typescript-1-8",
+            "image": "ghcr.io/labring-actions/devbox/mcp-typescript-1-8:latest",
+            "config": "{\"appPorts\":null,\"ports\":null,\"releaseArgs\":null,\"releaseCommand\":null,\"user\":\"devbox\",\"workingDir\":\"/home/devbox/project\"}",
+            "state": "active",
+            "created": "0001-01-01T00:00:00Z",
+            "updated": "0001-01-01T00:00:00Z"
+          },
+          {
+            "name": "spring-boot-3-3-2",
+            "image": "ghcr.io/labring-actions/devbox/mcp-spring-boot-3-3-2:latest",
+            "config": "{\"appPorts\":null,\"ports\":null,\"releaseArgs\":null,\"releaseCommand\":null,\"user\":\"devbox\",\"workingDir\":\"/home/devbox/project\"}",
+            "state": "active",
+            "created": "0001-01-01T00:00:00Z",
+            "updated": "0001-01-01T00:00:00Z"
+          },
+          {
+            "name": "python-3-12",
+            "image": "ghcr.io/labring-actions/devbox/mcp-python-3-12:latest",
+            "config": "{\"appPorts\":null,\"ports\":null,\"releaseArgs\":null,\"releaseCommand\":null,\"user\":\"devbox\",\"workingDir\":\"/home/devbox/project\"}",
+            "state": "active",
+            "created": "0001-01-01T00:00:00Z",
+            "updated": "0001-01-01T00:00:00Z"
+          },
+          {
+            "name": "mcp-proxy",
+            "image": "ghcr.io/labring-actions/devbox/mcp-mcp-proxy:latest",
+            "config": "{\"appPorts\":null,\"ports\":null,\"releaseArgs\":null,\"releaseCommand\":null,\"user\":\"devbox\",\"workingDir\":\"/home/devbox/project\"}",
+            "state": "active",
+            "created": "0001-01-01T00:00:00Z",
+            "updated": "0001-01-01T00:00:00Z"
+          }
+        ]
+      }
+    ]
+  }
+}

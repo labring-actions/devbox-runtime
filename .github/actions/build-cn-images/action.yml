@@ -1,0 +1,31 @@
+name: 'Build and Push CN Images'
+description: 'Build and push CN (Chinese) versions of Docker images'
+inputs:
+  dockerfile:
+    description: 'Dockerfile path'
+    required: true
+  ghcr_image_name:
+    description: 'ghcr.io CN image name'
+    required: true
+  acr_image_name:
+    description: 'Aliyun ACR CN image name'
+    required: false
+    default: ''
+  aliyun_enabled:
+    description: 'Whether to push to Aliyun ACR'
+    required: false
+    default: 'true'
+runs:
+  using: 'composite'
+  steps:
+    - name: Build and push CN image to ghcr.io
+      shell: bash
+      run: |
+        echo "Building and pushing CN image to ghcr.io: ${{ inputs.ghcr_image_name }}"
+        ./runtimectl ci build "${{ inputs.dockerfile }}" "${{ inputs.ghcr_image_name }}" --cn --push | bash
+    - name: Build and push CN image to Aliyun ACR
+      if: inputs.aliyun_enabled == 'true' && inputs.acr_image_name != ''
+      shell: bash
+      run: |
+        echo "Building and pushing CN image to Aliyun ACR: ${{ inputs.acr_image_name }}"
+        ./runtimectl ci build "${{ inputs.dockerfile }}" "${{ inputs.acr_image_name }}" --cn --push | bash

@@ -1,0 +1,23 @@
+name: 'Docker Registry Login'
+description: 'Login to Docker registries (ghcr.io and Aliyun ACR)'
+inputs:
+  aliyun_enabled:
+    description: 'Whether to enable Aliyun ACR login'
+    required: false
+    default: 'true'
+runs:
+  using: 'composite'
+  steps:
+    - name: Login to ghcr.io
+      uses: docker/login-action@v3
+      with:
+        registry: ghcr.io
+        username: ${{ github.repository_owner }}
+        password: ${{ secrets.GITHUB_TOKEN }}
+    - name: Login to Aliyun ACR
+      if: inputs.aliyun_enabled == 'true'
+      uses: docker/login-action@v3
+      with:
+        registry: ${{ secrets.ALIYUN_REGISTRY }}
+        username: ${{ secrets.ALIYUN_USERNAME }}
+        password: ${{ secrets.ALIYUN_PASSWORD }}
