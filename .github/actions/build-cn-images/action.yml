@@ -22,10 +22,10 @@ runs:
       shell: bash
       run: |
         echo "Building and pushing CN image to ghcr.io: ${{ inputs.ghcr_image_name }}"
-        ./runtimectl ci build "${{ inputs.dockerfile }}" "${{ inputs.ghcr_image_name }}" --cn --push | bash
+        ./bin/runtimectl ci build "${{ inputs.dockerfile }}" "${{ inputs.ghcr_image_name }}" --cn --push | bash
     - name: Build and push CN image to Aliyun ACR
       if: inputs.aliyun_enabled == 'true' && inputs.acr_image_name != ''
       shell: bash
       run: |
         echo "Building and pushing CN image to Aliyun ACR: ${{ inputs.acr_image_name }}"
-        ./runtimectl ci build "${{ inputs.dockerfile }}" "${{ inputs.acr_image_name }}" --cn --push | bash
+        ./bin/runtimectl ci build "${{ inputs.dockerfile }}" "${{ inputs.acr_image_name }}" --cn --push | bash

@@ -29,12 +29,12 @@ runs:
         echo "tag=${{ inputs.tag }}"
 
         # Generate ghcr.io image name
-        ghcr_image_name=$(./runtimectl ci image-name "${{ inputs.dockerfile }}" "ghcr.io" "${{ github.repository_owner }}" "${{ inputs.tag }}" | tr '[:upper:]' '[:lower:]')
+        ghcr_image_name=$(./bin/runtimectl ci image-name "${{ inputs.dockerfile }}" "ghcr.io" "${{ github.repository_owner }}" "${{ inputs.tag }}" | tr '[:upper:]' '[:lower:]')
         echo "ghcr_image_name=$ghcr_image_name" >> $GITHUB_OUTPUT
 
         # Generate Aliyun ACR image name if enabled
         if [ "${{ inputs.aliyun_enabled }}" = "true" ]; then
-          acr_image_name=$(./runtimectl ci image-name "${{ inputs.dockerfile }}" "${{ secrets.ALIYUN_REGISTRY }}" "${{ secrets.ALIYUN_NAMESPACE }}" "${{ inputs.tag }}" | tr '[:upper:]' '[:lower:]')
+          acr_image_name=$(./bin/runtimectl ci image-name "${{ inputs.dockerfile }}" "${{ secrets.ALIYUN_REGISTRY }}" "${{ secrets.ALIYUN_NAMESPACE }}" "${{ inputs.tag }}" | tr '[:upper:]' '[:lower:]')
           echo "acr_image_name=$acr_image_name" >> $GITHUB_OUTPUT
         else
           echo "acr_image_name=" >> $GITHUB_OUTPUT

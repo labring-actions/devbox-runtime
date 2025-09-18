@@ -3,6 +3,10 @@ description: 'Build and setup runtimectl binary'
 runs:
   using: 'composite'
   steps:
+    - name: Set up Go
+      uses: actions/setup-go@v4
+      with:
+        go-version: '1.21'
     - name: Build runtimectl
       shell: bash
       run: |
