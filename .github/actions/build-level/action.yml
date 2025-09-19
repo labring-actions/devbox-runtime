@@ -1,4 +1,4 @@
-name: Build Level
+name: 'Build Level'
 description: 'Build a specific dependency level with all packages in that level'
 inputs:
   level_index:
@@ -21,7 +21,6 @@ inputs:
     description: 'JSON array of previous levels that must be completed'
     required: false
     default: '[]'
-
 runs:
   using: 'composite'
   steps:
@@ -29,18 +28,18 @@ runs:
       uses: actions/checkout@v4
       with:
         fetch-depth: 0
-
     - name: Setup bin/runtimectl
       uses: ./.github/actions/setup-runtimectl
-
     - name: Setup Docker
       uses: ./.github/actions/setup-docker
-
     - name: Docker Login
       uses: ./.github/actions/docker-login
       with:
+        github_token: ${{ secrets.GITHUB_TOKEN }}
         aliyun_enabled: ${{ inputs.aliyun_enabled }}
-
+        aliyun_username: ${{ secrets.ALIYUN_USERNAME }}
+        aliyun_password: ${{ secrets.ALIYUN_PASSWORD }}
+        aliyun_registry: ${{ secrets.ALIYUN_REGISTRY }}
     - name: Build level packages
       shell: bash
       run: |
@@ -112,6 +111,3 @@ runs:
 
             echo "Completed building: $build_target"
           fi
-        done
-
-        echo "Completed Level ${{ inputs.level_index }}"
