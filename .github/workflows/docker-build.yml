@@ -105,6 +105,10 @@ jobs:
       contents: read
       packages: write
     steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
       - name: Build Level 0
         uses: ./.github/actions/build-level
         with:
@@ -123,6 +127,10 @@ jobs:
       contents: read
       packages: write
     steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
       - name: Build Level 1
         uses: ./.github/actions/build-level
         with:
@@ -141,6 +149,10 @@ jobs:
       contents: read
       packages: write
     steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
       - name: Build Level 2
         uses: ./.github/actions/build-level
         with:
