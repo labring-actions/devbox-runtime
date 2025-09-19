@@ -9,15 +9,17 @@ runs:
   using: 'composite'
   steps:
     - name: Login to ghcr.io
-      uses: docker/login-action@v3
-      with:
-        registry: ghcr.io
-        username: ${{ github.repository_owner }}
-        password: ${{ secrets.GITHUB_TOKEN }}
+      shell: bash
+      run: |
+        printf '%s' "${{ secrets.GITHUB_TOKEN }}" > /tmp/ghcr_token
+        chmod 600 /tmp/ghcr_token
+        docker login ghcr.io -u "${{ github.repository_owner }}" --password-stdin < /tmp/ghcr_token
+        rm -f /tmp/ghcr_token
     - name: Login to Aliyun ACR
       if: inputs.aliyun_enabled == 'true'
-      uses: docker/login-action@v3
-      with:
-        registry: ${{ secrets.ALIYUN_REGISTRY }}
-        username: ${{ secrets.ALIYUN_USERNAME }}
-        password: ${{ secrets.ALIYUN_PASSWORD }}
+      shell: bash
+      run: |
+        printf '%s' "${{ secrets.ALIYUN_PASSWORD }}" > /tmp/aliyun_token
+        chmod 600 /tmp/aliyun_token
+        docker login "${{ secrets.ALIYUN_REGISTRY }}" -u "${{ secrets.ALIYUN_USERNAME }}" --password-stdin < /tmp/aliyun_token
+        rm -f /tmp/aliyun_token
