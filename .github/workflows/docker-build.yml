@@ -162,40 +162,40 @@ jobs:
           tag_cn: ${{ needs.define-matrix.outputs.tag_cn }}
           aliyun_enabled: ${{ inputs.aliyun_enabled }}
 
-  # Generate runtime configuration
-  generate-config:
-    runs-on: ubuntu-latest
-    needs: [define-matrix, build-level-0, build-level-1, build-level-2]
-    if: always()
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
+  # # Generate runtime configuration
+  # generate-config:
+  #   runs-on: ubuntu-latest
+  #   needs: [define-matrix, build-level-0, build-level-1, build-level-2]
+  #   if: always()
+  #   steps:
+  #     - name: Checkout code
+  #       uses: actions/checkout@v4
+  #       with:
+  #         fetch-depth: 0
 
-      - name: Setup bin/runtimectl
-        uses: ./.github/actions/setup-runtimectl
+  #     - name: Setup bin/runtimectl
+  #       uses: ./.github/actions/setup-runtimectl
 
-      - name: Generate runtime configuration
-        run: |
-          echo "Generating runtime configuration..."
-          ./bin/runtimectl ci generate-config --tag "${{ needs.define-matrix.outputs.tag }}"
-          ./bin/runtimectl ci generate-config --cn --tag "${{ needs.define-matrix.outputs.tag_cn }}"
+  #     - name: Generate runtime configuration
+  #       run: |
+  #         echo "Generating runtime configuration..."
+  #         ./bin/runtimectl ci generate-config --tag "${{ needs.define-matrix.outputs.tag }}"
+  #         ./bin/runtimectl ci generate-config --cn --tag "${{ needs.define-matrix.outputs.tag_cn }}"
 
-  # Generate dependency graph visualization
-  generate-dependency-graph:
-    runs-on: ubuntu-latest
-    needs: [define-matrix]
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
+  # # Generate dependency graph visualization
+  # generate-dependency-graph:
+  #   runs-on: ubuntu-latest
+  #   needs: [define-matrix]
+  #   steps:
+  #     - name: Checkout code
+  #       uses: actions/checkout@v4
+  #       with:
+  #         fetch-depth: 0
 
-      - name: Setup bin/runtimectl
-        uses: ./.github/actions/setup-runtimectl
+  #     - name: Setup bin/runtimectl
+  #       uses: ./.github/actions/setup-runtimectl
 
-      - name: Generate dependency graph
-        run: |
-          echo "## Dependency Graph" >> $GITHUB_STEP_SUMMARY
-          ./bin/runtimectl ci dependency-graph >> $GITHUB_STEP_SUMMARY
+  #     - name: Generate dependency graph
+  #       run: |
+  #         echo "## Dependency Graph" >> $GITHUB_STEP_SUMMARY
+  #         ./bin/runtimectl ci dependency-graph >> $GITHUB_STEP_SUMMARY
