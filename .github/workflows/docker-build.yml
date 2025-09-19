@@ -1,4 +1,4 @@
-name: Build Docker Images
+name: Build Docker Images (Three Levels)
 
 on:
   workflow_dispatch:
@@ -27,6 +27,9 @@ jobs:
       tag: ${{ steps.set_tag.outputs.tag }}
       tag_cn: ${{ steps.set_tag.outputs.tag_cn }}
       build_order: ${{ steps.get_build_order.outputs.build_order }}
+      level_0: ${{ steps.get_levels.outputs.level_0 }}
+      level_1: ${{ steps.get_levels.outputs.level_1 }}
+      level_2: ${{ steps.get_levels.outputs.level_2 }}
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -63,95 +66,95 @@ jobs:
           echo "$build_order" >> $GITHUB_OUTPUT
           echo "EOF" >> $GITHUB_OUTPUT
 
+      - name: Get dependency levels
+        id: get_levels
+        run: |
+          # Get dependency graph and extract levels
+          graph=$(./bin/runtimectl -o json ci analyze-dependencies)
+          level_0=$(echo "$graph" | jq -c '.levels[0] // []')
+          level_1=$(echo "$graph" | jq -c '.levels[1] // []')
+          level_2=$(echo "$graph" | jq -c '.levels[2] // []')
+
+          echo "level_0<<EOF" >> $GITHUB_OUTPUT
+          echo "$level_0" >> $GITHUB_OUTPUT
+          echo "EOF" >> $GITHUB_OUTPUT
+
+          echo "level_1<<EOF" >> $GITHUB_OUTPUT
+          echo "$level_1" >> $GITHUB_OUTPUT
+          echo "EOF" >> $GITHUB_OUTPUT
+
+          echo "level_2<<EOF" >> $GITHUB_OUTPUT
+          echo "$level_2" >> $GITHUB_OUTPUT
+          echo "EOF" >> $GITHUB_OUTPUT
+
+          # Output level information
+          echo "Level 0 (OS): $(echo "$level_0" | jq 'length') packages"
+          echo "Level 1 (Language): $(echo "$level_1" | jq 'length') packages"
+          echo "Level 2 (Framework): $(echo "$level_2" | jq 'length') packages"
+
       - name: Validate dependencies
         run: |
           ./bin/runtimectl ci validate-dependencies
 
-  # Build images in dependency order
-  build-images:
+  # Build Level 0: Base Images (OS)
+  build-level-0:
     runs-on: ubuntu-latest
     needs: define-matrix
-    strategy:
-      fail-fast: false
-      matrix:
-        build_target: ${{ fromJson(needs.define-matrix.outputs.build_order) }}
+    if: ${{ fromJson(needs.define-matrix.outputs.level_0) != null && length(fromJson(needs.define-matrix.outputs.level_0)) > 0 }}
     permissions:
       contents: read
       packages: write
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
+      - name: Build Level 0
+        uses: ./.github/actions/build-level
         with:
-          fetch-depth: 0
-
-      - name: Setup bin/runtimectl
-        uses: ./.github/actions/setup-runtimectl
-
-      - name: Setup Docker
-        uses: ./.github/actions/setup-docker
-
-      - name: Docker Login
-        uses: ./.github/actions/docker-login
-        with:
-          aliyun_enabled: ${{ inputs.aliyun_enabled }}
-
-      - name: Validate build
-        run: |
-          ./bin/runtimectl ci validate-build "${{ matrix.build_target }}"
-
-      - name: Update base image references
-        run: |
-          # Get dependencies for this image
-          dependencies=$(./bin/runtimectl -o json ci analyze-dependencies | jq -r --arg path "${{ matrix.build_target }}" '.nodes[] | select(.path == $path) | .dependencies[]')
-
-          for dep in $dependencies; do
-            # Find the corresponding dockerfile for this dependency
-            dep_dockerfile=$(./bin/runtimectl -o json ci analyze-dependencies | jq -r --arg dep "$dep" '.nodes[] | select(.name + "-" + .version == $dep) | .path')
-
-            if [ -n "$dep_dockerfile" ]; then
-              # Generate the image name for the dependency
-              dep_image_name=$(./bin ci image-name "$dep_dockerfile" "ghcr.io" "${{ github.repository_owner }}" "${{ needs.define-matrix.outputs.tag }}" | tr '[:upper:]' '[:lower:]')
-              echo "Updating dependency $dep to: $dep_image_name"
-              ./bin/runtimectl ci update-base-image "${{ matrix.build_target }}" "$dep_image_name"
-            fi
-          done
-
-      - name: Generate image names
-        id: image_names
-        uses: ./.github/actions/generate-image-names
-        with:
-          dockerfile: ${{ matrix.build_target }}
+          level_index: 0
+          level_packages: ${{ needs.define-matrix.outputs.level_0 }}
           tag: ${{ needs.define-matrix.outputs.tag }}
+          tag_cn: ${{ needs.define-matrix.outputs.tag_cn }}
           aliyun_enabled: ${{ inputs.aliyun_enabled }}
 
-      - name: Build and push images
-        uses: ./.github/actions/build-and-push
+  # Build Level 1: Language Images (depends on Level 0)
+  build-level-1:
+    runs-on: ubuntu-latest
+    needs: [define-matrix, build-level-0]
+    if: ${{ fromJson(needs.define-matrix.outputs.level_1) != null && length(fromJson(needs.define-matrix.outputs.level_1)) > 0 }}
+    permissions:
+      contents: read
+      packages: write
+    steps:
+      - name: Build Level 1
+        uses: ./.github/actions/build-level
         with:
-          dockerfile: ${{ matrix.build_target }}
-          ghcr_image_name: ${{ steps.image_names.outputs.ghcr_image_name }}
-          acr_image_name: ${{ steps.image_names.outputs.acr_image_name }}
+          level_index: 1
+          level_packages: ${{ needs.define-matrix.outputs.level_1 }}
+          tag: ${{ needs.define-matrix.outputs.tag }}
+          tag_cn: ${{ needs.define-matrix.outputs.tag_cn }}
           aliyun_enabled: ${{ inputs.aliyun_enabled }}
 
-      - name: Generate CN image names
-        id: image_names_cn
-        uses: ./.github/actions/generate-image-names
+  # Build Level 2: Framework Images (depends on Level 1)
+  build-level-2:
+    runs-on: ubuntu-latest
+    needs: [define-matrix, build-level-1]
+    if: ${{ fromJson(needs.define-matrix.outputs.level_2) != null && length(fromJson(needs.define-matrix.outputs.level_2)) > 0 }}
+    permissions:
+      contents: read
+      packages: write
+    steps:
+      - name: Build Level 2
+        uses: ./.github/actions/build-level
         with:
-          dockerfile: ${{ matrix.build_target }}
-          tag: ${{ needs.define-matrix.outputs.tag_cn }}
-          aliyun_enabled: ${{ inputs.aliyun_enabled }}
-
-      - name: Build and push CN images
-        uses: ./.github/actions/build-cn-images
-        with:
-          dockerfile: ${{ matrix.build_target }}
-          ghcr_image_name: ${{ steps.image_names_cn.outputs.ghcr_image_name }}
-          acr_image_name: ${{ steps.image_names_cn.outputs.acr_image_name }}
+          level_index: 2
+          level_packages: ${{ needs.define-matrix.outputs.level_2 }}
+          tag: ${{ needs.define-matrix.outputs.tag }}
+          tag_cn: ${{ needs.define-matrix.outputs.tag_cn }}
           aliyun_enabled: ${{ inputs.aliyun_enabled }}
 
   # Generate runtime configuration
   generate-config:
     runs-on: ubuntu-latest
-    needs: [define-matrix, build-images]
+    needs: [define-matrix, build-level-0, build-level-1, build-level-2]
+    if: always()
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
