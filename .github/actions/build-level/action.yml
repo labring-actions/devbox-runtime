@@ -1,0 +1,117 @@
+name: Build Level
+description: 'Build a specific dependency level with all packages in that level'
+inputs:
+  level_index:
+    description: 'The dependency level index (0, 1, 2)'
+    required: true
+  level_packages:
+    description: 'JSON array of packages in this level'
+    required: true
+  tag:
+    description: 'Tag for the Docker image'
+    required: true
+  tag_cn:
+    description: 'CN tag for the Docker image'
+    required: true
+  aliyun_enabled:
+    description: 'Enable Aliyun ACR builds'
+    required: false
+    default: 'false'
+  previous_levels:
+    description: 'JSON array of previous levels that must be completed'
+    required: false
+    default: '[]'
+
+runs:
+  using: 'composite'
+  steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      with:
+        fetch-depth: 0
+
+    - name: Setup bin/runtimectl
+      uses: ./.github/actions/setup-runtimectl
+
+    - name: Setup Docker
+      uses: ./.github/actions/setup-docker
+
+    - name: Docker Login
+      uses: ./.github/actions/docker-login
+      with:
+        aliyun_enabled: ${{ inputs.aliyun_enabled }}
+
+    - name: Build level packages
+      shell: bash
+      run: |
+        echo "Building Level ${{ inputs.level_index }}"
+
+        # Parse level packages
+        level_packages='${{ inputs.level_packages }}'
+
+        if [ "$level_packages" = "null" ] || [ -z "$level_packages" ]; then
+          echo "No packages in level ${{ inputs.level_index }}, skipping..."
+          exit 0
+        fi
+
+        # Count packages in this level
+        package_count=$(echo "$level_packages" | jq 'length')
+        echo "Level ${{ inputs.level_index }} contains $package_count packages"
+
+        # Build each package in this level
+        echo "$level_packages" | jq -r '.[]' | while read -r build_target; do
+          if [ -n "$build_target" ]; then
+            echo "Building: $build_target"
+
+            # Validate build
+            ./bin/runtimectl ci validate-build "$build_target"
+
+            # Update base image references
+            dependencies=$(./bin/runtimectl -o json ci analyze-dependencies | jq -r --arg path "$build_target" '.nodes[] | select(.path == $path) | .dependencies[]')
+
+            for dep in $dependencies; do
+              # Find the corresponding dockerfile for this dependency
+              dep_dockerfile=$(./bin/runtimectl -o json ci analyze-dependencies | jq -r --arg dep "$dep" '.nodes[] | select(.name + "-" + .version == $dep) | .path')
+
+              if [ -n "$dep_dockerfile" ]; then
+                # Generate the image name for the dependency
+                dep_image_name=$(./bin ci image-name "$dep_dockerfile" "ghcr.io" "${{ github.repository_owner }}" "${{ inputs.tag }}" | tr '[:upper:]' '[:lower:]')
+                echo "Updating dependency $dep to: $dep_image_name"
+                ./bin/runtimectl ci update-base-image "$build_target" "$dep_image_name"
+              fi
+            done
+
+            # Generate image names
+            ghcr_image_name=$(./bin ci image-name "$build_target" "ghcr.io" "${{ github.repository_owner }}" "${{ inputs.tag }}" | tr '[:upper:]' '[:lower:]')
+            acr_image_name=$(./bin ci image-name "$build_target" "registry.cn-hangzhou.aliyuncs.com" "${{ github.repository_owner }}" "${{ inputs.tag }}" | tr '[:upper:]' '[:lower:]')
+
+            # Build and push images
+            echo "Building and pushing: $ghcr_image_name"
+            docker build -f "$build_target" -t "$ghcr_image_name" .
+            docker push "$ghcr_image_name"
+
+            if [ "${{ inputs.aliyun_enabled }}" = "true" ]; then
+              echo "Building and pushing CN image: $acr_image_name"
+              docker tag "$ghcr_image_name" "$acr_image_name"
+              docker push "$acr_image_name"
+            fi
+
+            # Build CN version
+            ghcr_cn_image_name=$(./bin ci image-name "$build_target" "ghcr.io" "${{ github.repository_owner }}" "${{ inputs.tag_cn }}" | tr '[:upper:]' '[:lower:]')
+            acr_cn_image_name=$(./bin ci image-name "$build_target" "registry.cn-hangzhou.aliyuncs.com" "${{ github.repository_owner }}" "${{ inputs.tag_cn }}" | tr '[:upper:]' '[:lower:]')
+
+            echo "Building and pushing CN image: $ghcr_cn_image_name"
+            docker build -f "$build_target" -t "$ghcr_cn_image_name" .
+            docker push "$ghcr_cn_image_name"
+
+            if [ "${{ inputs.aliyun_enabled }}" = "true" ]; then
+              echo "Building and pushing CN ACR image: $acr_cn_image_name"
+              docker tag "$ghcr_cn_image_name" "$acr_cn_image_name"
+              docker push "$acr_cn_image_name"
+            fi
+
+            echo "Completed building: $build_target"
+          fi
+        done
+
+        echo "Completed Level ${{ inputs.level_index }}"
