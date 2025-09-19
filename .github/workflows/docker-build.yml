@@ -53,13 +53,15 @@ jobs:
         run: |
           if [ "${{ inputs.build_all }}" = "true" ] || [ -n "${{ inputs.tag }}" ]; then
             # Get all images in dependency order
-            build_order=$(./bin/runtimectl -o json ci build-order)
+            build_order=$(./bin/runtimectl -o json ci build-order | jq -c .)
           else
             # Get changed images with dependencies
             changed_files=$(./bin/runtimectl ci build-matrix --changed --commit1 $(echo "${{ github.event.before }}" | cut -c1-7) --commit2 $(echo "${{ github.sha }}" | cut -c1-7) --with-dependencies)
-            build_order=$(./bin/runtimectl -o json ci build-order | jq --argjson changed "$changed_files" '[.[] | select(. as $item | $changed | index($item))]')
+            build_order=$(./bin/runtimectl -o json ci build-order | jq --argjson changed "$changed_files" '[.[] | select(. as $item | $changed | index($item))]' | jq -c .)
           fi
-          echo "build_order=$build_order" >> $GITHUB_OUTPUT
+          echo "build_order<<EOF" >> $GITHUB_OUTPUT
+          echo "$build_order" >> $GITHUB_OUTPUT
+          echo "EOF" >> $GITHUB_OUTPUT
 
       - name: Validate dependencies
         run: |
