@@ -120,3 +120,4 @@ runs:
 
             echo "Completed building: $build_target"
           fi
+        done
