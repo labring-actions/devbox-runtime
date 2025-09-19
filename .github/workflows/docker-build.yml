@@ -116,7 +116,8 @@ jobs:
           level_packages: ${{ needs.define-matrix.outputs.level_0 }}
           tag: ${{ needs.define-matrix.outputs.tag }}
           tag_cn: ${{ needs.define-matrix.outputs.tag_cn }}
-          aliyun_enabled: ${{ inputs.aliyun_enabled }}
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          aliyun_credentials: ${{ inputs.aliyun_enabled == 'true' && format('{{"registry":"{0}","username":"{1}","password":"{2}"}}', secrets.ALIYUN_REGISTRY, secrets.ALIYUN_USERNAME, secrets.ALIYUN_PASSWORD) || '{}' }}
 
   # Build Level 1: Language Images (depends on Level 0)
   build-level-1:
@@ -138,7 +139,8 @@ jobs:
           level_packages: ${{ needs.define-matrix.outputs.level_1 }}
           tag: ${{ needs.define-matrix.outputs.tag }}
           tag_cn: ${{ needs.define-matrix.outputs.tag_cn }}
-          aliyun_enabled: ${{ inputs.aliyun_enabled }}
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          aliyun_credentials: ${{ inputs.aliyun_enabled == 'true' && format('{{"registry":"{0}","username":"{1}","password":"{2}"}}', secrets.ALIYUN_REGISTRY, secrets.ALIYUN_USERNAME, secrets.ALIYUN_PASSWORD) || '{}' }}
 
   # Build Level 2: Framework Images (depends on Level 1)
   build-level-2:
@@ -160,7 +162,8 @@ jobs:
           level_packages: ${{ needs.define-matrix.outputs.level_2 }}
           tag: ${{ needs.define-matrix.outputs.tag }}
           tag_cn: ${{ needs.define-matrix.outputs.tag_cn }}
-          aliyun_enabled: ${{ inputs.aliyun_enabled }}
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          aliyun_credentials: ${{ inputs.aliyun_enabled == 'true' && format('{{"registry":"{0}","username":"{1}","password":"{2}"}}', secrets.ALIYUN_REGISTRY, secrets.ALIYUN_USERNAME, secrets.ALIYUN_PASSWORD) || '{}' }}
 
   # # Generate runtime configuration
   # generate-config:

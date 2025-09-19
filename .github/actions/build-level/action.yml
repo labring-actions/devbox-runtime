@@ -13,10 +13,13 @@ inputs:
   tag_cn:
     description: 'CN tag for the Docker image'
     required: true
-  aliyun_enabled:
-    description: 'Enable Aliyun ACR builds'
+  github_token:
+    description: 'GitHub Token for ghcr.io login'
+    required: true
+  aliyun_credentials:
+    description: 'JSON object containing Aliyun ACR credentials { "registry": string, "username": string, "password": string }'
     required: false
-    default: 'false'
+    default: '{}'
   previous_levels:
     description: 'JSON array of previous levels that must be completed'
     required: false
@@ -35,11 +38,8 @@ runs:
     - name: Docker Login
       uses: ./.github/actions/docker-login
       with:
-        github_token: ${{ secrets.GITHUB_TOKEN }}
-        aliyun_enabled: ${{ inputs.aliyun_enabled }}
-        aliyun_username: ${{ secrets.ALIYUN_USERNAME }}
-        aliyun_password: ${{ secrets.ALIYUN_PASSWORD }}
-        aliyun_registry: ${{ secrets.ALIYUN_REGISTRY }}
+        github_token: ${{ inputs.github_token }}
+        aliyun_credentials: ${{ inputs.aliyun_credentials }}
     - name: Build level packages
       shell: bash
       run: |
@@ -89,10 +89,15 @@ runs:
             docker build -f "$build_target" -t "$ghcr_image_name" .
             docker push "$ghcr_image_name"
 
-            if [ "${{ inputs.aliyun_enabled }}" = "true" ]; then
-              echo "Building and pushing CN image: $acr_image_name"
-              docker tag "$ghcr_image_name" "$acr_image_name"
-              docker push "$acr_image_name"
+            # Check if Aliyun credentials are provided
+            aliyun_credentials='${{ inputs.aliyun_credentials }}'
+            if [ "$aliyun_credentials" != "{}" ] && [ "$aliyun_credentials" != "" ] && [ "$aliyun_credentials" != "null" ]; then
+              registry=$(echo "$aliyun_credentials" | jq -r '.registry')
+              if [ -n "$registry" ] && [ "$registry" != "null" ]; then
+                echo "Building and pushing CN image: $acr_image_name"
+                docker tag "$ghcr_image_name" "$acr_image_name"
+                docker push "$acr_image_name"
+              fi
             fi
 
             # Build CN version
@@ -103,10 +108,14 @@ runs:
             docker build -f "$build_target" -t "$ghcr_cn_image_name" .
             docker push "$ghcr_cn_image_name"
 
-            if [ "${{ inputs.aliyun_enabled }}" = "true" ]; then
-              echo "Building and pushing CN ACR image: $acr_cn_image_name"
-              docker tag "$ghcr_cn_image_name" "$acr_cn_image_name"
-              docker push "$acr_cn_image_name"
+            # Check if Aliyun credentials are provided for CN image
+            if [ "$aliyun_credentials" != "{}" ] && [ "$aliyun_credentials" != "" ] && [ "$aliyun_credentials" != "null" ]; then
+              registry=$(echo "$aliyun_credentials" | jq -r '.registry')
+              if [ -n "$registry" ] && [ "$registry" != "null" ]; then
+                echo "Building and pushing CN ACR image: $acr_cn_image_name"
+                docker tag "$ghcr_cn_image_name" "$acr_cn_image_name"
+                docker push "$acr_cn_image_name"
+              fi
             fi
 
             echo "Completed building: $build_target"

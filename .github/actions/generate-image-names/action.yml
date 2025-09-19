@@ -7,10 +7,10 @@ inputs:
   tag:
     description: 'Image tag'
     required: true
-  aliyun_enabled:
-    description: 'Whether to generate Aliyun ACR names'
+  aliyun_credentials:
+    description: 'JSON object containing Aliyun ACR credentials { "registry": string, "username": string, "password": string }'
     required: false
-    default: 'true'
+    default: '{}'
 outputs:
   ghcr_image_name:
     description: 'Generated ghcr.io image name'
@@ -32,10 +32,17 @@ runs:
         ghcr_image_name=$(./bin/runtimectl ci image-name "${{ inputs.dockerfile }}" "ghcr.io" "${{ github.repository_owner }}" "${{ inputs.tag }}" | tr '[:upper:]' '[:lower:]')
         echo "ghcr_image_name=$ghcr_image_name" >> $GITHUB_OUTPUT
 
-        # Generate Aliyun ACR image name if enabled
-        if [ "${{ inputs.aliyun_enabled }}" = "true" ]; then
-          acr_image_name=$(./bin/runtimectl ci image-name "${{ inputs.dockerfile }}" "${{ secrets.ALIYUN_REGISTRY }}" "${{ secrets.ALIYUN_NAMESPACE }}" "${{ inputs.tag }}" | tr '[:upper:]' '[:lower:]')
-          echo "acr_image_name=$acr_image_name" >> $GITHUB_OUTPUT
+        # Generate Aliyun ACR image name if credentials are provided
+        aliyun_credentials='${{ inputs.aliyun_credentials }}'
+        if [ "$aliyun_credentials" != "{}" ] && [ "$aliyun_credentials" != "" ] && [ "$aliyun_credentials" != "null" ]; then
+          registry=$(echo "$aliyun_credentials" | jq -r '.registry')
+          username=$(echo "$aliyun_credentials" | jq -r '.username')
+          if [ -n "$registry" ] && [ "$registry" != "null" ] && [ -n "$username" ] && [ "$username" != "null" ]; then
+            acr_image_name=$(./bin/runtimectl ci image-name "${{ inputs.dockerfile }}" "$registry" "$username" "${{ inputs.tag }}" | tr '[:upper:]' '[:lower:]')
+            echo "acr_image_name=$acr_image_name" >> $GITHUB_OUTPUT
+          else
+            echo "acr_image_name=" >> $GITHUB_OUTPUT
+          fi
         else
           echo "acr_image_name=" >> $GITHUB_OUTPUT
         fi

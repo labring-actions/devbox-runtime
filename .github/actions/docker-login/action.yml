@@ -1,22 +1,13 @@
 name: 'Docker Registry Login'
 description: 'Login to Docker registries (ghcr.io and Aliyun ACR)'
 inputs:
-  aliyun_enabled:
-    description: 'Whether to enable Aliyun ACR login'
-    required: false
-    default: 'false'
   github_token:
     description: 'GitHub Token for ghcr.io login'
     required: true
-  aliyun_username:
-    description: 'Username for Aliyun ACR login'
+  aliyun_credentials:
+    description: 'JSON object containing Aliyun ACR credentials { "registry": string, "username": string, "password": string }'
     required: false
-  aliyun_password:
-    description: 'Password for Aliyun ACR login'
-    required: false
-  aliyun_registry:
-    description: 'Aliyun ACR registry URL'
-    required: false
+    default: '{}'
 runs:
   using: 'composite'
   steps:
@@ -24,6 +15,15 @@ runs:
       shell: bash
       run: echo "${{ inputs.github_token }}" | docker login ghcr.io -u "${{ github.repository_owner }}" --password-stdin
     - name: Login to Aliyun ACR
-      if: inputs.aliyun_enabled == 'true'
       shell: bash
-      run: echo "${{ inputs.aliyun_password }}" | docker login "${{ inputs.aliyun_registry }}" -u "${{ inputs.aliyun_username }}" --password-stdin
+      if: inputs.aliyun_credentials != '{}' && inputs.aliyun_credentials != '' && inputs.aliyun_credentials != 'null'
+      run: |
+        registry=$(echo "${{ inputs.aliyun_credentials }}" | jq -r '.registry')
+        username=$(echo "${{ inputs.aliyun_credentials }}" | jq -r '.username')
+        password=$(echo "${{ inputs.aliyun_credentials }}" | jq -r '.password')
+        if [ -n "$registry" ] && [ -n "$username" ] && [ -n "$password" ]; then
+          echo "$password" | docker login "$registry" -u "$username" --password-stdin
+        else
+          echo "Error: Incomplete Aliyun credentials provided"
+          exit 1
+        fi

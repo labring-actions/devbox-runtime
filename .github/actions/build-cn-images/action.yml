@@ -11,10 +11,10 @@ inputs:
     description: 'Aliyun ACR CN image name'
     required: false
     default: ''
-  aliyun_enabled:
-    description: 'Whether to push to Aliyun ACR'
+  aliyun_credentials:
+    description: 'JSON object containing Aliyun ACR credentials { "registry": string, "username": string, "password": string }'
     required: false
-    default: 'true'
+    default: '{}'
 runs:
   using: 'composite'
   steps:
@@ -24,8 +24,14 @@ runs:
         echo "Building and pushing CN image to ghcr.io: ${{ inputs.ghcr_image_name }}"
         ./bin/runtimectl ci build "${{ inputs.dockerfile }}" "${{ inputs.ghcr_image_name }}" --cn --push | bash
     - name: Build and push CN image to Aliyun ACR
-      if: inputs.aliyun_enabled == 'true' && inputs.acr_image_name != ''
       shell: bash
       run: |
-        echo "Building and pushing CN image to Aliyun ACR: ${{ inputs.acr_image_name }}"
-        ./bin/runtimectl ci build "${{ inputs.dockerfile }}" "${{ inputs.acr_image_name }}" --cn --push | bash
+        # Check if Aliyun credentials are provided
+        aliyun_credentials='${{ inputs.aliyun_credentials }}'
+        if [ "$aliyun_credentials" != "{}" ] && [ "$aliyun_credentials" != "" ] && [ "$aliyun_credentials" != "null" ] && [ "${{ inputs.acr_image_name }}" != "" ]; then
+          registry=$(echo "$aliyun_credentials" | jq -r '.registry')
+          if [ -n "$registry" ] && [ "$registry" != "null" ]; then
+            echo "Building and pushing CN image to Aliyun ACR: ${{ inputs.acr_image_name }}"
+            ./bin/runtimectl ci build "${{ inputs.dockerfile }}" "${{ inputs.acr_image_name }}" --cn --push | bash
+          fi
+        fi
