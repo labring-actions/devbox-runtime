@@ -79,15 +79,15 @@ runs:
 
               if [ -n "$dep_dockerfile" ]; then
                 # Generate the image name for the dependency
-                dep_image_name=$(./bin ci image-name "$dep_dockerfile" "ghcr.io" "${{ github.repository_owner }}" "${{ inputs.tag }}" | tr '[:upper:]' '[:lower:]')
+                dep_image_name=$(./bin/runtimectl ci image-name "$dep_dockerfile" "ghcr.io" "${{ github.repository_owner }}" "${{ inputs.tag }}" | tr '[:upper:]' '[:lower:]')
                 echo "Updating dependency $dep to: $dep_image_name"
                 ./bin/runtimectl ci update-base-image "$build_target" "$dep_image_name"
               fi
             done
 
             # Generate image names
-            ghcr_image_name=$(./bin ci image-name "$build_target" "ghcr.io" "${{ github.repository_owner }}" "${{ inputs.tag }}" | tr '[:upper:]' '[:lower:]')
-            acr_image_name=$(./bin ci image-name "$build_target" "registry.cn-hangzhou.aliyuncs.com" "${{ github.repository_owner }}" "${{ inputs.tag }}" | tr '[:upper:]' '[:lower:]')
+            ghcr_image_name=$(./bin/runtimectl ci image-name "$build_target" "ghcr.io" "${{ github.repository_owner }}" "${{ inputs.tag }}" | tr '[:upper:]' '[:lower:]')
+            acr_image_name=$(./bin/runtimectl ci image-name "$build_target" "registry.cn-hangzhou.aliyuncs.com" "${{ github.repository_owner }}" "${{ inputs.tag }}" | tr '[:upper:]' '[:lower:]')
 
             # Build and push images
             echo "Building and pushing: $ghcr_image_name"
@@ -106,8 +106,8 @@ runs:
             fi
 
             # Build CN version
-            ghcr_cn_image_name=$(./bin ci image-name "$build_target" "ghcr.io" "${{ github.repository_owner }}" "${{ inputs.tag_cn }}" | tr '[:upper:]' '[:lower:]')
-            acr_cn_image_name=$(./bin ci image-name "$build_target" "registry.cn-hangzhou.aliyuncs.com" "${{ github.repository_owner }}" "${{ inputs.tag_cn }}" | tr '[:upper:]' '[:lower:]')
+            ghcr_cn_image_name=$(./bin/runtimectl ci image-name "$build_target" "ghcr.io" "${{ github.repository_owner }}" "${{ inputs.tag_cn }}" | tr '[:upper:]' '[:lower:]')
+            acr_cn_image_name=$(./bin/runtimectl ci image-name "$build_target" "registry.cn-hangzhou.aliyuncs.com" "${{ github.repository_owner }}" "${{ inputs.tag_cn }}" | tr '[:upper:]' '[:lower:]')
 
             echo "Building and pushing CN image: $ghcr_cn_image_name"
             docker build -f "$build_target" -t "$ghcr_cn_image_name" .
