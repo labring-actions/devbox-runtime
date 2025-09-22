@@ -1,6 +1,6 @@
 FROM ubuntu:24.04
 
-COPY ../project/startup.sh /usr/start/startup.sh
+COPY project/entrypoint.sh /usr/start/startup.sh
 
 RUN apt update && \
     apt install -y \

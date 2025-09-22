@@ -1,6 +1,6 @@
 FROM debian:12.6-slim
 
-COPY ../project/startup.sh /usr/start/startup.sh
+COPY project/entrypoint.sh /usr/start/startup.sh
 
 RUN chmod +x /usr/start/startup.sh && \
     apt-get update && \

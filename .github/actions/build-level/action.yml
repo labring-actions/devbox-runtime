@@ -48,17 +48,22 @@ runs:
         # Parse level packages
         level_packages='${{ inputs.level_packages }}'
 
-        if [ "$level_packages" = "null" ] || [ -z "$level_packages" ]; then
+        if [ "$level_packages" = "null" ] || [ -z "$level_packages" ] || [ "$level_packages" = "[]" ]; then
           echo "No packages in level ${{ inputs.level_index }}, skipping..."
           exit 0
         fi
 
-        # Count packages in this level
-        package_count=$(echo "$level_packages" | jq 'length')
+        # Validate JSON and count packages in this level
+        if ! echo "$level_packages" | jq empty 2>/dev/null; then
+          echo "Invalid JSON in level_packages: $level_packages"
+          exit 1
+        fi
+
+        package_count=$(echo "$level_packages" | jq 'length // 0')
         echo "Level ${{ inputs.level_index }} contains $package_count packages"
 
         # Build each package in this level
-        echo "$level_packages" | jq -r '.[]' | while read -r build_target; do
+        echo "$level_packages" | jq -r '.[]? // empty' | while read -r build_target; do
           if [ -n "$build_target" ]; then
             echo "Building: $build_target"
 
@@ -66,11 +71,11 @@ runs:
             ./bin/runtimectl ci validate-build "$build_target"
 
             # Update base image references
-            dependencies=$(./bin/runtimectl -o json ci analyze-dependencies | jq -r --arg path "$build_target" '.nodes[] | select(.path == $path) | .dependencies[]')
+            dependencies=$(./bin/runtimectl -o json ci analyze-dependencies | jq -r --arg path "$build_target" '.nodes[]? | select(.path == $path) | .dependencies // [] | .[]? // empty')
 
             for dep in $dependencies; do
               # Find the corresponding dockerfile for this dependency
-              dep_dockerfile=$(./bin/runtimectl -o json ci analyze-dependencies | jq -r --arg dep "$dep" '.nodes[] | select(.name + "-" + .version == $dep) | .path')
+              dep_dockerfile=$(./bin/runtimectl -o json ci analyze-dependencies | jq -r --arg dep "$dep" '.nodes[]? | select(.name + "-" + .version == $dep) | .path // empty')
 
               if [ -n "$dep_dockerfile" ]; then
                 # Generate the image name for the dependency
