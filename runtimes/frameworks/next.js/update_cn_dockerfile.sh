@@ -1,4 +1,5 @@
-USER root#!/bin/bash
+#!/bin/bash
+USER root
 
 DOCKERFILE=$1
 echo "DOCKERFILE: $DOCKERFILE"

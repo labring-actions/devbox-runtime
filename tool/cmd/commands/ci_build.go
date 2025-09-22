@@ -3,6 +3,7 @@ package commands
 import (
 	"fmt"
 	"os"
+	"path/filepath"
 
 	"github.com/spf13/cobra"
 )
@@ -32,11 +33,12 @@ func NewBuildCommand(registryPath, outputFormat *string, quiet *bool) *cobra.Com
 			}
 
 			// Build command
+			dockerfileDir := filepath.Dir(dockerfile)
 			buildCmd := fmt.Sprintf("docker buildx build --file %s --platform linux/amd64 --tag %s", dockerfile, imageName)
 			if push {
 				buildCmd += " --push"
 			}
-			buildCmd += " ."
+			buildCmd += " " + dockerfileDir
 
 			if !*quiet {
 				fmt.Printf("Building image: %s\n", imageName)

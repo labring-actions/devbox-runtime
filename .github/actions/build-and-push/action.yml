@@ -22,11 +22,12 @@ runs:
       shell: bash
       run: |
         echo "Building and pushing to ghcr.io: ${{ inputs.ghcr_image_name }}"
+        dockerfile_dir=$(dirname "${{ inputs.dockerfile }}")
         docker buildx build --push \
           --file "${{ inputs.dockerfile }}" \
           --platform linux/amd64 \
           --tag "${{ inputs.ghcr_image_name }}" \
-          .
+          "$dockerfile_dir"
     - name: Build and push to Aliyun ACR
       shell: bash
       run: |
@@ -36,10 +37,11 @@ runs:
           registry=$(echo "$aliyun_credentials" | jq -r '.registry')
           if [ -n "$registry" ] && [ "$registry" != "null" ]; then
             echo "Building and pushing to Aliyun ACR: ${{ inputs.acr_image_name }}"
+            dockerfile_dir=$(dirname "${{ inputs.dockerfile }}")
             docker buildx build --push \
               --file "${{ inputs.dockerfile }}" \
               --platform linux/amd64 \
               --tag "${{ inputs.acr_image_name }}" \
-              .
+              "$dockerfile_dir"
           fi
         fi

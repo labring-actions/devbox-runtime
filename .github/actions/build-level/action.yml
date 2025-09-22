@@ -91,7 +91,9 @@ runs:
 
             # Build and push images
             echo "Building and pushing: $ghcr_image_name"
-            docker build -f "$build_target" -t "$ghcr_image_name" .
+            # Change to the directory containing the Dockerfile
+            dockerfile_dir=$(dirname "$build_target")
+            docker build -f "$build_target" -t "$ghcr_image_name" "$dockerfile_dir"
             docker push "$ghcr_image_name"
 
             # Check if Aliyun credentials are provided

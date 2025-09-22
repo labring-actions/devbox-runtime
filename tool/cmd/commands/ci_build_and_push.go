@@ -3,6 +3,7 @@ package commands
 import (
 	"fmt"
 	"os"
+	"path/filepath"
 
 	"github.com/spf13/cobra"
 )
@@ -33,8 +34,9 @@ func NewBuildAndPushCommand(registryPath, outputFormat *string, quiet *bool) *co
 			}
 
 			// Build and push command with multiple tags
-			buildCmd := fmt.Sprintf("docker buildx build --push --file %s --platform linux/amd64 --tag %s --tag %s .",
-				dockerfile, imageName1, imageName2)
+			dockerfileDir := filepath.Dir(dockerfile)
+			buildCmd := fmt.Sprintf("docker buildx build --push --file %s --platform linux/amd64 --tag %s --tag %s %s",
+				dockerfile, imageName1, imageName2, dockerfileDir)
 
 			if !*quiet {
 				fmt.Printf("Building and pushing image with tags: %s, %s\n", imageName1, imageName2)
