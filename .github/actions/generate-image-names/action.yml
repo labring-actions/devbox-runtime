@@ -1,0 +1,73 @@
+name: 'Generate Image Names'
+description: 'Generate image names for both ghcr.io and Aliyun ACR'
+inputs:
+  dockerfile:
+    description: 'Dockerfile path'
+    required: true
+  tag:
+    description: 'Image tag'
+    required: true
+  ghcr_credentials:
+    description: 'JSON object containing ghcr.io credentials { "registry": string, "username": string, "password": string }'
+    required: false
+    default: '{}'
+  aliyun_credentials:
+    description: 'JSON object containing Aliyun ACR credentials { "registry": string, "username": string, "password": string }'
+    required: false
+    default: '{}'
+outputs:
+  ghcr_image_name:
+    description: 'Generated ghcr.io image name'
+    value: ${{ steps.generate.outputs.ghcr_image_name }}
+  acr_image_name:
+    description: 'Generated Aliyun ACR image name'
+    value: ${{ steps.generate.outputs.acr_image_name }}
+runs:
+  using: 'composite'
+  steps:
+    - name: Generate image names
+      id: generate
+      shell: bash
+      run: |
+        echo "Generating image names for ${{ inputs.dockerfile }} with tag ${{ inputs.tag }}"
+
+        # Extract runtime name and version from Dockerfile path
+        # Example: runtimes/operating-systems/ubuntu-cuda/24.04/Dockerfile
+        # Should extract: ubuntu-cuda and 24.04
+
+        dockerfile_path="${{ inputs.dockerfile }}"
+        tag="${{ inputs.tag }}"
+
+        # Remove the Dockerfile filename and get the directory path
+        dir_path=$(dirname "$dockerfile_path")
+
+        # Extract the runtime name and version from the path
+        # Split by '/' and get the last two parts (name and version)
+        path_parts=($(echo "$dir_path" | tr '/' ' '))
+        path_length=${#path_parts[@]}
+        runtime_name="${path_parts[$((path_length-2))]}"
+        runtime_version="${path_parts[$((path_length-1))]}"
+
+        # Create the image name components
+        image_name="${runtime_name}-${runtime_version}"
+
+        # Generate ghcr.io image name
+        ghcr_image_name="${{ fromJson(inputs.ghcr_credentials).registry }}/${{ fromJson(inputs.ghcr_credentials).username }}/devbox/${image_name}:${tag}"
+
+        # Generate Aliyun ACR image name (if credentials provided)
+        aliyun_credentials='${{ inputs.aliyun_credentials }}'
+        if [ "$aliyun_credentials" != "{}" ] && [ "$aliyun_credentials" != "" ] && [ "$aliyun_credentials" != "null" ]; then
+          # Parse Aliyun credentials
+          registry=$(echo "$aliyun_credentials" | jq -r '.registry')
+          acr_image_name="${registry}/${{ fromJson(inputs.aliyun_credentials).username }}/devbox/${image_name}:${tag}"
+        else
+          acr_image_name=""
+        fi
+
+        echo "Generated image names:"
+        echo "  GHCR: $ghcr_image_name"
+        echo "  ACR: $acr_image_name"
+
+        # Set outputs
+        echo "ghcr_image_name=$ghcr_image_name" >> $GITHUB_OUTPUT
+        echo "acr_image_name=$acr_image_name" >> $GITHUB_OUTPUT

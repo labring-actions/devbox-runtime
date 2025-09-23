@@ -1,0 +1,145 @@
+name: Build Language Runtimes
+
+on:
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: 'Tag for the Docker image'
+        required: true
+        default: 'latest'
+      build_base_image:
+        description: 'Build base image, if not provided, will use the base image from the Dockerfile'
+        required: false
+        default: ''
+      build_base_image_with_cn_patch:
+        description: 'Build base image with CN patch, if not provided, will use the base image from the Dockerfile'
+        required: false
+        default: ''
+      cn_patch_enabled:
+        description: 'Enable CN patch modifications'
+        required: false
+        default: 'false'
+      aliyun_enabled:
+        description: 'Enable Aliyun ACR builds'
+        required: false
+        default: 'false'
+
+jobs:
+  # Define language runtime matrix
+  define-matrix:
+    runs-on: ubuntu-latest
+    outputs:
+      tag: ${{ steps.set_tag.outputs.tag }}
+      tag_cn: ${{ steps.set_tag.outputs.tag_cn }}
+      build_base_image: ${{ steps.set_base_image.outputs.build_base_image }}
+      build_base_image_with_cn_patch: ${{ steps.set_base_image_with_cn_patch.outputs.build_base_image_with_cn_patch }}
+      cn_patch_enabled: ${{ inputs.cn_patch_enabled }}
+      language_packages: ${{ steps.get_language_packages.outputs.language_packages }}
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Set up tag
+        id: set_tag
+        run: |
+          if [ -n "${{ inputs.tag }}" ]; then
+            tag=${{ inputs.tag }}
+          else
+            tag=$(echo "${{ github.sha }}" | cut -c1-7)
+          fi
+          tag_cn=$tag-cn
+          echo "tag=$tag" >> $GITHUB_OUTPUT
+          echo "tag_cn=$tag_cn" >> $GITHUB_OUTPUT
+
+      - name: Set up base image
+        id: set_base_image
+        run: |
+          # todo: fix this for multiple languages if there are multiple base images for the same language
+          if [ -n "${{ inputs.build_base_image }}" ]; then
+            build_base_image=${{ inputs.build_base_image }}
+          else
+            build_base_image=""
+          fi
+          echo "build_base_image=$build_base_image" >> $GITHUB_OUTPUT
+
+      - name: Set up base image with CN patch
+        id: set_base_image_with_cn_patch
+        run: |
+          if [ -n "${{ inputs.build_base_image_with_cn_patch }}" ]; then
+            build_base_image_with_cn_patch=${{ inputs.build_base_image_with_cn_patch }}
+          else
+            build_base_image_with_cn_patch=""
+          fi
+          echo "build_base_image_with_cn_patch=$build_base_image_with_cn_patch" >> $GITHUB_OUTPUT
+
+      - name: Get language packages
+        id: get_language_packages
+        run: |
+          # Get all language packages
+          target_dockerfiles=$(find runtimes/languages -name "Dockerfile")
+
+          # Convert to JSON array
+          language_packages=$(echo "$target_dockerfiles" | jq -R -s 'split("\n")[:-1]')
+
+          echo "language_packages<<EOF" >> $GITHUB_OUTPUT
+          echo "$language_packages" >> $GITHUB_OUTPUT
+          echo "EOF" >> $GITHUB_OUTPUT
+
+          package_count=$(echo "$language_packages" | jq 'length // 0')
+          echo "Found $package_count language packages to build"
+
+  # Build language runtimes
+  build-language-runtimes:
+    runs-on: ubuntu-latest
+    needs: define-matrix
+    strategy:
+      fail-fast: false
+      matrix:
+        language_packages: ${{ fromJson(needs.define-matrix.outputs.language_packages) }}
+    permissions:
+      contents: read
+      packages: write
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Generate image names (standard)
+        id: generate-standard
+        uses: ./.github/actions/generate-image-names
+        with:
+          dockerfile: ${{ matrix.language_packages }}
+          tag: ${{ needs.define-matrix.outputs.tag }}
+          ghcr_credentials: ${{ format('{{"registry":"{0}","username":"{1}","password":"{2}"}}', 'ghcr.io', github.repository_owner, secrets.GITHUB_TOKEN) || '{}' }}
+          aliyun_credentials: ${{ inputs.aliyun_enabled == 'true' && format('{{"registry":"{0}","username":"{1}","password":"{2}"}}', secrets.ALIYUN_REGISTRY, secrets.ALIYUN_USERNAME, secrets.ALIYUN_PASSWORD) || '{}' }}
+      - name: Build and push standard images (standard)
+        uses: ./.github/actions/build-and-push
+        with:
+          dockerfile: ${{ matrix.language_packages }}
+          ghcr_credentials: ${{ format('{{"registry":"{0}","username":"{1}","password":"{2}"}}', 'ghcr.io', github.repository_owner, secrets.GITHUB_TOKEN) || '{}' }}
+          ghcr_image_name: ${{ steps.generate-standard.outputs.ghcr_image_name }}
+          aliyun_credentials: ${{ inputs.aliyun_enabled == 'true' && format('{{"registry":"{0}","username":"{1}","password":"{2}"}}', secrets.ALIYUN_REGISTRY, secrets.ALIYUN_USERNAME, secrets.ALIYUN_PASSWORD) || '{}' }}
+          acr_image_name: ${{ steps.generate-standard.outputs.acr_image_name }}
+          build_base_image: ${{ needs.define-matrix.outputs.build_base_image }}
+      - name: Generate image names (cn-patched)
+        id: generate-cn
+        if: ${{ needs.define-matrix.outputs.cn_patch_enabled == 'true' }}
+        uses: ./.github/actions/generate-image-names
+        with:
+          dockerfile: ${{ matrix.language_packages }}
+          tag: ${{ needs.define-matrix.outputs.tag_cn }}
+          ghcr_credentials: ${{ format('{{"registry":"{0}","username":"{1}","password":"{2}"}}', 'ghcr.io', github.repository_owner, secrets.GITHUB_TOKEN) || '{}' }}
+          aliyun_credentials: ${{ inputs.aliyun_enabled == 'true' && format('{{"registry":"{0}","username":"{1}","password":"{2}"}}', secrets.ALIYUN_REGISTRY, secrets.ALIYUN_USERNAME, secrets.ALIYUN_PASSWORD) || '{}' }}
+      - name: Build and push cn-patched images  (cn-patched)
+        if: ${{ needs.define-matrix.outputs.cn_patch_enabled == 'true' }}
+        uses: ./.github/actions/build-and-push
+        with:
+          dockerfile: ${{ matrix.language_packages }}
+          build_args: CN_PATCH_ENABLED=true
+          build_base_image: ${{ needs.define-matrix.outputs.build_base_image_with_cn_patch }}
+          ghcr_credentials: ${{ format('{{"registry":"{0}","username":"{1}","password":"{2}"}}', 'ghcr.io', github.repository_owner, secrets.GITHUB_TOKEN) || '{}' }}
+          aliyun_credentials: ${{ inputs.aliyun_enabled == 'true' && format('{{"registry":"{0}","username":"{1}","password":"{2}"}}', secrets.ALIYUN_REGISTRY, secrets.ALIYUN_USERNAME, secrets.ALIYUN_PASSWORD) || '{}' }}
+          ghcr_image_name: ${{ steps.generate-cn.outputs.ghcr_image_name }}
+          acr_image_name: ${{ steps.generate-cn.outputs.acr_image_name }}

@@ -1,0 +1,67 @@
+name: 'Build and Push Docker Images'
+description: 'Build and push Docker images to multiple registries'
+inputs:
+  dockerfile:
+    description: 'Dockerfile path'
+    required: true
+  ghcr_image_name:
+    description: 'ghcr.io image name'
+    required: true
+  acr_image_name:
+    description: 'Aliyun ACR image name'
+    required: false
+    default: ''
+  ghcr_credentials:
+    description: 'JSON object containing ghcr.io credentials { "registry": string, "username": string, "password": string }'
+    required: false
+    default: '{}'
+  aliyun_credentials:
+    description: 'JSON object containing Aliyun ACR credentials { "registry": string, "username": string, "password": string }'
+    required: false
+    default: '{}'
+  build_base_image:
+    description: 'Build base image'
+    required: false
+    default: ''
+  build_args:
+    description: 'Build arguments'
+    required: false
+    default: ''
+runs:
+  using: 'composite'
+  steps:
+    - name: Set up Docker Buildx
+      uses: docker/setup-buildx-action@v3
+    - name: Login to GitHub Container Registry
+      uses: docker/login-action@v3
+      with:
+        registry: ${{ fromJson(inputs.ghcr_credentials).registry }}
+        username: ${{ fromJson(inputs.ghcr_credentials).username }}
+        password: ${{ fromJson(inputs.ghcr_credentials).password }}
+    - name: Login to Aliyun ACR
+      if: inputs.aliyun_credentials != '{}' && inputs.aliyun_credentials != '' && inputs.aliyun_credentials != 'null' && inputs.acr_image_name != ''
+      uses: docker/login-action@v3
+      with:
+        registry: ${{ fromJson(inputs.aliyun_credentials).registry }}
+        username: ${{ fromJson(inputs.aliyun_credentials).username }}
+        password: ${{ fromJson(inputs.aliyun_credentials).password }}
+    - name: Get docker build context
+      id: get_docker_build_context
+      shell: bash
+      run: |
+        echo "Getting docker build context for ${{ inputs.dockerfile }}"
+        dockerfile_dir=$(dirname "${{ inputs.dockerfile }}")
+        echo "dockerfile_dir=$dockerfile_dir" >> $GITHUB_OUTPUT
+    - name: Build and push to all registries
+      uses: docker/build-push-action@v5
+      with:
+        context: ${{ steps.get_docker_build_context.outputs.dockerfile_dir }}
+        file: ${{ inputs.dockerfile }}
+        platforms: linux/amd64
+        build-args: |
+          ${{ inputs.build_args }}
+          ${{ inputs.build_base_image != '' && format('BASE_IMAGE={0}', inputs.build_base_image) || '' }}
+        push: true
+        tags: |
+          ${{ inputs.ghcr_image_name }}
+          ${{ inputs.aliyun_credentials != '{}' && inputs.aliyun_credentials != '' && inputs.aliyun_credentials != 'null' && inputs.acr_image_name != '' && inputs.acr_image_name || '' }}

@@ -1,2 +1,15 @@
 /.vscode
-Language/rust/project/target/
+# 生成的文件
+generated/
+*.bak
+bin
+
+# 临时文件
+*.tmp
+*.log
+
+# IDE 文件
+.vscode/
+.idea/
+*.swp
+*.swo
