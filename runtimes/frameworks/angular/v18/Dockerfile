@@ -11,6 +11,6 @@ RUN chown -R devbox:devbox /home/devbox/project && \
 
 USER devbox
 RUN cd /home/devbox/project && \
-    npm install -g @angular/cli@^18.2.9 serve && \
-    npm ci --silent && \
-    npm run build
+    sudo npm install -g @angular/cli@^18.2.9 serve && \
+    sudo npm ci --silent && \
+    sudo npm run build
