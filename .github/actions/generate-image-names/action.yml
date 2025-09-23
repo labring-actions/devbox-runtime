@@ -59,7 +59,8 @@ runs:
         if [ "$aliyun_credentials" != "{}" ] && [ "$aliyun_credentials" != "" ] && [ "$aliyun_credentials" != "null" ]; then
           # Parse Aliyun credentials
           registry=$(echo "$aliyun_credentials" | jq -r '.registry')
-          acr_image_name="${registry}/${{ fromJson(inputs.aliyun_credentials).username }}/devbox/${image_name}:${tag}"
+          namespace=$(echo "$aliyun_credentials" | jq -r '.namespace')
+          acr_image_name="${registry}/${namespace}/devbox/${image_name}:${tag}"
         else
           acr_image_name=""
         fi

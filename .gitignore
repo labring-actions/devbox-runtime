@@ -9,7 +9,6 @@ bin
 *.log
 
 # IDE 文件
-.vscode/
 .idea/
 *.swp
 *.swo
