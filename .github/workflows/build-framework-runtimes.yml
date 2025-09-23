@@ -114,7 +114,7 @@ jobs:
           dockerfile: ${{ matrix.framework_packages.dockerfile }}
           tag: ${{ needs.define-matrix.outputs.tag }}
           ghcr_credentials: ${{ format('{{"registry":"{0}","username":"{1}","password":"{2}"}}', 'ghcr.io', github.repository_owner, secrets.GITHUB_TOKEN) || '{}' }}
-          aliyun_credentials: ${{ inputs.aliyun_enabled == 'true' && format('{{"registry":"{0}","username":"{1}","password":"{2}"}}', secrets.ALIYUN_REGISTRY, secrets.ALIYUN_USERNAME, secrets.ALIYUN_PASSWORD) || '{}' }}
+          aliyun_credentials: ${{ inputs.aliyun_enabled == 'true' && format('{{"registry":"{0}","username":"{1}","password":"{2}", "namespace":"{3}"}}', secrets.ALIYUN_REGISTRY, secrets.ALIYUN_USERNAME, secrets.ALIYUN_PASSWORD, secrets.ALIYUN_NAMESPACE) || '{}' }}
       - name: Build and push standard images (standard)
         uses: ./.github/actions/build-and-push
         with:
@@ -122,7 +122,7 @@ jobs:
           build_base_image: ${{ matrix.framework_packages.base_image }}
           ghcr_credentials: ${{ format('{{"registry":"{0}","username":"{1}","password":"{2}"}}', 'ghcr.io', github.repository_owner, secrets.GITHUB_TOKEN) || '{}' }}
           ghcr_image_name: ${{ steps.generate-standard.outputs.ghcr_image_name }}
-          aliyun_credentials: ${{ inputs.aliyun_enabled == 'true' && format('{{"registry":"{0}","username":"{1}","password":"{2}"}}', secrets.ALIYUN_REGISTRY, secrets.ALIYUN_USERNAME, secrets.ALIYUN_PASSWORD) || '{}' }}
+          aliyun_credentials: ${{ inputs.aliyun_enabled == 'true' && format('{{"registry":"{0}","username":"{1}","password":"{2}", "namespace":"{3}"}}', secrets.ALIYUN_REGISTRY, secrets.ALIYUN_USERNAME, secrets.ALIYUN_PASSWORD, secrets.ALIYUN_NAMESPACE) || '{}' }}
           acr_image_name: ${{ steps.generate-standard.outputs.acr_image_name }}
       - name: Generate image names (cn-patched)
         id: generate-cn
@@ -132,7 +132,7 @@ jobs:
           dockerfile: ${{ matrix.framework_packages.dockerfile }}
           tag: ${{ needs.define-matrix.outputs.tag_cn }}
           ghcr_credentials: ${{ format('{{"registry":"{0}","username":"{1}","password":"{2}"}}', 'ghcr.io', github.repository_owner, secrets.GITHUB_TOKEN) || '{}' }}
-          aliyun_credentials: ${{ inputs.aliyun_enabled == 'true' && format('{{"registry":"{0}","username":"{1}","password":"{2}"}}', secrets.ALIYUN_REGISTRY, secrets.ALIYUN_USERNAME, secrets.ALIYUN_PASSWORD) || '{}' }}
+          aliyun_credentials: ${{ inputs.aliyun_enabled == 'true' && format('{{"registry":"{0}","username":"{1}","password":"{2}", "namespace":"{3}"}}', secrets.ALIYUN_REGISTRY, secrets.ALIYUN_USERNAME, secrets.ALIYUN_PASSWORD, secrets.ALIYUN_NAMESPACE) || '{}' }}
       - name: Build and push cn-patched images (cn-patched)
         if: ${{ needs.define-matrix.outputs.cn_patch_enabled == 'true' }}
         uses: ./.github/actions/build-and-push
@@ -141,6 +141,6 @@ jobs:
           build_base_image: ${{ matrix.framework_packages.base_image_with_cn_patch }}
           build_args: CN_PATCH_ENABLED=true
           ghcr_credentials: ${{ format('{{"registry":"{0}","username":"{1}","password":"{2}"}}', 'ghcr.io', github.repository_owner, secrets.GITHUB_TOKEN) || '{}' }}
-          aliyun_credentials: ${{ inputs.aliyun_enabled == 'true' && format('{{"registry":"{0}","username":"{1}","password":"{2}"}}', secrets.ALIYUN_REGISTRY, secrets.ALIYUN_USERNAME, secrets.ALIYUN_PASSWORD) || '{}' }}
+          aliyun_credentials: ${{ inputs.aliyun_enabled == 'true' && format('{{"registry":"{0}","username":"{1}","password":"{2}", "namespace":"{3}"}}', secrets.ALIYUN_REGISTRY, secrets.ALIYUN_USERNAME, secrets.ALIYUN_PASSWORD, secrets.ALIYUN_NAMESPACE) || '{}' }}
           ghcr_image_name: ${{ steps.generate-cn.outputs.ghcr_image_name }}
           acr_image_name: ${{ steps.generate-cn.outputs.acr_image_name }}
