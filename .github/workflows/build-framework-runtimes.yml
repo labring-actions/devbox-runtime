@@ -8,7 +8,7 @@ on:
         required: true
         default: 'latest'
       # build_base_image_template
-      # ghcr.io/${{ github.repository_owner }}/devbox/${{ language_package }}:${{ build_base_image_tag }}
+      # ghcr.io/${{ github.repository_owner }}/devbox/${language_package}:${{ build_base_image_tag }}
       build_base_image_tag:
         description: 'Build base image tag, if not provided, will use the tag from the Dockerfile'
         required: false
@@ -69,9 +69,9 @@ jobs:
               # ghcr.io/labring-actions/devbox/go-1.22.5:latest -> go-1.22.5
               language_package=$(echo "$original_base_image" | sed "s/.*devbox\/\(.*\):.*/\1/")
               # get base image name for the framework
-              # ghcr.io/${{ github.repository_owner }}/devbox/${{ language_package }}:${{ build_base_image_tag }}
-              base_image="ghcr.io/${{ github.repository_owner }}/devbox/$language_package:${{ inputs.build_base_image_tag }}"
-              base_image_with_cn_patch="ghcr.io/${{ github.repository_owner }}/devbox/$language_package:${{ inputs.build_base_image_tag_with_cn_patch }}"
+              # ghcr.io/${{ github.repository_owner }}/devbox/${language_package}:${{ build_base_image_tag }}
+              base_image="ghcr.io/${{ github.repository_owner }}/devbox/${language_package}:${{ inputs.build_base_image_tag }}"
+              base_image_with_cn_patch="ghcr.io/${{ github.repository_owner }}/devbox/${language_package}:${{ inputs.build_base_image_tag_with_cn_patch }}"
               # Create JSON object for this framework
               framework_obj=$(jq -n \
                 --arg dockerfile "$dockerfile" \
