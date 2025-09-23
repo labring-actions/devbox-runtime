@@ -7,9 +7,9 @@ RUN rm -rf /home/devbox/project/* && mkdir -p /home/devbox/.devbox
 USER devbox
 RUN curl -LO https://github.com/gohugoio/hugo/releases/download/v0.135.0/hugo_extended_0.135.0_linux-amd64.tar.gz && \
     tar -xvzf hugo_extended_0.135.0_linux-amd64.tar.gz && \
-    mv hugo /usr/local/bin/ && \
-    chmod +x /usr/local/bin/hugo && \
-    rm README.md && rm LICENSE && rm hugo_extended_0.135.0_linux-amd64.tar.gz && \
+    sudo mv hugo /usr/local/bin/ && \
+    sudo chmod +x /usr/local/bin/hugo && \
+    sudo rm README.md LICENSE hugo_extended_0.135.0_linux-amd64.tar.gz && \
     cd /home/devbox && \
     hugo new site project && \
     cd /home/devbox/project && \
