@@ -1,0 +1,5 @@
+#!/bin/bash
+DOCKERFILE=$1
+
+# 将 CN_PATCH_ENABLED 设置为 true
+sed -i "s/ARG CN_PATCH_ENABLED=false/ARG CN_PATCH_ENABLED=true/" "$DOCKERFILE"
