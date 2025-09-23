@@ -1,4 +1,4 @@
-ARG BASE_IMAGE=ghcr.io/labring-actions/devbox/debian-ssh-12.6:latest
+ARG BASE_IMAGE=ghcr.io/labring-actions/devbox/debian-12.6:latest
 FROM $BASE_IMAGE
 
 RUN cd /home/devbox/project && \

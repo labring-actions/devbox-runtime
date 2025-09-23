@@ -28,7 +28,7 @@ graph TD
     debian_ssh_12.6 --> runtimes_languages_python_3.10_Dockerfile
     runtimes_languages_rust_1.81.0_Dockerfile["rust-1.81.0"]
     debian_ssh_12.6 --> runtimes_languages_rust_1.81.0_Dockerfile
-    runtimes_operating-systems_debian-ssh_12.6_Dockerfile["debian-ssh-12.6"]
+    runtimes_operating-systems_debian_12.6_Dockerfile["debian-12.6"]
     runtimes_operating-systems_ubuntu-cuda_24.04_Dockerfile["ubuntu-cuda-24.04"]
     runtimes_frameworks_nuxt3_v3.13_Dockerfile["nuxt3-v3.13"]
     node.js_20 --> runtimes_frameworks_nuxt3_v3.13_Dockerfile

@@ -15,15 +15,15 @@
 
 ```
 Level 0: Base Images (OS)
-├── debian-ssh-12.6
+├── debian-12.6
 ├── ubuntu-24.04
 └── ubuntu-cuda-24.04
 
 Level 1: Language Images
-├── node.js-20 (depends on debian-ssh-12.6)
-├── python-3.12 (depends on debian-ssh-12.6)
-├── go-1.22.5 (depends on debian-ssh-12.6)
-└── java-openjdk17 (depends on debian-ssh-12.6)
+├── node.js-20 (depends on debian-12.6)
+├── python-3.12 (depends on debian-12.6)
+├── go-1.22.5 (depends on debian-12.6)
+└── java-openjdk17 (depends on debian-12.6)
 
 Level 2: Framework Images
 ├── react-18.2.0 (depends on node.js-20)

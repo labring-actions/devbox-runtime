@@ -8,7 +8,7 @@
 
 1. **Level 0 (OS层)**: 操作系统基础镜像
    - 无依赖，可以并行构建
-   - 例如：debian-ssh, ubuntu, ubuntu-cuda
+   - 例如：debian, ubuntu, ubuntu-cuda
 
 2. **Level 1 (Language层)**: 语言运行时镜像
    - 依赖OS层镜像
