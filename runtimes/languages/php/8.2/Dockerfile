@@ -8,6 +8,8 @@ RUN apt update && \
     echo "deb https://packages.sury.org/php/ $(lsb_release -sc) main" | tee /etc/apt/sources.list.d/php.list && \
     apt update && \
     apt install -y php8.2 php8.2-cli php8.2-common php8.2-xml php-pear php8.2-mbstring php-pgsql php-mysql php-mongo php-redis && \
+    update-alternatives --install /usr/bin/php php /usr/bin/php8.2 100 && \
+    update-alternatives --set php /usr/bin/php8.2 && \
     curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer && \
     rm -rf /var/lib/apt/lists/* && \
     mkdir /root/.devbox
