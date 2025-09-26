@@ -1,8 +1,12 @@
-name: Build Language Runtimes
+name: Build Single Package
 
 on:
   workflow_dispatch:
     inputs:
+      package_path:
+        description: 'Path to the Dockerfile to build (e.g., runtimes/languages/python/3.12/Dockerfile)'
+        required: true
+        type: string
       tag:
         description: 'Tag for the Docker image'
         required: true
@@ -25,9 +29,10 @@ on:
         required: false
         default: 'false'
         type: boolean
+
 jobs:
-  # Define language runtime matrix
-  define-matrix:
+  # Validate and prepare build
+  prepare-build:
     runs-on: ubuntu-latest
     outputs:
       tag: ${{ steps.set_tag.outputs.tag }}
@@ -35,12 +40,42 @@ jobs:
       build_base_image: ${{ steps.set_base_image.outputs.build_base_image }}
       build_base_image_with_cn_patch: ${{ steps.set_base_image_with_cn_patch.outputs.build_base_image_with_cn_patch }}
       cn_patch_enabled: ${{ inputs.cn_patch_enabled }}
-      language_packages: ${{ steps.get_language_packages.outputs.language_packages }}
+      package_path: ${{ steps.validate_package.outputs.package_path }}
+      package_type: ${{ steps.validate_package.outputs.package_type }}
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
+
+      - name: Validate package path
+        id: validate_package
+        run: |
+          package_path="${{ inputs.package_path }}"
+
+          # Check if the Dockerfile exists
+          if [ ! -f "$package_path" ]; then
+            echo "Error: Dockerfile not found at $package_path"
+            exit 1
+          fi
+
+          # Determine package type based on path
+          if [[ "$package_path" == runtimes/operating-systems/* ]]; then
+            package_type="os"
+          elif [[ "$package_path" == runtimes/languages/* ]]; then
+            package_type="language"
+          elif [[ "$package_path" == runtimes/frameworks/* ]]; then
+            package_type="framework"
+          elif [[ "$package_path" == runtimes/services/* ]]; then
+            package_type="service"
+          else
+            echo "Error: Unknown package type. Path should be under runtimes/operating-systems/, runtimes/languages/, runtimes/frameworks/, or runtimes/services/"
+            exit 1
+          fi
+
+          echo "package_path=$package_path" >> $GITHUB_OUTPUT
+          echo "package_type=$package_type" >> $GITHUB_OUTPUT
+          echo "Validated package: $package_path (type: $package_type)"
 
       - name: Set up tag
         id: set_tag
@@ -57,7 +92,6 @@ jobs:
       - name: Set up base image
         id: set_base_image
         run: |
-          # todo: fix this for multiple languages if there are multiple base images for the same language
           if [ -n "${{ inputs.build_base_image }}" ]; then
             build_base_image=${{ inputs.build_base_image }}
           else
@@ -75,30 +109,10 @@ jobs:
           fi
           echo "build_base_image_with_cn_patch=$build_base_image_with_cn_patch" >> $GITHUB_OUTPUT
 
-      - name: Get language packages
-        id: get_language_packages
-        run: |
-          # Get all language packages
-          target_dockerfiles=$(find runtimes/languages -name "Dockerfile")
-
-          # Convert to JSON array
-          language_packages=$(echo "$target_dockerfiles" | jq -R -s 'split("\n")[:-1]')
-
-          echo "language_packages<<EOF" >> $GITHUB_OUTPUT
-          echo "$language_packages" >> $GITHUB_OUTPUT
-          echo "EOF" >> $GITHUB_OUTPUT
-
-          package_count=$(echo "$language_packages" | jq 'length // 0')
-          echo "Found $package_count language packages to build"
-
-  # Build language runtimes
-  build-language-runtimes:
+  # Build the package
+  build-package:
     runs-on: ubuntu-latest
-    needs: define-matrix
-    strategy:
-      fail-fast: false
-      matrix:
-        language_packages: ${{ fromJson(needs.define-matrix.outputs.language_packages) }}
+    needs: prepare-build
     permissions:
       contents: read
       packages: write
@@ -107,69 +121,58 @@ jobs:
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
+
       - name: Generate image names (standard)
         id: generate-standard
         uses: ./.github/actions/generate-image-names
         with:
-          dockerfile: ${{ matrix.language_packages }}
-          tag: ${{ needs.define-matrix.outputs.tag }}
+          dockerfile: ${{ needs.prepare-build.outputs.package_path }}
+          tag: ${{ needs.prepare-build.outputs.tag }}
           ghcr_credentials: ${{ format('{{"registry":"{0}","username":"{1}","password":"{2}"}}', 'ghcr.io', github.repository_owner, secrets.GITHUB_TOKEN) || '{}' }}
           aliyun_credentials: ${{ inputs.aliyun_enabled == 'true' && format('{{"registry":"{0}","username":"{1}","password":"{2}", "namespace":"{3}"}}', secrets.ALIYUN_REGISTRY, secrets.ALIYUN_USERNAME, secrets.ALIYUN_PASSWORD, secrets.ALIYUN_NAMESPACE) || '{}' }}
-      - name: Build and push standard images (standard)
+
+      - name: Build and push standard image
         uses: ./.github/actions/build-and-push
         with:
-          dockerfile: ${{ matrix.language_packages }}
+          dockerfile: ${{ needs.prepare-build.outputs.package_path }}
+          build_base_image: ${{ needs.prepare-build.outputs.build_base_image }}
           ghcr_credentials: ${{ format('{{"registry":"{0}","username":"{1}","password":"{2}"}}', 'ghcr.io', github.repository_owner, secrets.GITHUB_TOKEN) || '{}' }}
           ghcr_image_name: ${{ steps.generate-standard.outputs.ghcr_image_name }}
           aliyun_credentials: ${{ inputs.aliyun_enabled == 'true' && format('{{"registry":"{0}","username":"{1}","password":"{2}", "namespace":"{3}"}}', secrets.ALIYUN_REGISTRY, secrets.ALIYUN_USERNAME, secrets.ALIYUN_PASSWORD, secrets.ALIYUN_NAMESPACE) || '{}' }}
           acr_image_name: ${{ steps.generate-standard.outputs.acr_image_name }}
-          build_base_image: ${{ needs.define-matrix.outputs.build_base_image }}
-      - name: Output built image names (standard)
-        run: |
-          echo "## 🐳 Built Language Runtime Images (Standard)" >> $GITHUB_STEP_SUMMARY
-          echo "| Image Name | Registry |" >> $GITHUB_STEP_SUMMARY
-          echo "|------------|----------|" >> $GITHUB_STEP_SUMMARY
-          echo "| ${{ steps.generate-standard.outputs.ghcr_image_name }} | GHCR |" >> $GITHUB_STEP_SUMMARY
-          if [ "${{ steps.generate-standard.outputs.acr_image_name }}" != "" ]; then
-            echo "| ${{ steps.generate-standard.outputs.acr_image_name }} | Aliyun ACR |" >> $GITHUB_STEP_SUMMARY
-          fi
-          echo "" >> $GITHUB_STEP_SUMMARY
-          echo "### 🚀 Pull Command" >> $GITHUB_STEP_SUMMARY
-          echo "\`\`\`bash" >> $GITHUB_STEP_SUMMARY
-          echo "docker pull ${{ steps.generate-standard.outputs.ghcr_image_name }}" >> $GITHUB_STEP_SUMMARY
-          echo "\`\`\`" >> $GITHUB_STEP_SUMMARY
+
       - name: Generate image names (cn-patched)
         id: generate-cn
-        if: ${{ needs.define-matrix.outputs.cn_patch_enabled == 'true' }}
+        if: ${{ needs.prepare-build.outputs.cn_patch_enabled == 'true' }}
         uses: ./.github/actions/generate-image-names
         with:
-          dockerfile: ${{ matrix.language_packages }}
-          tag: ${{ needs.define-matrix.outputs.tag_cn }}
+          dockerfile: ${{ needs.prepare-build.outputs.package_path }}
+          tag: ${{ needs.prepare-build.outputs.tag_cn }}
           ghcr_credentials: ${{ format('{{"registry":"{0}","username":"{1}","password":"{2}"}}', 'ghcr.io', github.repository_owner, secrets.GITHUB_TOKEN) || '{}' }}
           aliyun_credentials: ${{ inputs.aliyun_enabled == 'true' && format('{{"registry":"{0}","username":"{1}","password":"{2}", "namespace":"{3}"}}', secrets.ALIYUN_REGISTRY, secrets.ALIYUN_USERNAME, secrets.ALIYUN_PASSWORD, secrets.ALIYUN_NAMESPACE) || '{}' }}
-      - name: Build and push cn-patched images  (cn-patched)
-        if: ${{ needs.define-matrix.outputs.cn_patch_enabled == 'true' }}
+
+      - name: Build and push cn-patched image
+        if: ${{ needs.prepare-build.outputs.cn_patch_enabled == 'true' }}
         uses: ./.github/actions/build-and-push
         with:
-          dockerfile: ${{ matrix.language_packages }}
+          dockerfile: ${{ needs.prepare-build.outputs.package_path }}
+          build_base_image: ${{ needs.prepare-build.outputs.build_base_image_with_cn_patch }}
           build_args: CN_PATCH_ENABLED=true
-          build_base_image: ${{ needs.define-matrix.outputs.build_base_image_with_cn_patch }}
           ghcr_credentials: ${{ format('{{"registry":"{0}","username":"{1}","password":"{2}"}}', 'ghcr.io', github.repository_owner, secrets.GITHUB_TOKEN) || '{}' }}
           aliyun_credentials: ${{ inputs.aliyun_enabled == 'true' && format('{{"registry":"{0}","username":"{1}","password":"{2}", "namespace":"{3}"}}', secrets.ALIYUN_REGISTRY, secrets.ALIYUN_USERNAME, secrets.ALIYUN_PASSWORD, secrets.ALIYUN_NAMESPACE) || '{}' }}
           ghcr_image_name: ${{ steps.generate-cn.outputs.ghcr_image_name }}
           acr_image_name: ${{ steps.generate-cn.outputs.acr_image_name }}
-      - name: Output built image names (cn-patched)
-        if: ${{ needs.define-matrix.outputs.cn_patch_enabled == 'true' }}
+
+      - name: Build summary
         run: |
-          echo "## 🐳 Built Language Runtime Images (CN-Patched)" >> $GITHUB_STEP_SUMMARY
-          echo "| Image Name | Registry |" >> $GITHUB_STEP_SUMMARY
-          echo "|------------|----------|" >> $GITHUB_STEP_SUMMARY
-          echo "| ${{ steps.generate-cn.outputs.ghcr_image_name }} | GHCR |" >> $GITHUB_STEP_SUMMARY
-          if [ "${{ steps.generate-cn.outputs.acr_image_name }}" != "" ]; then
-            echo "| ${{ steps.generate-cn.outputs.acr_image_name }} | Aliyun ACR |" >> $GITHUB_STEP_SUMMARY
+          echo "## Build Summary" >> $GITHUB_STEP_SUMMARY
+          echo "- **Package**: ${{ needs.prepare-build.outputs.package_path }}" >> $GITHUB_STEP_SUMMARY
+          echo "- **Type**: ${{ needs.prepare-build.outputs.package_type }}" >> $GITHUB_STEP_SUMMARY
+          echo "- **Tag**: ${{ needs.prepare-build.outputs.tag }}" >> $GITHUB_STEP_SUMMARY
+          if [ "${{ needs.prepare-build.outputs.cn_patch_enabled }}" == "true" ]; then
+            echo "- **CN Patch Tag**: ${{ needs.prepare-build.outputs.tag_cn }}" >> $GITHUB_STEP_SUMMARY
           fi
-          echo "" >> $GITHUB_STEP_SUMMARY
-          echo "### 🚀 Pull Command" >> $GITHUB_STEP_SUMMARY
-          echo "\`\`\`bash" >> $GITHUB_STEP_SUMMARY
-          echo "docker pull ${{ steps.generate-cn.outputs.ghcr_image_name }}" >> $GITHUB_STEP_SUMMARY
-          echo "\`\`\`" >> $GITHUB_STEP_SUMMARY
+          echo "- **Standard Image**: ${{ steps.generate-standard.outputs.ghcr_image_name }}" >> $GITHUB_STEP_SUMMARY
+          if [ "${{ needs.prepare-build.outputs.cn_patch_enabled }}" == "true" ]; then
+            echo "- **CN Patched Image**: ${{ steps.generate-cn.outputs.ghcr_image_name }}" >> $GITHUB_STEP_SUMMARY
+          fi

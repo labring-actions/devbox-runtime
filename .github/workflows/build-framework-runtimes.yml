@@ -21,10 +21,12 @@ on:
         description: 'Enable CN patch modifications'
         required: false
         default: 'false'
+        type: boolean
       aliyun_enabled:
         description: 'Enable Aliyun ACR builds'
         required: false
         default: 'false'
+        type: boolean
 
 jobs:
   # Define framework runtime matrix

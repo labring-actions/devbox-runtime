@@ -1,0 +1,295 @@
+name: Build All Runtimes
+
+on:
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: 'Tag for the Docker image'
+        required: true
+        default: 'latest'
+      cn_patch_enabled:
+        description: 'Enable CN patch modifications'
+        required: false
+        default: 'false'
+        type: boolean
+      aliyun_enabled:
+        description: 'Enable Aliyun ACR builds'
+        required: false
+        default: 'false'
+        type: boolean
+
+jobs:
+  # Step 1: Build OS Runtimes
+  build-os-runtimes:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      actions: write
+    steps:
+      - name: Trigger OS Runtimes Build
+        id: trigger_os
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const { data } = await github.rest.actions.createWorkflowDispatch({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              workflow_id: 'build-os-runtimes.yml',
+              ref: context.ref,
+              inputs: {
+                tag: '${{ inputs.tag }}',
+                cn_patch_enabled: '${{ inputs.cn_patch_enabled }}',
+                aliyun_enabled: '${{ inputs.aliyun_enabled }}',
+              }
+            });
+            console.log('OS runtimes build triggered:', data);
+            console.log('Response structure:', JSON.stringify(data, null, 2));
+
+            // Wait a moment for the workflow to start
+            await new Promise(resolve => setTimeout(resolve, 5000));
+
+            // Get the latest workflow run (should be the one we just triggered)
+            const { data: workflows } = await github.rest.actions.listWorkflowRuns({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              workflow_id: 'build-os-runtimes.yml',
+              ref: context.ref,
+              per_page: 1
+            });
+
+            if (workflows.workflow_runs.length === 0) {
+              throw new Error('No OS runtimes workflow found after triggering');
+            }
+
+            const workflowRun = workflows.workflow_runs[0];
+            console.log(`Found triggered OS runtimes workflow run: ${workflowRun.id}`);
+
+            // Store the workflow run ID for direct monitoring
+            core.setOutput('os_workflow_run_id', workflowRun.id);
+      - name: Wait for OS Runtimes to complete
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const workflowRunId = '${{ steps.trigger_os.outputs.os_workflow_run_id }}';
+            console.log(`Monitoring OS runtimes workflow run: ${workflowRunId}`);
+
+            // Wait for workflow to complete
+            let attempts = 0;
+            const maxAttempts = 180; // 60 minutes with 10s intervals
+
+            while (attempts < maxAttempts) {
+              const { data: run } = await github.rest.actions.getWorkflowRun({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                run_id: workflowRunId
+              });
+
+              console.log(`Workflow status: ${run.status}, conclusion: ${run.conclusion}`);
+
+              if (run.status === 'completed') {
+                if (run.conclusion === 'success') {
+                  console.log('✅ OS Runtimes workflow completed successfully');
+                  return;
+                } else {
+                  throw new Error(`❌ OS Runtimes workflow failed with conclusion: ${run.conclusion}`);
+                }
+              }
+
+              console.log(`Waiting for OS runtimes workflow to complete... (attempt ${attempts + 1}/${maxAttempts})`);
+              await new Promise(resolve => setTimeout(resolve, 10000)); // Wait 10 seconds
+              attempts++;
+            }
+
+            throw new Error('Timeout waiting for OS runtimes workflow to complete');
+
+  # Step 2: Build Language Runtimes
+  build-language-runtimes:
+    runs-on: ubuntu-latest
+    needs: build-os-runtimes
+    permissions:
+      contents: read
+      actions: write
+    steps:
+      - name: Trigger Language Runtimes Build
+        id: trigger_language
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const { data } = await github.rest.actions.createWorkflowDispatch({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              workflow_id: 'build-language-runtimes.yml',
+              ref: context.ref,
+              inputs: {
+                tag: '${{ inputs.tag }}',
+                build_base_image: 'ghcr.io/${{ github.repository_owner }}/devbox/debian-12.6:${{ inputs.tag }}',
+                build_base_image_with_cn_patch: 'ghcr.io/${{ github.repository_owner }}/devbox/debian-12.6:${{ inputs.tag }}-cn',
+                cn_patch_enabled: '${{ inputs.cn_patch_enabled }}',
+                aliyun_enabled: '${{ inputs.aliyun_enabled }}'
+              }
+            });
+            console.log('Language runtimes build triggered:', data);
+
+            // Wait a moment for the workflow to start
+            await new Promise(resolve => setTimeout(resolve, 5000));
+
+            // Get the latest workflow run (should be the one we just triggered)
+            const { data: workflows } = await github.rest.actions.listWorkflowRuns({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              workflow_id: 'build-language-runtimes.yml',
+              ref: context.ref,
+              per_page: 1
+            });
+
+            if (workflows.workflow_runs.length === 0) {
+              throw new Error('No Language runtimes workflow found after triggering');
+            }
+
+            const workflowRun = workflows.workflow_runs[0];
+            console.log(`Found triggered Language runtimes workflow run: ${workflowRun.id}`);
+
+            // Store the workflow run ID for direct monitoring
+            core.setOutput('language_workflow_run_id', workflowRun.id);
+      - name: Wait for Language Runtimes to complete
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const workflowRunId = '${{ steps.trigger_language.outputs.language_workflow_run_id }}';
+            console.log(`Monitoring Language runtimes workflow run: ${workflowRunId}`);
+
+            // Wait for workflow to complete
+            let attempts = 0;
+            const maxAttempts = 180; // 60 minutes with 10s intervals
+
+            while (attempts < maxAttempts) {
+              const { data: run } = await github.rest.actions.getWorkflowRun({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                run_id: workflowRunId
+              });
+
+              console.log(`Workflow status: ${run.status}, conclusion: ${run.conclusion}`);
+
+              if (run.status === 'completed') {
+                if (run.conclusion === 'success') {
+                  console.log('✅ Language Runtimes workflow completed successfully');
+                  return;
+                } else {
+                  throw new Error(`❌ Language Runtimes workflow failed with conclusion: ${run.conclusion}`);
+                }
+              }
+
+              console.log(`Waiting for Language runtimes workflow to complete... (attempt ${attempts + 1}/${maxAttempts})`);
+              await new Promise(resolve => setTimeout(resolve, 10000)); // Wait 10 seconds
+              attempts++;
+            }
+
+            throw new Error('Timeout waiting for Language runtimes workflow to complete');
+
+  # Step 3: Build Framework Runtimes
+  build-framework-runtimes:
+    runs-on: ubuntu-latest
+    needs: build-language-runtimes
+    permissions:
+      contents: read
+      actions: write
+    steps:
+      - name: Trigger Framework Runtimes Build
+        id: trigger_framework
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const { data } = await github.rest.actions.createWorkflowDispatch({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              workflow_id: 'build-framework-runtimes.yml',
+              ref: context.ref,
+              inputs: {
+                tag: '${{ inputs.tag }}',
+                build_base_image_tag: '${{ inputs.tag }}',
+                build_base_image_tag_with_cn_patch: '${{ inputs.tag }}-cn',
+                cn_patch_enabled: '${{ inputs.cn_patch_enabled }}',
+                aliyun_enabled: '${{ inputs.aliyun_enabled }}'
+              }
+            });
+            console.log('Framework runtimes build triggered:', data);
+
+            // Wait a moment for the workflow to start
+            await new Promise(resolve => setTimeout(resolve, 5000));
+
+            // Get the latest workflow run (should be the one we just triggered)
+            const { data: workflows } = await github.rest.actions.listWorkflowRuns({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              workflow_id: 'build-framework-runtimes.yml',
+              ref: context.ref,
+              per_page: 1
+            });
+
+            if (workflows.workflow_runs.length === 0) {
+              throw new Error('No Framework runtimes workflow found after triggering');
+            }
+
+            const workflowRun = workflows.workflow_runs[0];
+            console.log(`Found triggered Framework runtimes workflow run: ${workflowRun.id}`);
+
+            // Store the workflow run ID for direct monitoring
+            core.setOutput('framework_workflow_run_id', workflowRun.id);
+      - name: Wait for Framework Runtimes to complete
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const workflowRunId = '${{ steps.trigger_framework.outputs.framework_workflow_run_id }}';
+            console.log(`Monitoring Framework runtimes workflow run: ${workflowRunId}`);
+
+            // Wait for workflow to complete
+            let attempts = 0;
+            const maxAttempts = 180; // 60 minutes with 10s intervals
+
+            while (attempts < maxAttempts) {
+              const { data: run } = await github.rest.actions.getWorkflowRun({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                run_id: workflowRunId
+              });
+
+              console.log(`Workflow status: ${run.status}, conclusion: ${run.conclusion}`);
+
+              if (run.status === 'completed') {
+                if (run.conclusion === 'success') {
+                  console.log('✅ Framework Runtimes workflow completed successfully');
+                  return;
+                } else {
+                  throw new Error(`❌ Framework Runtimes workflow failed with conclusion: ${run.conclusion}`);
+                }
+              }
+
+              console.log(`Waiting for Framework runtimes workflow to complete... (attempt ${attempts + 1}/${maxAttempts})`);
+              await new Promise(resolve => setTimeout(resolve, 10000)); // Wait 10 seconds
+              attempts++;
+            }
+
+            throw new Error('Timeout waiting for Framework runtimes workflow to complete');
+
+  # Final step: Summary
+  build-summary:
+    runs-on: ubuntu-latest
+    needs: [build-os-runtimes, build-language-runtimes, build-framework-runtimes]
+    if: always()
+    steps:
+      - name: Build Summary
+        run: |
+          echo "## Build Summary" >> $GITHUB_STEP_SUMMARY
+          echo "| Component | Status |" >> $GITHUB_STEP_SUMMARY
+          echo "|-----------|--------|" >> $GITHUB_STEP_SUMMARY
+          echo "| OS Runtimes | ${{ needs.build-os-runtimes.result }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| Language Runtimes | ${{ needs.build-language-runtimes.result }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| Framework Runtimes | ${{ needs.build-framework-runtimes.result }} |" >> $GITHUB_STEP_SUMMARY
+
+          if [[ "${{ needs.build-os-runtimes.result }}" == "success" && "${{ needs.build-language-runtimes.result }}" == "success" && "${{ needs.build-framework-runtimes.result }}" == "success" ]]; then
+            echo "✅ All runtimes built successfully!"
+          else
+            echo "❌ Some runtimes failed to build"
+            exit 1
+          fi
