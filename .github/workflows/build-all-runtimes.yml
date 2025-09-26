@@ -44,12 +44,11 @@ jobs:
             });
             console.log('OS runtimes build triggered:', data);
       - name: Wait for OS Runtimes to complete
-        uses: lewagon/wait-on-check-action@v1.3.1
+        uses: lewagon/wait-on-check-action@v1.4.1
         with:
           ref: ${{ github.ref }}
-          check-name: 'build-os-runtimes'
+          running-workflow-name: 'Build OS Runtimes'
           repo-token: ${{ secrets.GITHUB_TOKEN }}
-          wait-interval: 30
 
   # Step 2: Build Language Runtimes
   build-language-runtimes:
@@ -76,12 +75,11 @@ jobs:
             });
             console.log('Language runtimes build triggered:', data);
       - name: Wait for Language Runtimes to complete
-        uses: lewagon/wait-on-check-action@v1.3.1
+        uses: lewagon/wait-on-check-action@v1.4.1
         with:
           ref: ${{ github.ref }}
-          check-name: 'build-language-runtimes'
+          running-workflow-name: 'Build Language Runtimes'
           repo-token: ${{ secrets.GITHUB_TOKEN }}
-          wait-interval: 30
 
   # Step 3: Build Framework Runtimes
   build-framework-runtimes:
@@ -110,12 +108,11 @@ jobs:
             });
             console.log('Framework runtimes build triggered:', data);
       - name: Wait for Framework Runtimes to complete
-        uses: lewagon/wait-on-check-action@v1.3.1
+        uses: lewagon/wait-on-check-action@v1.4.1
         with:
           ref: ${{ github.ref }}
-          check-name: 'build-framework-runtimes'
+          running-workflow-name: 'Build Framework Runtimes'
           repo-token: ${{ secrets.GITHUB_TOKEN }}
-          wait-interval: 30
 
   # Final step: Summary
   build-summary:
