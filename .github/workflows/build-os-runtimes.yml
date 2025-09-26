@@ -14,10 +14,12 @@ on:
       aliyun_enabled:
         description: 'Enable Aliyun ACR builds'
         required: false
+        type: boolean
         default: 'false'
       auto_trigger_language_runtimes:
         description: 'Auto trigger language runtimes'
         required: false
+        type: boolean
         default: 'false'
 jobs:
   # Define OS runtime matrix
