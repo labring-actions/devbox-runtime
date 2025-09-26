@@ -122,6 +122,8 @@ jobs:
               ref: context.ref,
               inputs: {
                 tag: '${{ inputs.tag }}',
+                build_base_image: 'ghcr.io/${{ github.repository_owner }}/devbox/debian-12.6:${{ inputs.tag }}',
+                build_base_image_with_cn_patch: 'ghcr.io/${{ github.repository_owner }}/devbox/debian-12.6:${{ inputs.tag }}-cn',
                 cn_patch_enabled: '${{ inputs.cn_patch_enabled }}',
                 aliyun_enabled: '${{ inputs.aliyun_enabled }}'
               }

@@ -91,6 +91,20 @@ jobs:
           ghcr_image_name: ${{ steps.generate-standard.outputs.ghcr_image_name }}
           aliyun_credentials: ${{ inputs.aliyun_enabled == 'true' && format('{{"registry":"{0}","username":"{1}","password":"{2}", "namespace":"{3}"}}', secrets.ALIYUN_REGISTRY, secrets.ALIYUN_USERNAME, secrets.ALIYUN_PASSWORD, secrets.ALIYUN_NAMESPACE) || '{}' }}
           acr_image_name: ${{ steps.generate-standard.outputs.acr_image_name }}
+      - name: Output built image names (standard)
+        run: |
+          echo "## 🐳 Built OS Runtime Images (Standard)" >> $GITHUB_STEP_SUMMARY
+          echo "| Image Name | Registry |" >> $GITHUB_STEP_SUMMARY
+          echo "|------------|----------|" >> $GITHUB_STEP_SUMMARY
+          echo "| ${{ steps.generate-standard.outputs.ghcr_image_name }} | GHCR |" >> $GITHUB_STEP_SUMMARY
+          if [ "${{ steps.generate-standard.outputs.acr_image_name }}" != "" ]; then
+            echo "| ${{ steps.generate-standard.outputs.acr_image_name }} | Aliyun ACR |" >> $GITHUB_STEP_SUMMARY
+          fi
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "### 🚀 Pull Command" >> $GITHUB_STEP_SUMMARY
+          echo "\`\`\`bash" >> $GITHUB_STEP_SUMMARY
+          echo "docker pull ${{ steps.generate-standard.outputs.ghcr_image_name }}" >> $GITHUB_STEP_SUMMARY
+          echo "\`\`\`" >> $GITHUB_STEP_SUMMARY
       - name: Generate image names (cn-patched)
         id: generate-cn
         if: ${{ needs.define-matrix.outputs.cn_patch_enabled == 'true' }}
@@ -110,3 +124,18 @@ jobs:
           ghcr_credentials: ${{ format('{{"registry":"{0}","username":"{1}","password":"{2}"}}', 'ghcr.io', github.repository_owner, secrets.GITHUB_TOKEN) || '{}' }}
           acr_image_name: ${{ steps.generate-cn.outputs.acr_image_name }}
           aliyun_credentials: ${{ inputs.aliyun_enabled == 'true' && format('{{"registry":"{0}","username":"{1}","password":"{2}", "namespace":"{3}"}}', secrets.ALIYUN_REGISTRY, secrets.ALIYUN_USERNAME, secrets.ALIYUN_PASSWORD, secrets.ALIYUN_NAMESPACE) || '{}' }}
+      - name: Output built image names (cn-patched)
+        if: ${{ needs.define-matrix.outputs.cn_patch_enabled == 'true' }}
+        run: |
+          echo "## 🐳 Built OS Runtime Images (CN-Patched)" >> $GITHUB_STEP_SUMMARY
+          echo "| Image Name | Registry |" >> $GITHUB_STEP_SUMMARY
+          echo "|------------|----------|" >> $GITHUB_STEP_SUMMARY
+          echo "| ${{ steps.generate-cn.outputs.ghcr_image_name }} | GHCR |" >> $GITHUB_STEP_SUMMARY
+          if [ "${{ steps.generate-cn.outputs.acr_image_name }}" != "" ]; then
+            echo "| ${{ steps.generate-cn.outputs.acr_image_name }} | Aliyun ACR |" >> $GITHUB_STEP_SUMMARY
+          fi
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "### 🚀 Pull Command" >> $GITHUB_STEP_SUMMARY
+          echo "\`\`\`bash" >> $GITHUB_STEP_SUMMARY
+          echo "docker pull ${{ steps.generate-cn.outputs.ghcr_image_name }}" >> $GITHUB_STEP_SUMMARY
+          echo "\`\`\`" >> $GITHUB_STEP_SUMMARY
