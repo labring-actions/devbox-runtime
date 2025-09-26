@@ -40,7 +40,6 @@ jobs:
                 tag: '${{ inputs.tag }}',
                 cn_patch_enabled: '${{ inputs.cn_patch_enabled }}',
                 aliyun_enabled: '${{ inputs.aliyun_enabled }}',
-                auto_trigger_language_runtimes: 'false'
               }
             });
             console.log('OS runtimes build triggered:', data);
