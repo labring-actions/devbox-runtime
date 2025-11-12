@@ -1,8 +1,10 @@
 FROM debian:12.6-slim
 
 COPY startup.sh /usr/start/startup.sh
+COPY setup.sh /usr/start/setup.sh
+COPY supervisord.conf /etc/supervisor/conf.d/supervisord.conf
 
-RUN chmod +x /usr/start/startup.sh && \
+RUN chmod +x /usr/start/startup.sh /usr/start/setup.sh && \
     apt-get update && \
     apt-get install -y \
     dumb-init \
@@ -17,11 +19,12 @@ RUN chmod +x /usr/start/startup.sh && \
     openssl \
     make \
     git \
+    supervisor \
     openssh-client \
     openssh-server && \
     apt-get clean && \
     rm -rf /var/lib/apt/lists/* && \
-    mkdir -p /run/sshd  && \
+    mkdir -p /run/sshd /var/log/supervisor && \
     chmod 755 /run/sshd && \
     echo 'AllowTcpForwarding yes' >> /etc/ssh/sshd_config && \
     echo 'GatewayPorts yes' >> /etc/ssh/sshd_config && \
@@ -46,7 +49,7 @@ RUN sudo chown -R devbox:devbox /home/devbox/project && \
     sudo chmod -R 777 /home/devbox/project
 
 ENTRYPOINT ["/usr/bin/dumb-init", "--"]
-CMD ["sudo", "-E", "/usr/start/startup.sh"]
+CMD ["/usr/bin/supervisord", "-c", "/etc/supervisor/conf.d/supervisord.conf"]
 
 WORKDIR /home/devbox/project
 EXPOSE 22
