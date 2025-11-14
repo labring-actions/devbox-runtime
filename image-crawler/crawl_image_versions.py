@@ -41,9 +41,10 @@ def _comma_separated(ctx: click.Context, param: click.Parameter, value: str) -> 
 @click.option("--repository", default=CONFIG.client.repository, show_default=True, help="Target GHCR repository in org/name format.")
 @click.option("--page-size", default=CONFIG.client.page_size, show_default=True, type=int, help="Items fetched per registry/API page.")
 @click.option("--throttle", default=CONFIG.client.throttle_rate, show_default=True, type=int, help="Maximum requests per second.")
-@click.option("--timeout", default=CONFIG.client.request_timeout, show_default=True, type=int, help="Command timeout (seconds, unused for crane).")
+@click.option("--timeout", default=CONFIG.client.request_timeout, show_default=True, type=int, help="Subprocess timeout in seconds.")
 @click.option("--json-path", default=CONFIG.output.json_path, show_default=True, help="Destination path for the JSON artifact.")
 @click.option("--csv-path", default=CONFIG.output.csv_path, show_default=True, help="Destination path for the CSV artifact.")
+@click.option("--latest-only", is_flag=True, default=False, help="Only keep the latest version per image (includes -cn variant).")
 @click.option("--no-color", is_flag=True, default=False, help="Disable colorful console output.")
 @click.option("--log-level", default="WARNING", show_default=True, help="Logging level (DEBUG, INFO, WARNING...).")
 @click.option("--runtime-root", default="runtimes", show_default=True, help="Directory containing runtime Dockerfiles.")
@@ -58,6 +59,7 @@ def main(
     timeout: int,
     json_path: str,
     csv_path: str,
+    latest_only: bool,
     no_color: bool,
     log_level: str,
     runtime_root: str,
@@ -80,7 +82,16 @@ def main(
 
     runtime_path = _resolve_runtime_root(runtime_root)
     try:
-        asyncio.run(run_crawler(app_config, output_formats, filter_pattern, runtime_root=runtime_path, disable_color=no_color))
+        asyncio.run(
+            run_crawler(
+                app_config,
+                output_formats,
+                filter_pattern,
+                runtime_root=runtime_path,
+                latest_only=latest_only,
+                disable_color=no_color,
+            )
+        )
     except KeyboardInterrupt:
         click.echo("✨ 已取消")
 
@@ -91,6 +102,7 @@ async def run_crawler(
     filter_pattern: str | None,
     *,
     runtime_root: Path,
+    latest_only: bool,
     disable_color: bool,
 ) -> None:
     parser = VersionParser(app_config.crawl)
@@ -109,6 +121,8 @@ async def run_crawler(
         progress_bar.refresh()
 
     versions = parser.parse_tags(tag_infos, pattern=filter_pattern)
+    if latest_only:
+        versions = parser.filter_latest_versions(versions)
     metadata = formatter.build_metadata(versions, crawl_started)
 
     if not versions:

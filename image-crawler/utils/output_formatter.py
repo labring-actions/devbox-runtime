@@ -48,7 +48,7 @@ class OutputFormatter:
             versioned = bucket.get("versioned", 0)
             print(f"- {category}: {count} (其中 v 开头版本: {versioned})")
         print()
-        print("📋 镜像版本列表 (类别 | 名称 | 版本 | 镜像全路径):")
+        print("📋 镜像版本列表 (按类别、名称排序，展示 类别 | 名称 | 版本 | 镜像全路径):")
         for image in versions_list:
             icon = self.icons.get(image.version_type, self.icons["other"])
             label = self._apply_color(image.version, image.version_type)

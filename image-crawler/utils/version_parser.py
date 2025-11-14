@@ -5,7 +5,7 @@ from __future__ import annotations
 import fnmatch
 import re
 from dataclasses import dataclass, field
-from typing import Dict, Iterable, List, Optional, Tuple
+from typing import Any, Dict, Iterable, List, Optional, Tuple, cast
 
 from packaging.version import InvalidVersion, Version
 
@@ -114,6 +114,29 @@ class VersionParser:
                 bucket["versioned"] += 1
         return summary
 
+    def filter_latest_versions(self, versions: List[ImageVersion]) -> List[ImageVersion]:
+        buckets: Dict[Tuple[str, str], Dict[str, Any]] = {}
+
+        for image in versions:
+            key = (image.category, image.name)
+            version_key = self._version_value(image.version)
+            bucket = buckets.get(key)
+
+            if bucket is None or self._is_newer_version(version_key, bucket["version_key"]):
+                buckets[key] = {"version_key": version_key, "images": [image]}
+            elif self._is_same_version(version_key, bucket["version_key"]):
+                bucket_images = cast(List[ImageVersion], bucket["images"])
+                bucket_images.append(image)
+
+        filtered: List[ImageVersion] = []
+        for bucket in buckets.values():
+            bucket_images = cast(List[ImageVersion], bucket["images"])
+            bucket_images.sort(key=lambda img: (img.version.endswith("-cn"), img.version))
+            filtered.extend(bucket_images)
+
+        filtered.sort(key=lambda img: (img.category, img.name, img.version))
+        return filtered
+
     # ------------------------------------------------------------------
     # Helpers
 
@@ -153,3 +176,33 @@ class VersionParser:
             return preferred, parsed
         except InvalidVersion:
             return preferred, None
+
+    def _version_value(self, version: str) -> Tuple[Optional[Version], str]:
+        cleaned = version.lstrip("v").lower()
+        if cleaned.endswith("-cn"):
+            cleaned = cleaned[:-3]
+        try:
+            parsed = Version(cleaned)
+        except InvalidVersion:
+            parsed = None
+        return parsed, cleaned
+
+    @staticmethod
+    def _is_newer_version(candidate: Tuple[Optional[Version], str], current: Tuple[Optional[Version], str]) -> bool:
+        cand_parsed, cand_base = candidate
+        curr_parsed, curr_base = current
+        if cand_parsed is not None and curr_parsed is not None:
+            return cand_parsed > curr_parsed
+        if cand_parsed is not None and curr_parsed is None:
+            return True
+        if cand_parsed is None and curr_parsed is not None:
+            return False
+        return cand_base > curr_base
+
+    @staticmethod
+    def _is_same_version(candidate: Tuple[Optional[Version], str], current: Tuple[Optional[Version], str]) -> bool:
+        cand_parsed, cand_base = candidate
+        curr_parsed, curr_base = current
+        if cand_parsed is not None and curr_parsed is not None:
+            return cand_parsed == curr_parsed
+        return cand_base == curr_base

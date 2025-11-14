@@ -8,6 +8,7 @@ An asynchronous crawler that enumerates every image tag published under `ghcr.io
 - Classification by OS / language / framework / service heuristics
 - Semantic version detection with explicit emphasis on tags beginning with `v`
 - Output strictly filtered to tags whose names start with `v`
+- Optional `--latest-only` mode keeps just the newest semantic version per image (and its `-cn` variant)
 - Rich console progress indicators powered by `tqdm`
 - Multi-format persistence: JSON + CSV located under `output/`
 - Resilient error handling (automatic retries, rate-limit awareness, graceful fallbacks)
@@ -21,6 +22,9 @@ pip install -r requirements.txt
 # Install crane: https://github.com/google/go-containerregistry/tree/main/cmd/crane
 #   macOS (Homebrew): brew install go-containerregistry
 python crawl_image_versions.py --output-format console,json,csv
+
+# 仅查看最新版本（含 -cn 镜像）
+python crawl_image_versions.py --latest-only --output-format console
 ```
 
 The crawler discovers image names from the `runtimes/` directory and shells out to `crane ls` for each of them, so make sure `crane` is available on your `PATH`.

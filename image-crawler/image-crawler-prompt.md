@@ -21,6 +21,7 @@
 4. **进度显示**: 实时展示标签抓取进度
 5. **错误处理**: `crane` 调用失败时自动重试并记录日志
 6. **多格式输出**: 控制台彩色输出 + JSON + CSV（包含完整镜像路径）
+7. **最新版本模式**: 通过 CLI 开关仅输出每个镜像最新版本（同时保留 `vX` 与 `vX-cn` 两个标签）
 
 ## 项目结构
 
@@ -246,7 +247,7 @@ class OutputFormatter:
 - os: 6 (其中 v 开头版本: 6)
 - service: 0 (其中 v 开头版本: 0)
 
-📋 镜像版本列表 (类别 | 名称 | 版本 | 镜像全路径):
+📋 镜像版本列表 (按类别+名称排序，展示类别 | 名称 | 版本 | 镜像全路径):
 ✅ framework  angular-v18      v0.2.2   ghcr.io/labring-actions/devbox/angular-v18:v0.2.2
 ✅ framework  angular-v18      v0.2.2-cn ghcr.io/labring-actions/devbox/angular-v18:v0.2.2-cn
 ✅ language   python-3.12      v0.2.2   ghcr.io/labring-actions/devbox/python-3.12:v0.2.2
@@ -337,7 +338,8 @@ python crawl_image_versions.py \
     --output-format json,csv \
     --filter "v*" \
     --concurrent 20 \
-    --retry 5
+    --retry 5 \
+    --latest-only
 ```
 
 ## 扩展功能（可选）
@@ -359,3 +361,4 @@ python crawl_image_versions.py \
 ---
 
 请根据以上详细的技术规格和实现指导，开发一个完整的镜像版本爬取脚本。确保代码质量高、功能完整、易于使用和维护。
+- `--latest-only`: 仅输出每个镜像的最新版本（若存在 `-cn` 标签则与常规标签一起保留）

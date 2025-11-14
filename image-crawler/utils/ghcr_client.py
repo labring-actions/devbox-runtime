@@ -46,6 +46,7 @@ class GHCRClient:
         self.repository = self.config.repository.strip("/")
         self.crane_bin = crane_bin
         self._semaphore = asyncio.Semaphore(self.config.concurrent_requests)
+        self._command_timeout = self.config.request_timeout
 
     async def get_all_tags(
         self,
@@ -94,7 +95,12 @@ class GHCRClient:
         for attempt in range(1, attempts + 1):
             async with self._semaphore:
                 proc = await asyncio.create_subprocess_exec(*cmd, stdout=PIPE, stderr=PIPE)
-                stdout, stderr = await proc.communicate()
+                try:
+                    stdout, stderr = await asyncio.wait_for(proc.communicate(), timeout=self._command_timeout)
+                except asyncio.TimeoutError:
+                    proc.kill()
+                    await proc.communicate()
+                    stdout, stderr = b"", f"crane timed out after {self._command_timeout}s".encode()
             if proc.returncode == 0:
                 return stdout.decode()
             message = stderr.decode().strip() or stdout.decode().strip() or "unknown error"
