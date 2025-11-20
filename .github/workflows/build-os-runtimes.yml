@@ -91,6 +91,24 @@ jobs:
           ghcr_image_name: ${{ steps.generate-standard.outputs.ghcr_image_name }}
           aliyun_credentials: ${{ inputs.aliyun_enabled == 'true' && format('{{"registry":"{0}","username":"{1}","password":"{2}", "namespace":"{3}"}}', secrets.ALIYUN_REGISTRY, secrets.ALIYUN_USERNAME, secrets.ALIYUN_PASSWORD, secrets.ALIYUN_NAMESPACE) || '{}' }}
           acr_image_name: ${{ steps.generate-standard.outputs.acr_image_name }}
+      - name: Clean up images (standard)
+        if: always()
+        run: |
+          set -eux
+          # Remove GHCR image by tag if present
+          if [ -n "${{ steps.generate-standard.outputs.ghcr_image_name }}" ]; then
+            echo "Removing local image: ${{ steps.generate-standard.outputs.ghcr_image_name }} (if exists)"
+            docker image rm -f "${{ steps.generate-standard.outputs.ghcr_image_name }}" || true
+          fi
+          # Remove Aliyun/ACR image by tag if present
+          if [ -n "${{ steps.generate-standard.outputs.acr_image_name }}" ]; then
+            echo "Removing local image: ${{ steps.generate-standard.outputs.acr_image_name }} (if exists)"
+            docker image rm -f "${{ steps.generate-standard.outputs.acr_image_name }}" || true
+          fi
+          # Remove dangling images and builder cache to free space
+          docker image prune -af || true
+          # If docker buildx was used, prune builder cache as well
+          docker builder prune -af || true
       - name: Output built image names (standard)
         run: |
           echo "## 🐳 Built OS Runtime Images (Standard)" >> $GITHUB_STEP_SUMMARY
