@@ -19,9 +19,6 @@ on:
       architectures:
         description: 'Comma-separated architectures (default: amd64,arm64)'
         required: false
-      base_tools_version:
-        description: 'Override BASE_TOOLS_VERSION ARG (default from Dockerfile)'
-        required: false
 
 permissions:
   contents: read
@@ -62,8 +59,6 @@ jobs:
           TAG_INPUT="${{ inputs.image_tag }}"
           if [ -z "$TAG_INPUT" ]; then TAG_INPUT="${GITHUB_SHA:0:8}"; fi
           echo "image_tag=$TAG_INPUT" >> $GITHUB_OUTPUT
-          BASE_TOOLS_VERSION_INPUT="${{ inputs.base_tools_version }}"
-          echo "base_tools_version=$BASE_TOOLS_VERSION_INPUT" >> $GITHUB_OUTPUT
           if [[ "$TAG_INPUT" =~ ^v?[0-9]+\.[0-9]+\.[0-9]+([.-][A-Za-z0-9._-]+)?$ ]]; then
             echo "add_latest=true" >> $GITHUB_OUTPUT
           else
@@ -87,7 +82,6 @@ jobs:
           build-args: |
             REPO_OWNER=${{ github.repository_owner }}
             REPO_NAME=devbox-image
-            ${{ steps.params.outputs.base_tools_version != '' && format('BASE_TOOLS_VERSION={0}', steps.params.outputs.base_tools_version) || '' }}
           platforms: ${{ steps.params.outputs.platforms }}
           cache-from: type=gha
           cache-to: type=gha,mode=max
