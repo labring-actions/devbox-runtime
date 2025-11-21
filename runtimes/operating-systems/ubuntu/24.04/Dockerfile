@@ -1,6 +1,8 @@
 FROM ubuntu:24.04
 
 COPY startup.sh /usr/start/startup.sh
+COPY setup.sh /usr/start/setup.sh
+COPY supervisord.conf /etc/supervisor/conf.d/supervisord.conf
 
 RUN apt update && \
     apt install -y \
@@ -14,11 +16,12 @@ RUN apt update && \
     vim \
     openssl \
     make \
-    git && \
-    mkdir -p /usr/start && \
+    git \
+    supervisor && \
+    mkdir -p /usr/start /var/log/supervisor && \
     apt clean
 
-RUN chmod +x /usr/start/startup.sh && \
+RUN chmod +x /usr/start/startup.sh /usr/start/setup.sh && \
     apt-get update && \
     apt-get install -y \
     dumb-init \
@@ -55,7 +58,7 @@ RUN sudo chown -R devbox:devbox /home/devbox/project && \
 USER root
 
 ENTRYPOINT ["/usr/bin/dumb-init", "--"]
-CMD ["sudo", "-E", "/usr/start/startup.sh"]
+CMD ["/usr/bin/supervisord", "-c", "/etc/supervisor/conf.d/supervisord.conf"]
 
 WORKDIR /home/devbox/project
 
