@@ -89,6 +89,7 @@ jobs:
             REPO_NAME=devbox-image
             ${{ steps.params.outputs.base_tools_version != '' && format('BASE_TOOLS_VERSION={0}', steps.params.outputs.base_tools_version) || '' }}
           platforms: ${{ steps.params.outputs.platforms }}
+          cache-from: type=gha
           cache-to: type=gha,mode=max
           tags: |
             ghcr.io/${{ github.repository_owner }}/devbox-runtime/debian-12.6:${{ steps.params.outputs.image_tag }}
