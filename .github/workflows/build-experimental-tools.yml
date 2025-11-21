@@ -1,0 +1,103 @@
+name: Build Experimental Tools Images
+
+on:
+  pull_request:
+    branches:
+      - main
+    paths:
+      - 'experimental/base-tools/**'
+      - 'experimental/configure-tools/**'
+      - '.github/workflows/**'
+  push:
+    branches:
+      - main
+    paths:
+      - 'experimental/base-tools/**'
+      - 'experimental/configure-tools/**'
+      - '.github/workflows/**'
+  workflow_dispatch:
+    inputs:
+      image_tag:
+        description: 'Custom image tag (defaults to commit SHA)'
+        required: false
+      architectures:
+        description: 'Comma-separated architectures to build (default: amd64,arm64)'
+        required: false
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v2
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v2
+
+      - name: Compute build parameters
+        id: params
+        run: |
+          set -euo pipefail
+          ARCHS="${{ inputs.architectures }}"
+          if [ -z "$ARCHS" ]; then ARCHS="amd64,arm64"; fi
+          # Normalize: remove spaces
+          ARCHS="$(echo "$ARCHS" | tr -d ' ')"
+          ALLOWED="amd64 arm64 armv7"
+          IFS=',' read -r -a REQ_ARCHS <<< "$ARCHS"
+          PLATFORM_LIST=""
+          for a in "${REQ_ARCHS[@]}"; do
+            if [[ ! " $ALLOWED " =~ " $a " ]]; then
+              echo "ERROR: Unsupported architecture '$a'. Allowed: $ALLOWED" >&2
+              exit 1
+            fi
+            if [ -n "$PLATFORM_LIST" ]; then PLATFORM_LIST+=","; fi
+            PLATFORM_LIST+="linux/$a"
+          done
+          echo "platforms=$PLATFORM_LIST" >> $GITHUB_OUTPUT
+          TAG_INPUT="${{ inputs.image_tag }}"
+          if [ -z "$TAG_INPUT" ]; then TAG_INPUT="${GITHUB_SHA:0:8}"; fi
+          echo "image_tag=$TAG_INPUT" >> $GITHUB_OUTPUT
+          if [[ "$TAG_INPUT" =~ ^v?[0-9]+\.[0-9]+\.[0-9]+([.-][A-Za-z0-9._-]+)?$ ]]; then
+            echo "add_latest=true" >> $GITHUB_OUTPUT
+          else
+            echo "add_latest=false" >> $GITHUB_OUTPUT
+          fi
+      - name: Log in to GHCR (only workflow_dispatch pushes)
+        if: ${{ github.event_name == 'workflow_dispatch' }}
+        uses: docker/login-action@v2
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Build `base-tools` image (dispatch only pushes)
+        uses: docker/build-push-action@v5
+        with:
+          context: ./experimental/base-tools
+          file: ./experimental/base-tools/Dockerfile
+          push: ${{ github.event_name == 'workflow_dispatch' }}
+          platforms: ${{ steps.params.outputs.platforms }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+          tags: |
+            ghcr.io/${{ github.repository_owner }}/devbox-image/base-tools:${{ steps.params.outputs.image_tag }}
+            ${{ steps.params.outputs.add_latest == 'true' && format('ghcr.io/{0}/devbox-image/base-tools:latest', github.repository_owner) || '' }}
+
+      - name: Build `configure-tools` image (dispatch only pushes)
+        uses: docker/build-push-action@v5
+        with:
+          context: ./experimental/configure-tools
+          file: ./experimental/configure-tools/Dockerfile
+          push: ${{ github.event_name == 'workflow_dispatch' }}
+          platforms: ${{ steps.params.outputs.platforms }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+          tags: |
+            ghcr.io/${{ github.repository_owner }}/devbox-image/configure-tools:${{ steps.params.outputs.image_tag }}
+            ${{ steps.params.outputs.add_latest == 'true' && format('ghcr.io/{0}/devbox-image/configure-tools:latest', github.repository_owner) || '' }}
