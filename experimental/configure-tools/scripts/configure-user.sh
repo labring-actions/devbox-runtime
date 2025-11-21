@@ -3,7 +3,9 @@ set -euo pipefail
 
 # Add user devbox
 useradd -m -s /bin/bash devbox && usermod -aG sudo devbox && echo 'devbox ALL=(ALL) NOPASSWD: ALL' >> /etc/sudoers
-# Change the password of user devbox
+# Change the password of user devbox  
+# The password is randomly generated and not logged or stored for security reasons.  
+# SSH key-based authentication is required, as password authentication is disabled in sshd_config. 
 PASS=$(openssl rand -base64 16) && echo "devbox:$PASS" | chpasswd
 # Change the home directory ownership
 chown -R devbox:devbox /home/devbox/ && chmod -R 770 /home/devbox/
