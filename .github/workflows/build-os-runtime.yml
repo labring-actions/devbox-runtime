@@ -1,0 +1,95 @@
+name: Build Experimental OS Runtime
+
+on:
+  pull_request:
+    paths:
+      - 'experimental/operating-systems/**'
+      - '.github/workflows/build-os-runtime.yml'
+  push:
+    branches:
+      - main
+    paths:
+      - 'experimental/operating-systems/**'
+      - '.github/workflows/build-os-runtime.yml'
+  workflow_dispatch:
+    inputs:
+      image_tag:
+        description: 'Custom image tag (defaults to commit SHA)'
+        required: false
+      architectures:
+        description: 'Comma-separated architectures (default: amd64,arm64)'
+        required: false
+      base_tools_version:
+        description: 'Override BASE_TOOLS_VERSION ARG (default from Dockerfile)'
+        required: false
+
+permissions:
+  contents: read
+  packages: write
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v2
+
+      - name: Set up Buildx
+        uses: docker/setup-buildx-action@v2
+
+      - name: Compute parameters
+        id: params
+        run: |
+          set -euo pipefail
+          ARCHS="${{ inputs.architectures }}"
+          if [ -z "$ARCHS" ]; then ARCHS="amd64,arm64"; fi
+          ARCHS="$(echo "$ARCHS" | tr -d ' ')"
+          ALLOWED="amd64 arm64"
+          IFS=',' read -r -a REQ_ARCHS <<< "$ARCHS"
+          PLATFORM_LIST=""
+          for a in "${REQ_ARCHS[@]}"; do
+            if [[ ! " $ALLOWED " =~ " $a " ]]; then
+              echo "ERROR: Unsupported architecture '$a'. Allowed: $ALLOWED" >&2
+              exit 1
+            fi
+            [ -n "$PLATFORM_LIST" ] && PLATFORM_LIST+=","
+            PLATFORM_LIST+="linux/$a"
+          done
+          echo "platforms=$PLATFORM_LIST" >> $GITHUB_OUTPUT
+          TAG_INPUT="${{ inputs.image_tag }}"
+          if [ -z "$TAG_INPUT" ]; then TAG_INPUT="${GITHUB_SHA:0:8}"; fi
+          echo "image_tag=$TAG_INPUT" >> $GITHUB_OUTPUT
+          BASE_TOOLS_VERSION_INPUT="${{ inputs.base_tools_version }}"
+          echo "base_tools_version=$BASE_TOOLS_VERSION_INPUT" >> $GITHUB_OUTPUT
+          if [[ "$TAG_INPUT" =~ ^v?[0-9]+\.[0-9]+\.[0-9]+([.-][A-Za-z0-9._-]+)?$ ]]; then
+            echo "add_latest=true" >> $GITHUB_OUTPUT
+          else
+            echo "add_latest=false" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Log in to GHCR (only workflow_dispatch)
+        if: ${{ github.event_name == 'workflow_dispatch' }}
+        uses: docker/login-action@v2
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+      # TODO: scanning OS runtimes in ./experimental/operating-systems/**
+      - name: Build Debian 12.6 runtime image
+        uses: docker/build-push-action@v5
+        with:
+          context: ./experimental/operating-systems/debian/12.6/runtime
+          file: ./experimental/operating-systems/debian/12.6/runtime/Dockerfile
+          push: ${{ github.event_name == 'workflow_dispatch' }}
+          build-args: |
+            REPO_OWNER=${{ github.repository_owner }}
+            REPO_NAME=devbox-image
+            ${{ steps.params.outputs.base_tools_version != '' && format('BASE_TOOLS_VERSION={0}', steps.params.outputs.base_tools_version) || '' }}
+          platforms: ${{ steps.params.outputs.platforms }}
+          cache-to: type=gha,mode=max
+          tags: |
+            ghcr.io/${{ github.repository_owner }}/devbox-runtime/debian-12.6:${{ steps.params.outputs.image_tag }}
+            ${{ steps.params.outputs.add_latest == 'true' && format('ghcr.io/{0}/devbox-runtime/debian-12.6:latest', github.repository_owner) || '' }}
