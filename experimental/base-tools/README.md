@@ -14,17 +14,17 @@ Environment variables
 
 - Script-specific version variables (optional — each script provides a sensible default):
   - `S6_OVERLAY_VERSION` — default shown in `install-s6.sh` (e.g. `3.2.1.0`)
-  - `SUPERCRONIC_VERSION` — default shown in `install-sshproxy.sh` (e.g. `v0.1.15`)
-  - `SSHPROXY_VERSION` — default shown in `install-cron.sh` (e.g. `v0.1.15`)
+  - `SUPERCRONIC_VERSION` — default shown in `install-crond.sh` (e.g. `v0.1.15`)
+  - `SSHPROXY_VERSION` — default shown in `install-sshproxy.sh` (e.g. `v0.1.15`)
 
 Usage examples
 
 - Run one of the install scripts directly (sets `ARCH` inline):
 
 ```bash
-ARCH=x86_64 bash base-tools/scripts/install-cron.sh
-ARCH=arm64 bash base-tools/scripts/install-s6.sh
-ARCH=amd64 SUPERCRONIC_VERSION=v0.1.15 bash base-tools/scripts/install-sshproxy.sh
+ARCH=x86_64 bash base-tools/scripts/install-crond.sh  
+ARCH=arm64 bash base-tools/scripts/install-s6.sh  
+ARCH=amd64 SSHPROXY_VERSION=v0.1.15 bash base-tools/scripts/install-sshproxy.sh
 ```
 
 - In a Dockerfile you can pass `ARCH` as a build-arg or environment variable:
