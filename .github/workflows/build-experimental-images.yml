@@ -1,0 +1,102 @@
+name: Build Experimental Images
+
+on:
+  pull_request:
+    paths:
+      - 'experimental/images/**'
+      - '.github/workflows/**'
+  workflow_dispatch:
+    inputs:
+      image_tag:
+        description: 'Custom image tag (defaults to short commit SHA)'
+        required: false
+      architectures:
+        description: 'Comma-separated architectures (default: amd64,arm64)'
+        required: false
+
+permissions:
+  contents: read
+  packages: write
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v2
+
+      - name: Set up Buildx
+        uses: docker/setup-buildx-action@v2
+
+      - name: Compute parameters
+        id: params
+        run: |
+          set -euo pipefail
+          ARCHS="${{ inputs.architectures }}"
+          if [ -z "$ARCHS" ]; then ARCHS="amd64,arm64"; fi
+          ARCHS="$(echo "$ARCHS" | tr -d ' ')"
+          ALLOWED="amd64 arm64 armv7"
+          IFS=',' read -r -a REQ_ARCHS <<< "$ARCHS"
+          PLATFORM_LIST=""
+          for a in "${REQ_ARCHS[@]}"; do
+            if [[ ! " $ALLOWED " =~ " $a " ]]; then
+              echo "ERROR: Unsupported architecture '$a'. Allowed: $ALLOWED" >&2
+              exit 1
+            fi
+            [ -n "$PLATFORM_LIST" ] && PLATFORM_LIST+="," || true
+            PLATFORM_LIST+="linux/$a"
+          done
+          echo "platforms=$PLATFORM_LIST" >> $GITHUB_OUTPUT
+          TAG_INPUT="${{ inputs.image_tag }}"
+          if [ -z "$TAG_INPUT" ]; then TAG_INPUT="${GITHUB_SHA:0:8}"; fi
+          echo "image_tag=$TAG_INPUT" >> $GITHUB_OUTPUT
+          if [[ "$TAG_INPUT" =~ ^v?[0-9]+\.[0-9]+\.[0-9]+([.-][A-Za-z0-9._-]+)?$ ]]; then
+            echo "add_latest=true" >> $GITHUB_OUTPUT
+          else
+            echo "add_latest=false" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Log in to GHCR (pushes only)
+        if: ${{ github.event_name == 'workflow_dispatch' }}
+        uses: docker/login-action@v2
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Discover image Dockerfiles
+        id: find
+        run: |
+          find experimental/images -type f -name Dockerfile -not -path "*/base-tools/*" -not -path "*/configure-tools/*" || true
+
+      - name: Build discovered image Dockerfiles
+        run: |
+          set -euo pipefail
+          FILES=$(find experimental/images -type f -name Dockerfile -not -path "*/base-tools/*" -not -path "*/configure-tools/*" 2>/dev/null) || true
+          if [ -z "$FILES" ]; then echo "No image Dockerfiles found"; exit 0; fi
+          for f in $FILES; do
+            echo "----"; echo "Found image Dockerfile: $f"
+            dir=$(dirname "$f")
+            parent1=$(basename $(dirname "$dir")) || true
+            parent2=$(basename $(dirname $(dirname "$dir"))) || true
+            image_name="${parent2}-${parent1}"
+            image_name=${image_name#/}
+            image_name=${image_name//\//-}
+            TAG="${{ steps.params.outputs.image_tag }}"
+            PLATFORMS="${{ steps.params.outputs.platforms }}"
+            ADD_LATEST="${{ steps.params.outputs.add_latest }}"
+            BUILD_ARGS="--build-arg REPO_OWNER=${{ github.repository_owner }} --build-arg REPO_NAME=devbox-expt-image"
+            if [ "${GITHUB_EVENT_NAME}" = "workflow_dispatch" ]; then
+              TAGFLAGS="-t ghcr.io/${{ github.repository_owner }}/devbox-expt-image/${image_name}:${TAG}"
+              if [ "$ADD_LATEST" = 'true' ]; then TAGFLAGS+=" -t ghcr.io/${{ github.repository_owner }}/devbox-expt-image/${image_name}:latest"; fi
+              eval docker buildx build --progress=plain --platform "$PLATFORMS" $BUILD_ARGS $TAGFLAGS --push "$dir"
+            else
+              IFS=',' read -r -a ARCHS <<< "${PLATFORMS//linux\//}"
+              for a in "${ARCHS[@]}"; do
+                docker buildx build --progress=plain --platform linux/$a $BUILD_ARGS -t ghcr.io/${{ github.repository_owner }}/devbox-expt-image/${image_name}:pr-${{ github.event.pull_request.number }}-$a --load "$dir"
+              done
+            fi
+          done
+        shell: bash

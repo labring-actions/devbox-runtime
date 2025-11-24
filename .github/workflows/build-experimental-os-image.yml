@@ -59,7 +59,6 @@ jobs:
           TAG_INPUT="${{ inputs.image_tag }}"
           if [ -z "$TAG_INPUT" ]; then TAG_INPUT="${GITHUB_SHA:0:8}"; fi
           echo "image_tag=$TAG_INPUT" >> $GITHUB_OUTPUT
-          BASE_TOOLS_VERSION_INPUT="${{ inputs.base_tools_version }}"
           echo "base_tools_version=$BASE_TOOLS_VERSION_INPUT" >> $GITHUB_OUTPUT
           if [[ "$TAG_INPUT" =~ ^v?[0-9]+\.[0-9]+\.[0-9]+([.-][A-Za-z0-9._-]+)?$ ]]; then
             echo "add_latest=true" >> $GITHUB_OUTPUT
