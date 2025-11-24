@@ -13,6 +13,10 @@ on:
       architectures:
         description: 'Comma-separated architectures (default: amd64,arm64)'
         required: false
+      cn_patch_enabled:
+        description: 'Enable CN patch modifications'
+        required: false
+        default: 'false'
 
 permissions:
   contents: read
@@ -72,31 +76,14 @@ jobs:
           find experimental/runtimes -type f -name Dockerfile -not -path "*/base-tools/*" -not -path "*/configure-tools/*" || true
 
       - name: Build discovered runtime Dockerfiles
+        env:
+          IMAGE_TAG: ${{ steps.params.outputs.image_tag }}
+          PLATFORMS: ${{ steps.params.outputs.platforms }}
+          ADD_LATEST: ${{ steps.params.outputs.add_latest }}
+          REPO_OWNER: ${{ github.repository_owner }}
+          REPO_NAME: devbox-expt-runtime
+          PR_NUMBER: ${{ github.event.pull_request.number || '' }}
         run: |
-          set -euo pipefail
-          FILES=$(find experimental/runtimes -type f -name Dockerfile -not -path "*/base-tools/*" -not -path "*/configure-tools/*" 2>/dev/null) || true
-          if [ -z "$FILES" ]; then echo "No runtime Dockerfiles found"; exit 0; fi
-          for f in $FILES; do
-            echo "----"; echo "Found runtime Dockerfile: $f"
-            dir=$(dirname "$f")
-            parent1=$(basename $(dirname "$dir")) || true
-            parent2=$(basename $(dirname $(dirname "$dir"))) || true
-            image_name="${parent2}-${parent1}"
-            image_name=${image_name#/}
-            image_name=${image_name//\//-}
-            TAG="${{ steps.params.outputs.image_tag }}"
-            PLATFORMS="${{ steps.params.outputs.platforms }}"
-            ADD_LATEST="${{ steps.params.outputs.add_latest }}"
-            BUILD_ARGS="--build-arg REPO_OWNER=${{ github.repository_owner }} --build-arg REPO_NAME=devbox-expt-runtime"
-            if [ "${GITHUB_EVENT_NAME}" = "workflow_dispatch" ]; then
-              TAGFLAGS="-t ghcr.io/${{ github.repository_owner }}/devbox-expt-runtime/${image_name}:${TAG}"
-              if [ "$ADD_LATEST" = 'true' ]; then TAGFLAGS+=" -t ghcr.io/${{ github.repository_owner }}/devbox-expt-runtime/${image_name}:latest"; fi
-              eval docker buildx build --progress=plain --platform "$PLATFORMS" $BUILD_ARGS $TAGFLAGS --push "$dir"
-            else
-              IFS=',' read -r -a ARCHS <<< "${PLATFORMS//linux\//}"
-              for a in "${ARCHS[@]}"; do
-                docker buildx build --progress=plain --platform linux/$a $BUILD_ARGS -t ghcr.io/${{ github.repository_owner }}/devbox-expt-runtime/${image_name}:pr-${{ github.event.pull_request.number }}-$a --load "$dir"
-              done
-            fi
-          done
+          chmod +x .github/scripts/build-experimental-runtimes.sh
+          .github/scripts/build-experimental-runtimes.sh
         shell: bash
