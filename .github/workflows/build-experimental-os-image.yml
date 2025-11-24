@@ -83,10 +83,10 @@ jobs:
           push: ${{ github.event_name == 'workflow_dispatch' }}
           build-args: |
             REPO_OWNER=${{ github.repository_owner }}
-            REPO_NAME=devbox-image
+            REPO_NAME=devbox-expt-image
           platforms: ${{ steps.params.outputs.platforms }}
           cache-from: type=gha
           cache-to: type=gha,mode=max
           tags: |
-            ghcr.io/${{ github.repository_owner }}/devbox-image/debian-12.6:${{ steps.params.outputs.image_tag }}
-            ${{ steps.params.outputs.add_latest == 'true' && format('ghcr.io/{0}/devbox-image/debian-12.6:latest', github.repository_owner) || '' }}
+            ghcr.io/${{ github.repository_owner }}/devbox-expt-image/debian-12.6:${{ steps.params.outputs.image_tag }}
+            ${{ steps.params.outputs.add_latest == 'true' && format('ghcr.io/{0}/devbox-expt-image/debian-12.6:latest', github.repository_owner) || '' }}
