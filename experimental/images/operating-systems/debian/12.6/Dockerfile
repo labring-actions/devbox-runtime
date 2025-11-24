@@ -1,5 +1,5 @@
 ARG REPO_OWNER=labring-actions
-ARG REPO_NAME=devbox-expt-image
+ARG REPO_NAME=devbox-base-expt
 ARG BASE_TOOLS_VERSION=v0.0.1
 
 FROM ghcr.io/${REPO_OWNER}/${REPO_NAME}/base-tools:${BASE_TOOLS_VERSION} AS base-tools

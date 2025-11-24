@@ -86,8 +86,8 @@ jobs:
           cache-from: type=gha
           cache-to: type=gha,mode=max
           tags: |
-            ghcr.io/${{ github.repository_owner }}/devbox-expt-image/base-tools:${{ steps.params.outputs.image_tag }}
-            ${{ steps.params.outputs.add_latest == 'true' && format('ghcr.io/{0}/devbox-expt-image/base-tools:latest', github.repository_owner) || '' }}
+            ghcr.io/${{ github.repository_owner }}/devbox-base-expt/base-tools:${{ steps.params.outputs.image_tag }}
+            ${{ steps.params.outputs.add_latest == 'true' && format('ghcr.io/{0}/devbox-base-expt/base-tools:latest', github.repository_owner) || '' }}
 
       - name: Build `configure-tools` image (dispatch only pushes)
         uses: docker/build-push-action@v5
@@ -99,5 +99,5 @@ jobs:
           cache-from: type=gha
           cache-to: type=gha,mode=max
           tags: |
-            ghcr.io/${{ github.repository_owner }}/devbox-expt-image/configure-tools:${{ steps.params.outputs.image_tag }}
-            ${{ steps.params.outputs.add_latest == 'true' && format('ghcr.io/{0}/devbox-expt-image/configure-tools:latest', github.repository_owner) || '' }}
+            ghcr.io/${{ github.repository_owner }}/devbox-base-expt/configure-tools:${{ steps.params.outputs.image_tag }}
+            ${{ steps.params.outputs.add_latest == 'true' && format('ghcr.io/{0}/devbox-base-expt/configure-tools:latest', github.repository_owner) || '' }}
