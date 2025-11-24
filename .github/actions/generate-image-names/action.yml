@@ -15,6 +15,14 @@ inputs:
     description: 'JSON object containing Aliyun ACR credentials { "registry": string, "username": string, "password": string }'
     required: false
     default: '{}'
+  expt_base_image_naming:
+    description: 'Enable experimental base image naming conventions'
+    required: false
+    default: 'false'
+  expt_runtime_image_naming:
+    description: 'Enable experimental runtime image naming conventions'
+    required: false
+    default: 'false'
 outputs:
   ghcr_image_name:
     description: 'Generated ghcr.io image name'
@@ -52,15 +60,32 @@ runs:
         image_name="${runtime_name}-${runtime_version}"
 
         # Generate ghcr.io image name
-        ghcr_image_name="${{ fromJson(inputs.ghcr_credentials).registry }}/${{ fromJson(inputs.ghcr_credentials).username }}/devbox/${image_name}:${tag}"
-
+        if [ "${{ inputs.expt_base_image_naming }}" = "true" ]; then
+          # Experimental naming convention
+          ghcr_image_name="${{ fromJson(inputs.ghcr_credentials).registry }}/${{ fromJson(inputs.ghcr_credentials).username }}/devbox-base-expt/${image_name}:${tag}"
+        elif [ "${{ inputs.expt_runtime_image_naming }}" = "true" ]; then
+          # Experimental naming convention
+          ghcr_image_name="${{ fromJson(inputs.ghcr_credentials).registry }}/${{ fromJson(inputs.ghcr_credentials).username }}/devbox-runtime-expt/${image_name}:${tag}"
+        else
+          # Standard naming convention
+          ghcr_image_name="${{ fromJson(inputs.ghcr_credentials).registry }}/${{ fromJson(inputs.ghcr_credentials).username }}/devbox/${image_name}:${tag}"
+        fi
         # Generate Aliyun ACR image name (if credentials provided)
         aliyun_credentials='${{ inputs.aliyun_credentials }}'
         if [ "$aliyun_credentials" != "{}" ] && [ "$aliyun_credentials" != "" ] && [ "$aliyun_credentials" != "null" ]; then
           # Parse Aliyun credentials
           registry=$(echo "$aliyun_credentials" | jq -r '.registry')
           namespace=$(echo "$aliyun_credentials" | jq -r '.namespace')
-          acr_image_name="${registry}/${namespace}/devbox/${image_name}:${tag}"
+          if [ "${{ inputs.expt_base_image_naming }}" = "true" ]; then
+            # Experimental naming convention
+            acr_image_name="${registry}/${namespace}/devbox-base-expt/${image_name}:${tag}"
+          elif [ "${{ inputs.expt_runtime_image_naming }}" = "true" ]; then
+            # Experimental naming convention
+            acr_image_name="${registry}/${namespace}/devbox-runtime-expt/${image_name}:${tag}"
+          else
+            # Standard naming convention
+            acr_image_name="${registry}/${namespace}/devbox/${image_name}:${tag}"
+          fi
         else
           acr_image_name=""
         fi
