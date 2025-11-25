@@ -1,20 +1,6 @@
 name: Build Experimental Tools Images
 
 on:
-  pull_request:
-    branches:
-      - main
-    paths:
-      - 'experimental/base-tools/**'
-      - 'experimental/configure-tools/**'
-      - '.github/workflows/**'
-  push:
-    branches:
-      - main
-    paths:
-      - 'experimental/base-tools/**'
-      - 'experimental/configure-tools/**'
-      - '.github/workflows/**'
   workflow_dispatch:
     inputs:
       image_tag:
