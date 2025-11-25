@@ -21,7 +21,6 @@ apt-get update && \
 # Determine architecture and set ARCH environment variable which is used by the install scripts
 export ARCH="$(dpkg --print-architecture)"
 export BASE_TOOLS_DIR=${BASE_TOOLS_DIR:-/opt/base-tools}
-$BASE_TOOLS_DIR/scripts/install-sshproxy.sh
 $BASE_TOOLS_DIR/scripts/install-crond.sh
 $BASE_TOOLS_DIR/scripts/install-s6.sh
 
@@ -32,7 +31,6 @@ $BASE_TOOLS_DIR/scripts/svc/configure-s6.sh
 $BASE_TOOLS_DIR/scripts/svc/configure-startup.sh
 $BASE_TOOLS_DIR/scripts/svc/configure-sshd.sh
 $BASE_TOOLS_DIR/scripts/svc/configure-crond.sh
-$BASE_TOOLS_DIR/scripts/svc/configure-sshproxy.sh
 
 
 # Configure other utilities
