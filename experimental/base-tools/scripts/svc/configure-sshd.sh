@@ -20,8 +20,8 @@ set_sshd_config() {
 
 set_sshd_config 'X11Forwarding no'
 set_sshd_config 'IgnoreRhosts yes'
-set_sshd_config 'ListenAddress localhost'
-set_sshd_config 'Port 2222'
+set_sshd_config 'ListenAddress 0.0.0.0'
+set_sshd_config 'Port 22'
 set_sshd_config 'AuthorizedKeysFile /usr/start/.ssh/authorized_keys'
 set_sshd_config 'PasswordAuthentication no'
 set_sshd_config 'PubKeyAuthentication yes'
