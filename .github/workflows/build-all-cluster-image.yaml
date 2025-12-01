@@ -122,6 +122,7 @@ jobs:
           sudo sealos login -u ${{ github.repository_owner }} -p ${{ secrets.GITHUB_TOKEN }} ghcr.io
       - name: Push and save cluster image
         run: |
+          CACHE_DIR=$(mktemp -d)
           pushd "$CACHE_DIR" >/dev/null
           mkdir -p images/shim/
           echo "📦 Available versions for ${{ matrix.target.name }}:"
