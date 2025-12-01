@@ -14,7 +14,8 @@ apt-get update && \
     openssh-client \
     anacron \
     logrotate \
-    openssh-server
+    openssh-server \
+    locales
 
 
 # Install base-tools
