@@ -1,0 +1,159 @@
+name: build-all-offline-cluster-image
+on:
+  workflow_dispatch:
+  push:
+    branches: [ main ]
+    paths:
+      - "scripts/build-cluster-image.sh"
+      - ".github/workflows/build-all-cluster-image.yaml"
+jobs:
+  gen-targets:
+    runs-on: ubuntu-latest
+    outputs:
+      targets: ${{ steps.get-targets.outputs.targets }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+      - name: Set up crane
+        run: |
+          wget -q  https://github.com/google/go-containerregistry/releases/download/v0.20.6/go-containerregistry_Linux_x86_64.tar.gz
+          tar -xzf go-containerregistry_Linux_x86_64.tar.gz -C /usr/local/bin/ crane
+          rm -rf go-containerregistry_Linux_x86_64.tar.gz
+          crane version
+          cd image-crawler
+          pip install -r requirements.txt
+          python crawl_image_versions.py --latest-only --output-format console
+      - name: Parse crawler output and generate matrix
+        id: get-targets
+        run: |
+          cd image-crawler
+          pip install -r requirements.txt
+          python crawl_image_versions.py --output-format json
+          # 按 name 分组，每个 name 只保留一个条目，但保留所有版本信息
+          targets=$(jq -c '
+            .images |
+            group_by(.name) |
+            map({
+              category: .[0].category,
+              name: .[0].name,
+              component: .[0].component,
+              runtime_version: .[0].runtime_version,
+              latest_version: (map(.version) | sort | reverse | .[0]),
+              all_versions: map(.version),
+              image_path: .[0].image_path,
+              latest_tag: (.[0].image_path + ":" + (map(.version) | sort | reverse | .[0]))
+            })
+          ' output/versions.json)
+          echo "targets=$targets" >> "$GITHUB_OUTPUT"
+          # 同时输出统计信息
+          echo "matrix_count=$(echo "$targets" | jq length)" >> "$GITHUB_OUTPUT"
+      - name: Display matrix summary
+        run: |
+          cd image-crawler
+          targets=$(jq -c '.images | group_by(.name) | map({category: .[0].category, name: .[0].name}) | group_by(.category) | map({category: .[0].category, count: length})' output/versions.json)
+          matrix_count=$(jq '.images | group_by(.name) | length' output/versions.json)
+
+          echo "## 📊 Matrix Generation Summary" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "**Total unique runtime names:** $matrix_count" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "**Category breakdown:**" >> $GITHUB_STEP_SUMMARY
+          echo "$targets" | jq -r '.[] | "- \(.category): \(.count) items"' >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "Matrix is ready for processing! 🚀" >> $GITHUB_STEP_SUMMARY
+  build:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+    needs: gen-targets
+    strategy:
+      fail-fast: false
+      matrix:
+        target: ${{ fromJson(needs.gen-targets.outputs.targets) }}
+    steps:
+      - name: Free Disk Space (Ubuntu)
+        uses: BRAINSia/free-disk-space@v2
+        with:
+          # this might remove tools that are actually needed,
+          # if set to "true" but frees about 6 GB
+          tool-cache: false
+
+          # all of these default to true, but feel free to set to
+          # "false" if necessary for your workflow
+          mandb: true
+          android: true
+          dotnet: true
+          haskell: true
+          large-packages: true
+          docker-images: true
+          swap-storage: true
+      - name: Checkout
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+      - name: Output matrix information
+        run: |
+          echo "## 🎯 Matrix Target Information" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "**Category:** ${{ matrix.target.category }}" >> $GITHUB_STEP_SUMMARY
+          echo "**Name:** ${{ matrix.target.name }}" >> $GITHUB_STEP_SUMMARY
+          echo "**Component:** ${{ matrix.target.component }}" >> $GITHUB_STEP_SUMMARY
+          echo "**Runtime Version:** ${{ matrix.target.runtime_version }}" >> $GITHUB_STEP_SUMMARY
+          echo "**Latest Version:** ${{ matrix.target.latest_version }}" >> $GITHUB_STEP_SUMMARY
+          echo "**All Versions:** ${{ join(matrix.target.all_versions, ', ') }}" >> $GITHUB_STEP_SUMMARY
+          echo "**Image Path:** ${{ matrix.target.image_path }}" >> $GITHUB_STEP_SUMMARY
+          echo "**Cluster Image Path:** ghcr.io/${{ github.repository }}/${{ matrix.target.name }}:full " >> $GITHUB_STEP_SUMMARY
+          echo "**Latest Tag:** ${{ matrix.target.latest_tag }}" >> $GITHUB_STEP_SUMMARY
+      - name: Display all versions for this target
+        run: |
+          echo "📦 Available versions for ${{ matrix.target.name }}:"
+          for version in ${{ join(matrix.target.all_versions, ' ') }}; do
+            echo "  - ${{ matrix.target.image_path }}:$version"
+          done
+      - name: Set up sealos
+        run: |
+          curl -sfL https://raw.githubusercontent.com/labring/sealos/main/scripts/install.sh | sh -s v5.1.0 labring/sealos
+      - name: Login to ghcr.io
+        run: |
+          sudo sealos logout docker.io || true
+          sudo sealos login -u ${{ github.repository_owner }} -p ${{ secrets.GITHUB_TOKEN }} ghcr.io
+      - name: Push and save cluster image
+        run: |
+          CACHE_DIR=$(mktemp -d)
+          pushd "$CACHE_DIR" >/dev/null
+          mkdir -p images/shim/
+          echo "📦 Available versions for ${{ matrix.target.name }}:"
+          for version in ${{ join(matrix.target.all_versions, ' ') }}; do
+            echo "${{ matrix.target.image_path }}:$version" >> images/shim/images.txt
+          done
+          cat > Kubefile <<-EOF
+          FROM scratch
+          COPY . .
+          CMD ["echo "uploaded images for devbox runtime ${{ matrix.target.name }} " "]
+          EOF
+          commitDATE=$(date +%Y%m%d%H%M%S)
+          repo_host=${GITHUB_SERVER_URL:-https://github.com}
+          repo_url="${repo_host%/}/${{ github.repository }}"
+          sudo sealos build -t ghcr.io/${{ github.repository }}/${{ matrix.target.name }}:full \
+            --label org.opencontainers.image.description="devbox runtime cluster image" \
+            --label org.opencontainers.image.licenses="Sealos Sustainable Use License" \
+            --label org.opencontainers.image.source="${repo_url}" \
+            --label org.opencontainers.image.title="devbox-runtime-image" \
+            --label org.opencontainers.image.time="${commitDATE}" \
+            --label org.opencontainers.image.url="${repo_url}" \
+            --label org.opencontainers.image.version="full" .
+          popd >/dev/null
+          sudo sealos push ghcr.io/${{ github.repository }}/${{ matrix.target.name }}:full
+          sudo sealos save ghcr.io/${{ github.repository }}/${{ matrix.target.name }}:full -o ${{ matrix.target.name }}.tar
+      - name: Upload cluster image tar
+        if: github.repository_owner == 'labring-actions'
+        run: |
+          sudo -v ; curl https://gosspublic.alicdn.com/ossutil/install.sh | sudo bash
+          ossutil64 cp -f -e ${{ secrets.OSS_ENDPOINT }} \
+            -i ${{ secrets.OSS_ACCESS_KEY_ID }} \
+            -k ${{ secrets.OSS_ACCESS_KEY_SECRET }} \
+            ${{ matrix.target.name }}.tar \
+            oss://${{ secrets.OSS_BUCKET }}/cloud/devbox-runtime/${{ matrix.target.name }}.tar
