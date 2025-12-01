@@ -43,7 +43,7 @@ jobs:
               latest_version: (map(.version) | sort | reverse | .[0]),
               all_versions: map(.version),
               image_path: .[0].image_path,
-              full_tag: (.[0].image_path + ":" + (map(.version) | sort | reverse | .[0]))
+              latest_tag: (.[0].image_path + ":" + (map(.version) | sort | reverse | .[0]))
             })
           ' output/versions.json)
           echo "targets=$targets" >> "$GITHUB_OUTPUT"
@@ -89,7 +89,7 @@ jobs:
           echo "**Latest Version:** ${{ matrix.target.latest_version }}" >> $GITHUB_STEP_SUMMARY
           echo "**All Versions:** ${{ join(matrix.target.all_versions, ', ') }}" >> $GITHUB_STEP_SUMMARY
           echo "**Image Path:** ${{ matrix.target.image_path }}" >> $GITHUB_STEP_SUMMARY
-          echo "**Full Tag:** ${{ matrix.target.full_tag }}" >> $GITHUB_STEP_SUMMARY
+          echo "**Latest Tag:** ${{ matrix.target.latest_tag }}" >> $GITHUB_STEP_SUMMARY
       - name: Display all versions for this target
         run: |
           echo "📦 Available versions for ${{ matrix.target.name }}:"
