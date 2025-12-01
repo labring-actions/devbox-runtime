@@ -131,7 +131,7 @@ jobs:
           cat > Kubefile <<-EOF
           FROM scratch
           COPY . .
-          CMD ["echo "uploaded images for devbox runtime ${{ matrix.target.image_path }} " "]
+          CMD ["echo "uploaded images for devbox runtime ${{ matrix.target.name }} " "]
           EOF
           commitDATE=$(date +%Y%m%d%H%M%S)
           repo_host=${GITHUB_SERVER_URL:-https://github.com}
