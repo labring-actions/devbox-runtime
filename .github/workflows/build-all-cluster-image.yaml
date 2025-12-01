@@ -140,10 +140,10 @@ jobs:
             --label org.opencontainers.image.description="devbox runtime cluster image" \
             --label org.opencontainers.image.licenses="Sealos Sustainable Use License" \
             --label org.opencontainers.image.source="${repo_url}" \
-            --label org.opencontainers.image.title="templates-image" \
+            --label org.opencontainers.image.title="devbox-runtime-image" \
             --label org.opencontainers.image.time="${commitDATE}" \
             --label org.opencontainers.image.url="${repo_url}" \
-            --label org.opencontainers.image.version="${template_name}" .
+            --label org.opencontainers.image.version="full" .
           popd >/dev/null
           sudo sealos push ghcr.io/${{ github.repository }}/${{ matrix.target.name }}:full
           sudo sealos save ghcr.io/${{ github.repository }}/${{ matrix.target.name }}:full -o ${{ matrix.target.name }}.tar
