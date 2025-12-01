@@ -51,14 +51,16 @@ jobs:
           echo "matrix_count=$(echo "$targets" | jq length)" >> "$GITHUB_OUTPUT"
       - name: Display matrix summary
         run: |
-          echo "## 📊 Matrix Generation Summary" >> $GITHUB_STEP_SUMMARY
-          echo "" >> $GITHUB_STEP_SUMMARY
-          echo "**Total unique runtime names:** ${{ needs.gen-targets.outputs.matrix_count }}" >> $GITHUB_STEP_SUMMARY
-          echo "" >> $GITHUB_STEP_SUMMARY
-          echo "**Category breakdown:**" >> $GITHUB_STEP_SUMMARY
           cd image-crawler
           targets=$(jq -c '.images | group_by(.name) | map({category: .[0].category, name: .[0].name}) | group_by(.category) | map({category: .[0].category, count: length})' output/versions.json)
-          echo '$targets' | jq -r '.[] | "- \(.category): \(.count) items"' >> $GITHUB_STEP_SUMMARY
+          matrix_count=$(jq '.images | group_by(.name) | length' output/versions.json)
+
+          echo "## 📊 Matrix Generation Summary" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "**Total unique runtime names:** $matrix_count" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "**Category breakdown:**" >> $GITHUB_STEP_SUMMARY
+          echo "$targets" | jq -r '.[] | "- \(.category): \(.count) items"' >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
           echo "Matrix is ready for processing! 🚀" >> $GITHUB_STEP_SUMMARY
   build:
