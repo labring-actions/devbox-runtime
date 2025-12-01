@@ -94,7 +94,8 @@ enable_service() {
 
 # Process all services in configuration
 echo "$SERVICE_CONFIG" | while IFS='|' read -r service dev prod; do
-    # Skip empty lines
+    # Trim whitespace from service name and skip empty/whitespace-only lines
+    service=$(echo "$service" | xargs)
     [ -z "$service" ] && continue
     
     if should_enable_service "$service"; then
