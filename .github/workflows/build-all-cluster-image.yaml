@@ -89,6 +89,7 @@ jobs:
           echo "**Latest Version:** ${{ matrix.target.latest_version }}" >> $GITHUB_STEP_SUMMARY
           echo "**All Versions:** ${{ join(matrix.target.all_versions, ', ') }}" >> $GITHUB_STEP_SUMMARY
           echo "**Image Path:** ${{ matrix.target.image_path }}" >> $GITHUB_STEP_SUMMARY
+          echo "**Cluster Image Path:** ghcr.io/${{ github.repository }}/${{ matrix.target.name }}:full " >> $GITHUB_STEP_SUMMARY
           echo "**Latest Tag:** ${{ matrix.target.latest_tag }}" >> $GITHUB_STEP_SUMMARY
       - name: Display all versions for this target
         run: |
@@ -96,3 +97,22 @@ jobs:
           for version in ${{ join(matrix.target.all_versions, ' ') }}; do
             echo "  - ${{ matrix.target.image_path }}:$version"
           done
+      - name: Set up sealos
+        run: |
+          curl -sfL https://raw.githubusercontent.com/labring/sealos/main/scripts/install.sh | sh -s v5.1.0 labring/sealos
+      - name: Login to ghcr.io
+        run: |
+          sudo sealos logout docker.io || true
+          sudo sealos login -u ${{ github.repository_owner }} -p ${{ secrets.GITHUB_TOKEN }} ghcr.io
+      - name: Push and save cluster image
+        run: |
+          pushd "$CACHE_DIR" >/dev/null
+          mkdir -p images/shim/
+          echo "📦 Available versions for ${{ matrix.target.name }}:"
+          for version in ${{ join(matrix.target.all_versions, ' ') }}; do
+            echo "${{ matrix.target.image_path }}:$version" >> images/shim/images.txt
+          done
+          sudo sealos build -t ghcr.io/${{ github.repository }}/${{ matrix.target.name }}:full .
+          popd >/dev/null
+          sudo sealos push ghcr.io/${{ github.repository }}/${{ matrix.target.name }}:full
+          sudo sealos save ghcr.io/${{ github.repository }}/${{ matrix.target.name }}:full -o ${{ matrix.target.name }}.tar
