@@ -5,7 +5,7 @@ on:
     branches: [ main ]
     paths:
       - "scripts/build-cluster-image.sh"
-      - ".github/workflows/build-all-template-cluster-image.yaml"
+      - ".github/workflows/build-all-cluster-image.yaml"
 jobs:
   gen-targets:
     runs-on: ubuntu-latest
