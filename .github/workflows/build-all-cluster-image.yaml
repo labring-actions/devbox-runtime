@@ -112,7 +112,22 @@ jobs:
           for version in ${{ join(matrix.target.all_versions, ' ') }}; do
             echo "${{ matrix.target.image_path }}:$version" >> images/shim/images.txt
           done
-          sudo sealos build -t ghcr.io/${{ github.repository }}/${{ matrix.target.name }}:full .
+          cat > Kubefile <<-EOF
+          FROM scratch
+          COPY . .
+          CMD ["echo "uploaded images for devbox runtime ${{ matrix.target.image_path }} " "]
+          EOF
+          commitDATE=$(date +%Y%m%d%H%M%S)
+          repo_host=${GITHUB_SERVER_URL:-https://github.com}
+          repo_url="${repo_host%/}/${{ github.repository }}"
+          sudo sealos build -t ghcr.io/${{ github.repository }}/${{ matrix.target.name }}:full \
+            --label org.opencontainers.image.description="devbox runtime cluster image" \
+            --label org.opencontainers.image.licenses="Sealos Sustainable Use License" \
+            --label org.opencontainers.image.source="${repo_url}" \
+            --label org.opencontainers.image.title="templates-image" \
+            --label org.opencontainers.image.time="${commitDATE}" \
+            --label org.opencontainers.image.url="${repo_url}" \
+            --label org.opencontainers.image.version="${template_name}" .
           popd >/dev/null
           sudo sealos push ghcr.io/${{ github.repository }}/${{ matrix.target.name }}:full
           sudo sealos save ghcr.io/${{ github.repository }}/${{ matrix.target.name }}:full -o ${{ matrix.target.name }}.tar
