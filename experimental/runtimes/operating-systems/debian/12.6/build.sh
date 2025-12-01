@@ -12,3 +12,6 @@ if [ "${CN_PATCH_ENABLED}" = "true" ]; then
 else
   echo "China Network apt sources patch not enabled, skipping"
 fi
+
+# Configure locale to en_US.UTF-8
+$CONFIGURE_TOOLS_DIR/scripts/configure-locale-en.sh
