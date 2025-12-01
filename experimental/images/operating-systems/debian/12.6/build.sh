@@ -38,6 +38,7 @@ $BASE_TOOLS_DIR/scripts/svc/configure-pre-rc-init.sh
 $BASE_TOOLS_DIR/scripts/svc/configure-startup.sh
 $BASE_TOOLS_DIR/scripts/svc/configure-sshd.sh
 $BASE_TOOLS_DIR/scripts/svc/configure-crond.sh
+$BASE_TOOLS_DIR/scripts/svc/configure-entrypoint.sh
 
 
 # Configure other utilities
