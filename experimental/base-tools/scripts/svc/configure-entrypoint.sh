@@ -11,11 +11,17 @@ mkdir -p "$S6_DIR"
 mkdir -p "$S6_DIR/entrypoint" "$S6_DIR/entrypoint/dependencies.d"
 # Create run first (idempotent overwrite)
 cat >"$S6_DIR/entrypoint/run" <<'entrypoint'
-#!/usr/bin/env bash
+#!/command/with-contenv bash
 set -euo pipefail
 
-if [ -f /home/devbox/project/entrypoint.sh ]; then
-	/bin/bash /home/devbox/project/entrypoint.sh
+PROJECT_DIR="/home/devbox/project"
+
+if [ -f "$PROJECT_DIR/entrypoint.sh" ]; then
+	# Change to project directory before executing entrypoint.sh
+	# This ensures relative paths in entrypoint.sh work correctly
+	cd "$PROJECT_DIR"
+	# Pass DEVBOX_ENV as first argument to entrypoint.sh
+	/bin/bash "$PROJECT_DIR/entrypoint.sh" "${DEVBOX_ENV:-development}"
 fi
 
 entrypoint

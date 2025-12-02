@@ -5,6 +5,8 @@ export DEBIAN_FRONTEND=noninteractive
 apt-get update && \
     apt-get install -y \
     wget \
+    netcat-openbsd \
+    curl \
     sudo \
     vim \
     openssl \
@@ -28,10 +30,17 @@ $BASE_TOOLS_DIR/scripts/install-s6.sh
 # Configure svc
 # Important: s6 must be configured before other services that depend on it
 $BASE_TOOLS_DIR/scripts/svc/configure-s6.sh
-# Configure other services
+
+# Configure pre-rc-init hook FIRST
+# This hook runs BEFORE s6-rc compilation, allowing us to disable services
+# based on DEVBOX_ENV environment variable
+$BASE_TOOLS_DIR/scripts/svc/configure-pre-rc-init.sh
+
+# Configure individual services
 $BASE_TOOLS_DIR/scripts/svc/configure-startup.sh
 $BASE_TOOLS_DIR/scripts/svc/configure-sshd.sh
 $BASE_TOOLS_DIR/scripts/svc/configure-crond.sh
+$BASE_TOOLS_DIR/scripts/svc/configure-entrypoint.sh
 
 
 # Configure other utilities
