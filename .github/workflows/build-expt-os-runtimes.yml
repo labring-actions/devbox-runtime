@@ -27,10 +27,6 @@ on:
         required: false
         type: boolean
         default: false
-      os_image_tag:
-        description: 'Tag of the base OS image to use for runtime builds'
-        required: false
-        default: 'latest'
 jobs:
   # Define expt image matrix
   define-matrix:
@@ -38,8 +34,7 @@ jobs:
     outputs:
       tag: ${{ steps.set_tag.outputs.tag }}
       tag_l10n: ${{ steps.set_tag.outputs.tag_l10n }}
-      os_image_tag: ${{ steps.set_tag.outputs.os_image_tag }}
-      os_image_tag_l10n: ${{ steps.set_tag.outputs.os_image_tag_l10n }}
+      l10n_normalized: ${{ steps.set_tag.outputs.l10n_normalized }}
       os_packages: ${{ steps.get_os_packages.outputs.os_packages }}
     steps:
       - name: Checkout code
@@ -59,15 +54,10 @@ jobs:
           l10n_normalized=$(echo "${{ inputs.l10n }}" | tr '[:upper:]' '[:lower:]' | tr '_' '-')
           tag_l10n=$tag-$l10n_normalized
 
-          # Set up tags for base OS images
-          os_image_tag=${{ inputs.os_image_tag }}
-          os_image_tag_l10n=$os_image_tag-$l10n_normalized
-
           # Output all tags
           echo "tag=$tag" >> $GITHUB_OUTPUT
           echo "tag_l10n=$tag_l10n" >> $GITHUB_OUTPUT
-          echo "os_image_tag=$os_image_tag" >> $GITHUB_OUTPUT
-          echo "os_image_tag_l10n=$os_image_tag_l10n" >> $GITHUB_OUTPUT
+          echo "l10n_normalized=$l10n_normalized" >> $GITHUB_OUTPUT
 
       - name: Get OS packages
         id: get_os_packages
@@ -109,15 +99,14 @@ jobs:
           tag: ${{ needs.define-matrix.outputs.tag_l10n }}
           ghcr_credentials: ${{ format('{{"registry":"{0}","username":"{1}","password":"{2}"}}', 'ghcr.io', github.repository_owner, secrets.GITHUB_TOKEN) || '{}' }}
           aliyun_credentials: ${{ inputs.aliyun_enabled == 'true' && format('{{"registry":"{0}","username":"{1}","password":"{2}", "namespace":"{3}"}}', secrets.ALIYUN_REGISTRY, secrets.ALIYUN_USERNAME, secrets.ALIYUN_PASSWORD, secrets.ALIYUN_NAMESPACE) || '{}' }}
-          expt_base_image_naming: 'true'
+          expt_runtime_image_naming: 'true'
       - name: Build and push standard images
         uses: ./.github/actions/build-and-push
         with:
           build_args: |
-            REPO_OWNER=${{ github.repository_owner }}
-            OS_IMAGE_TAG=${{ needs.define-matrix.outputs.os_image_tag }}
-            L10N=${{ inputs.l10n }}
+            REPO=${{ github.repository_owner }}/devbox-base-expt
             ARCH=${{ inputs.arch }} 
+            L10N_NORMALIZED=${{ needs.define-matrix.outputs.l10n_normalized }}
           dockerfile: ${{ matrix.os_packages }}
           ghcr_credentials: ${{ format('{{"registry":"{0}","username":"{1}","password":"{2}"}}', 'ghcr.io', github.repository_owner, secrets.GITHUB_TOKEN) || '{}' }}
           ghcr_image_name: ${{ steps.generate-standard.outputs.ghcr_image_name }}
