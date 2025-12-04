@@ -105,7 +105,7 @@ jobs:
           name=${{ inputs.name }}
           if [ -n "$name" ]; then
             echo "Looking for specific package: $name"
-            target_dockerfiles=$(find experimental/images/$kind -name "Dockerfile" -path "*/$name/Dockerfile")
+            target_dockerfiles=$(find experimental/images/$kind/$name -name "Dockerfile")
             if [ -z "$target_dockerfiles" ]; then
               echo "Error: No Dockerfile found for package '$name' in kind '$kind'" >&2
               exit 1
