@@ -1,4 +1,4 @@
-name: Build Expt Images
+name: Build Expt Images Or Runtimes
 on:
   workflow_dispatch:
     inputs:
@@ -56,6 +56,14 @@ on:
         description: 'Name of the specific package to build'
         type: string
         default: ''
+      build_type:
+        description: 'Type of build to perform'
+        required: false
+        type: choice
+        options:
+          - images
+          - runtimes
+        default: 'images'
 
 jobs:
   # Define expt image matrix
