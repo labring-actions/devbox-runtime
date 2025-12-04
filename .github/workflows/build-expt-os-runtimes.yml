@@ -1,4 +1,4 @@
-name: Build Expt OS Runtimes
+name: Build Expt Runtimes
 on:
   workflow_dispatch:
     inputs:
@@ -27,15 +27,28 @@ on:
         required: false
         type: boolean
         default: false
+      kind:
+        description: 'Type of packages to build'
+        required: false
+        type: choice
+        options:
+          - operating-systems
+          - languages
+        default: 'operating-systems'
+      name:
+        required: false
+        description: 'Name of the specific package to build'
+        type: string
+        default: ''
 jobs:
-  # Define expt image matrix
+  # Define expt runtime matrix
   define-matrix:
     runs-on: ubuntu-latest
     outputs:
       tag: ${{ steps.set_tag.outputs.tag }}
       tag_l10n: ${{ steps.set_tag.outputs.tag_l10n }}
       l10n_normalized: ${{ steps.set_tag.outputs.l10n_normalized }}
-      os_packages: ${{ steps.get_os_packages.outputs.os_packages }}
+      packages: ${{ steps.get_packages.outputs.packages }}
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -59,20 +72,32 @@ jobs:
           echo "tag_l10n=$tag_l10n" >> $GITHUB_OUTPUT
           echo "l10n_normalized=$l10n_normalized" >> $GITHUB_OUTPUT
 
-      - name: Get OS packages
-        id: get_os_packages
+      - name: Get packages
+        id: get_packages
         run: |
-          # Get all OS packages
-          target_dockerfiles=$(find experimental/runtimes/operating-systems -name "Dockerfile")
+          # Get all packages
+          kind=${{ inputs.kind }}
+          name=${{ inputs.name }}
+          if [ -n "$name" ]; then
+            echo "Looking for specific package: $name"
+            target_dockerfiles=$(find experimental/runtimes/$kind -name "Dockerfile" -path "*/$name/Dockerfile")
+            if [ -z "$target_dockerfiles" ]; then
+              echo "Error: No Dockerfile found for package '$name' in kind '$kind'" >&2
+              exit 1
+            fi
+          else
+            echo "No specific package provided, gathering all packages of kind: $kind"
+            target_dockerfiles=$(find experimental/runtimes/$kind -name "Dockerfile")
+          fi
 
           # Convert to JSON array
-          os_packages=$(echo "$target_dockerfiles" | jq -R -s 'split("\n")[:-1]')
+          packages=$(echo "$target_dockerfiles" | jq -R -s 'split("\n")[:-1]')
 
-          echo "os_packages<<EOF" >> $GITHUB_OUTPUT
-          echo "$os_packages" >> $GITHUB_OUTPUT
+          echo "packages<<EOF" >> $GITHUB_OUTPUT
+          echo "$packages" >> $GITHUB_OUTPUT
           echo "EOF" >> $GITHUB_OUTPUT
 
-          package_count=$(echo "$os_packages" | jq 'length // 0')
+          package_count=$(echo "$packages" | jq 'length // 0')
           echo "Found $package_count OS packages to build"
 
   # Build expt runtimes
@@ -82,7 +107,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os_packages: ${{ fromJson(needs.define-matrix.outputs.os_packages) }}
+        packages: ${{ fromJson(needs.define-matrix.outputs.packages) }}
     permissions:
       contents: read
       packages: write
@@ -95,7 +120,7 @@ jobs:
         id: generate-standard
         uses: ./.github/actions/generate-image-names
         with:
-          dockerfile: ${{ matrix.os_packages }}
+          dockerfile: ${{ matrix.packages }}
           tag: ${{ needs.define-matrix.outputs.tag_l10n }}
           ghcr_credentials: ${{ format('{{"registry":"{0}","username":"{1}","password":"{2}"}}', 'ghcr.io', github.repository_owner, secrets.GITHUB_TOKEN) || '{}' }}
           aliyun_credentials: ${{ inputs.aliyun_enabled == 'true' && format('{{"registry":"{0}","username":"{1}","password":"{2}", "namespace":"{3}"}}', secrets.ALIYUN_REGISTRY, secrets.ALIYUN_USERNAME, secrets.ALIYUN_PASSWORD, secrets.ALIYUN_NAMESPACE) || '{}' }}
@@ -107,7 +132,7 @@ jobs:
             REPO=${{ github.repository_owner }}/devbox-base-expt
             ARCH=${{ inputs.arch }} 
             L10N_NORMALIZED=${{ needs.define-matrix.outputs.l10n_normalized }}
-          dockerfile: ${{ matrix.os_packages }}
+          dockerfile: ${{ matrix.packages }}
           ghcr_credentials: ${{ format('{{"registry":"{0}","username":"{1}","password":"{2}"}}', 'ghcr.io', github.repository_owner, secrets.GITHUB_TOKEN) || '{}' }}
           ghcr_image_name: ${{ steps.generate-standard.outputs.ghcr_image_name }}
           aliyun_credentials: ${{ inputs.aliyun_enabled == 'true' && format('{{"registry":"{0}","username":"{1}","password":"{2}", "namespace":"{3}"}}', secrets.ALIYUN_REGISTRY, secrets.ALIYUN_USERNAME, secrets.ALIYUN_PASSWORD, secrets.ALIYUN_NAMESPACE) || '{}' }}
