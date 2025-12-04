@@ -1,4 +1,4 @@
-name: Build Expt Images Or Runtimes
+name: Build Expt OS Runtimes
 on:
   workflow_dispatch:
     inputs:
@@ -16,74 +16,6 @@ on:
         default: 'en_US'
       arch:
         description: 'System architecture (e.g., amd64, arm64)'
-      l10n:
-        description: 'Localization setting (e.g., en_US, zh_CN)'
-        required: false
-        type: choice
-        options:
-          - en_US
-          - zh_CN
-        default: 'en_US'
-      arch:
-        description: 'System architecture (e.g., amd64, arm64)'
-        required: false
-        type: choice
-        options:
-          - amd64
-          - arm64
-        default: 'amd64'
-        type: choice
-        options:
-          - amd64
-          - arm64
-        default: 'amd64'
-      aliyun_enabled:
-        description: 'Enable Aliyun ACR builds'
-        required: false
-        type: boolean
-        default: false
-      kind:
-        description: 'Type of packages to build'
-        required: false
-        type: choice
-        options:
-          - operating-systems
-          - languages
-          - frameworks
-        default: 'operating-systems'
-      name:
-        required: false
-        description: 'Name of the specific package to build'
-        type: string
-        default: ''
-      build_type:
-        description: 'Type of build to perform'
-        required: false
-        type: choice
-        options:
-          - images
-          - runtimes
-        default: 'images'
-      tools_version:
-        description: 'Base tools version (optional, defaults to tag if not specified)'
-        required: false
-        type: string
-        default: ''
-      os_version:
-        description: 'OS image version (optional, defaults to tag if not specified)'
-        required: false
-        type: string
-        default: ''
-      l10n:
-        description: 'Localization setting (e.g., en_US, zh_CN)'
-        required: false
-        type: choice
-        options:
-          - en_US
-          - zh_CN
-        default: 'en_US'
-      arch:
-        description: 'System architecture (e.g., amd64, arm64)'
         required: false
         type: choice
         options:
@@ -95,7 +27,10 @@ on:
         required: false
         type: boolean
         default: false
-
+      os_image_tag:
+        description: 'Tag of the base OS image to use for runtime builds'
+        required: false
+        default: 'latest'
 jobs:
   # Define expt image matrix
   define-matrix:
@@ -103,6 +38,8 @@ jobs:
     outputs:
       tag: ${{ steps.set_tag.outputs.tag }}
       tag_l10n: ${{ steps.set_tag.outputs.tag_l10n }}
+      os_image_tag: ${{ steps.set_tag.outputs.os_image_tag }}
+      os_image_tag_l10n: ${{ steps.set_tag.outputs.os_image_tag_l10n }}
       os_packages: ${{ steps.get_os_packages.outputs.os_packages }}
     steps:
       - name: Checkout code
@@ -112,6 +49,7 @@ jobs:
       - name: Set up tag
         id: set_tag
         run: |
+          # Set up tags for runtime images
           if [ -n "${{ inputs.tag }}" ]; then
             tag=${{ inputs.tag }}
           else
@@ -120,49 +58,41 @@ jobs:
           # Convert l10n to lowercase with hyphens (e.g., en_US -> en-us)
           l10n_normalized=$(echo "${{ inputs.l10n }}" | tr '[:upper:]' '[:lower:]' | tr '_' '-')
           tag_l10n=$tag-$l10n_normalized
-          # Convert l10n to lowercase with hyphens (e.g., en_US -> en-us)
-          l10n_normalized=$(echo "${{ inputs.l10n }}" | tr '[:upper:]' '[:lower:]' | tr '_' '-')
-          tag_l10n=$tag-$l10n_normalized
+
+          # Set up tags for base OS images
+          os_image_tag=${{ inputs.os_image_tag }}
+          os_image_tag_l10n=$os_image_tag-$l10n_normalized
+
+          # Output all tags
           echo "tag=$tag" >> $GITHUB_OUTPUT
           echo "tag_l10n=$tag_l10n" >> $GITHUB_OUTPUT
+          echo "os_image_tag=$os_image_tag" >> $GITHUB_OUTPUT
+          echo "os_image_tag_l10n=$os_image_tag_l10n" >> $GITHUB_OUTPUT
 
-      - name: Get packages
-        id: get_packages
+      - name: Get OS packages
+        id: get_os_packages
         run: |
-          # Get all packages
-          kind=${{ inputs.kind }}
-          name=${{ inputs.name }}
-          build_type=${{ inputs.build_type }}
-          if [ -n "$name" ]; then
-            echo "Looking for specific package: $name"
-            target_dockerfiles=$(find experimental/$build_type/$kind/$name -name "Dockerfile")
-            if [ -z "$target_dockerfiles" ]; then
-              echo "Error: No Dockerfile found for package '$name' in kind '$kind'" >&2
-              exit 1
-            fi
-          else
-            echo "No specific package provided, gathering all packages of kind: $kind"
-            target_dockerfiles=$(find experimental/$build_type/$kind -name "Dockerfile")
-          fi
+          # Get all OS packages
+          target_dockerfiles=$(find experimental/runtimes/operating-systems -name "Dockerfile")
 
           # Convert to JSON array
-          packages=$(echo "$target_dockerfiles" | jq -R -s 'split("\n")[:-1]')
+          os_packages=$(echo "$target_dockerfiles" | jq -R -s 'split("\n")[:-1]')
 
-          echo "packages<<EOF" >> $GITHUB_OUTPUT
-          echo "$packages" >> $GITHUB_OUTPUT
+          echo "os_packages<<EOF" >> $GITHUB_OUTPUT
+          echo "$os_packages" >> $GITHUB_OUTPUT
           echo "EOF" >> $GITHUB_OUTPUT
 
-          package_count=$(echo "$packages" | jq 'length // 0')
-          echo "Found $package_count packages to build"
+          package_count=$(echo "$os_packages" | jq 'length // 0')
+          echo "Found $package_count OS packages to build"
 
-  # Build expt images
-  build-expt-images:
+  # Build expt runtimes
+  build-expt-runtimes:
     runs-on: ubuntu-latest
     needs: define-matrix
     strategy:
       fail-fast: false
       matrix:
-        packages: ${{ fromJson(needs.define-matrix.outputs.packages) }}
+        os_packages: ${{ fromJson(needs.define-matrix.outputs.os_packages) }}
     permissions:
       contents: read
       packages: write
@@ -179,14 +109,15 @@ jobs:
           tag: ${{ needs.define-matrix.outputs.tag_l10n }}
           ghcr_credentials: ${{ format('{{"registry":"{0}","username":"{1}","password":"{2}"}}', 'ghcr.io', github.repository_owner, secrets.GITHUB_TOKEN) || '{}' }}
           aliyun_credentials: ${{ inputs.aliyun_enabled == 'true' && format('{{"registry":"{0}","username":"{1}","password":"{2}", "namespace":"{3}"}}', secrets.ALIYUN_REGISTRY, secrets.ALIYUN_USERNAME, secrets.ALIYUN_PASSWORD, secrets.ALIYUN_NAMESPACE) || '{}' }}
-          expt_image_naming: ${{ inputs.build_type }}
+          expt_base_image_naming: 'true'
       - name: Build and push standard images
         uses: ./.github/actions/build-and-push
         with:
           build_args: |
             REPO_OWNER=${{ github.repository_owner }}
+            OS_IMAGE_TAG=${{ needs.define-matrix.outputs.os_image_tag }}
             L10N=${{ inputs.l10n }}
-            ARCH=${{ inputs.arch }}
+            ARCH=${{ inputs.arch }} 
           dockerfile: ${{ matrix.os_packages }}
           ghcr_credentials: ${{ format('{{"registry":"{0}","username":"{1}","password":"{2}"}}', 'ghcr.io', github.repository_owner, secrets.GITHUB_TOKEN) || '{}' }}
           ghcr_image_name: ${{ steps.generate-standard.outputs.ghcr_image_name }}

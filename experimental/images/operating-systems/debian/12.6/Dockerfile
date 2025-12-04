@@ -1,16 +1,13 @@
 # These ARGs can be overridden at build time to customize the image
-ARG REGISTRY=ghcr.io
-ARG REPO=labring-actions/devbox-base-expt
+ARG REPO_OWNER=labring-actions
+ARG REPO_NAME=devbox-base-expt
+ARG BASE_TOOLS_VERSION=v0.0.1
+ARG BASE_IMAGE_VERSION=12.6-slim
 ARG L10N=en_US
 ARG ARCH=amd64
 ARG DEFAULT_DEVBOX_USER=devbox
-# These ARGs are not recommended to be overridden at build time.
-# Instead, update the Dockerfile directly for consistent builds,
-# and release new versions as needed.
-ARG BASE_TOOLS_VERSION=v0.0.1-alpha.1
-ARG BASE_IMAGE_VERSION=12.6-slim
 
-FROM ${REGISTRY}/${REPO}/base-tools:${BASE_TOOLS_VERSION} AS base-tools
+FROM ghcr.io/${REPO_OWNER}/${REPO_NAME}/base-tools:${BASE_TOOLS_VERSION} AS base-tools
 FROM debian:${BASE_IMAGE_VERSION}
 ARG L10N
 ARG ARCH
@@ -27,20 +24,16 @@ ENV L10N=${L10N}
 ENV ARCH=${ARCH}
 ## DEFAULT_DEVBOX_USER: Default user for the devbox environment
 ENV DEFAULT_DEVBOX_USER=${DEFAULT_DEVBOX_USER}
-## PROJECT_DIR: Default devbox project directory inside the container
-ENV PROJECT_DIR=/home/devbox/project
 ## S6_STAGE2_HOOK: Hook script executed BEFORE s6-rc compilation
 ## This allows us to dynamically disable services based on DEVBOX_ENV
-ENV S6_STAGE2_HOOK=/etc/s6-overlay-hook/pre-rc-init.d/pre-rc-init.sh
-## S6_KILL_GRACETIME: Time to wait before forcefully killing all processes during shutdown
-ENV S6_KILL_GRACETIME=500
-
+ENV S6_STAGE2_HOOK=/opt/base-tools/scripts/svc/pre-rc-init.sh
 # Copy base tools from the base-tools stage
 COPY --from=base-tools ${BASE_TOOLS_DIR} ${BASE_TOOLS_DIR}
+# Add build script and execute it
+COPY build.sh /build.sh
 # Add build script and execute it
 COPY build.sh /build.sh
 RUN chmod +x /build.sh && \
     /build.sh && \
     rm -f /build.sh && \
     rm -rf ${BASE_TOOLS_DIR}
-ENTRYPOINT [ "/init" ]
