@@ -17,7 +17,5 @@ apt-get update && \
     logrotate \
     openssh-server \
     locales \
-    ca-certificates \
-    busybox \
     && apt-get clean \
     && rm -rf /var/lib/apt/lists/*
