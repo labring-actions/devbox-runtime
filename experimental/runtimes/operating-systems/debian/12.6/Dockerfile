@@ -16,5 +16,4 @@ RUN chmod +x /build.sh && \
     /build.sh && \
     rm -f /build.sh && \
     rm -rf ${PROJECT_TEMPLATE_DIR}
-USER devbox
 ENTRYPOINT ["/init"]
