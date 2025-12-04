@@ -14,4 +14,4 @@ LABEL org.opencontainers.image.authors="The Devbox Authors"
 COPY build.sh /build.sh
 RUN chmod +x /build.sh && \
     /build.sh && \
-    rm -f /build.sh
+    rm -f /build.sh && \
