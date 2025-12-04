@@ -1,4 +1,4 @@
-name: Build Expt Runtimes
+name: Build Expt Images Or Runtimes
 on:
   workflow_dispatch:
     inputs:
@@ -40,8 +40,17 @@ on:
         description: 'Name of the specific package to build'
         type: string
         default: ''
+      build_type:
+        description: 'Type of build to perform'
+        required: false
+        type: choice
+        options:
+          - images
+          - runtimes
+        default: 'images'
+
 jobs:
-  # Define expt runtime matrix
+  # Define expt image matrix
   define-matrix:
     runs-on: ubuntu-latest
     outputs:
@@ -57,7 +66,6 @@ jobs:
       - name: Set up tag
         id: set_tag
         run: |
-          # Set up tags for runtime images
           if [ -n "${{ inputs.tag }}" ]; then
             tag=${{ inputs.tag }}
           else
@@ -66,8 +74,6 @@ jobs:
           # Convert l10n to lowercase with hyphens (e.g., en_US -> en-us)
           l10n_normalized=$(echo "${{ inputs.l10n }}" | tr '[:upper:]' '[:lower:]' | tr '_' '-')
           tag_l10n=$tag-$l10n_normalized
-
-          # Output all tags
           echo "tag=$tag" >> $GITHUB_OUTPUT
           echo "tag_l10n=$tag_l10n" >> $GITHUB_OUTPUT
           echo "l10n_normalized=$l10n_normalized" >> $GITHUB_OUTPUT
@@ -80,7 +86,7 @@ jobs:
           name=${{ inputs.name }}
           if [ -n "$name" ]; then
             echo "Looking for specific package: $name"
-            target_dockerfiles=$(find experimental/runtimes/$kind -name "Dockerfile" -path "*/$name/Dockerfile")
+            target_dockerfiles=$(find experimental/images/$kind -name "Dockerfile" -path "*/$name/Dockerfile")
             if [ -z "$target_dockerfiles" ]; then
               echo "Error: No Dockerfile found for package '$name' in kind '$kind'" >&2
               exit 1
@@ -98,10 +104,10 @@ jobs:
           echo "EOF" >> $GITHUB_OUTPUT
 
           package_count=$(echo "$packages" | jq 'length // 0')
-          echo "Found $package_count OS packages to build"
+          echo "Found $package_count packages to build"
 
-  # Build expt runtimes
-  build-expt-runtimes:
+  # Build expt images
+  build-expt-images:
     runs-on: ubuntu-latest
     needs: define-matrix
     strategy:
@@ -124,14 +130,15 @@ jobs:
           tag: ${{ needs.define-matrix.outputs.tag_l10n }}
           ghcr_credentials: ${{ format('{{"registry":"{0}","username":"{1}","password":"{2}"}}', 'ghcr.io', github.repository_owner, secrets.GITHUB_TOKEN) || '{}' }}
           aliyun_credentials: ${{ inputs.aliyun_enabled == 'true' && format('{{"registry":"{0}","username":"{1}","password":"{2}", "namespace":"{3}"}}', secrets.ALIYUN_REGISTRY, secrets.ALIYUN_USERNAME, secrets.ALIYUN_PASSWORD, secrets.ALIYUN_NAMESPACE) || '{}' }}
-          expt_runtime_image_naming: 'true'
+          expt_image_naming: ${{ inputs.build_type }}
       - name: Build and push standard images
         uses: ./.github/actions/build-and-push
         with:
           build_args: |
             REPO=${{ github.repository_owner }}/devbox-base-expt
-            ARCH=${{ inputs.arch }} 
+            L10N=${{ inputs.l10n }}
             L10N_NORMALIZED=${{ needs.define-matrix.outputs.l10n_normalized }}
+            ARCH=${{ inputs.arch }} 
           dockerfile: ${{ matrix.packages }}
           ghcr_credentials: ${{ format('{{"registry":"{0}","username":"{1}","password":"{2}"}}', 'ghcr.io', github.repository_owner, secrets.GITHUB_TOKEN) || '{}' }}
           ghcr_image_name: ${{ steps.generate-standard.outputs.ghcr_image_name }}
