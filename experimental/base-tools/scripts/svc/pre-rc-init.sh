@@ -5,7 +5,7 @@
 # Stage 2 Hook script executed BEFORE s6-rc compilation.
 # This is the key to elegantly controlling services based on environment.
 #
-# Usage: Set S6_STAGE2_HOOK=/opt/base-tools/scripts/svc/pre-rc-init.sh
+# Usage: Set S6_STAGE2_HOOK=<path/to/this/script> in Dockerfile.
 #
 # Execution order:
 #   1. Container starts
@@ -19,12 +19,12 @@ set -eu
 
 # s6 service definition directory
 S6_DIR=/etc/s6-overlay/s6-rc.d
+SOURCE_DIR=$(dirname "$(readlink -f "${BASH_SOURCE[0]}")")
 
 # Read environment variable, default is development
 DEVBOX_ENV=${DEVBOX_ENV:-development}
 
 # Load shared service configuration
-BASE_TOOLS_DIR=${BASE_TOOLS_DIR:-/opt/base-tools}
 
 echo "[pre-rc-init] ========================================"
 echo "[pre-rc-init] Environment: $DEVBOX_ENV"
@@ -32,7 +32,7 @@ echo "[pre-rc-init] Running BEFORE s6-rc compilation"
 echo "[pre-rc-init] ========================================"
 
 # Source the services configuration
-. "$BASE_TOOLS_DIR/scripts/svc/services.conf"
+. "$SOURCE_DIR/services.conf"
 
 # Function to check if service should be enabled
 should_enable_service() {
