@@ -103,16 +103,17 @@ jobs:
           # Get all packages
           kind=${{ inputs.kind }}
           name=${{ inputs.name }}
+          build_type=${{ inputs.build_type }}
           if [ -n "$name" ]; then
             echo "Looking for specific package: $name"
-            target_dockerfiles=$(find experimental/images/$kind/$name -name "Dockerfile")
+            target_dockerfiles=$(find experimental/$build_type/$kind/$name -name "Dockerfile")
             if [ -z "$target_dockerfiles" ]; then
               echo "Error: No Dockerfile found for package '$name' in kind '$kind'" >&2
               exit 1
             fi
           else
             echo "No specific package provided, gathering all packages of kind: $kind"
-            target_dockerfiles=$(find experimental/runtimes/$kind -name "Dockerfile")
+            target_dockerfiles=$(find experimental/$build_type/$kind -name "Dockerfile")
           fi
 
           # Convert to JSON array
