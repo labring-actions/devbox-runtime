@@ -1,13 +1,16 @@
 # These ARGs can be overridden at build time to customize the image
-ARG REPO_OWNER=labring-actions
-ARG REPO_NAME=devbox-base-expt
-ARG BASE_TOOLS_VERSION=v0.0.1
-ARG BASE_IMAGE_VERSION=12.6-slim
+ARG REGISTRY=ghcr.io
+ARG REPO=labring-actions/devbox-base-expt
 ARG L10N=en_US
 ARG ARCH=amd64
 ARG DEFAULT_DEVBOX_USER=devbox
+# These ARGs are not recommended to be overridden at build time.
+# Instead, update the Dockerfile directly for consistent builds,
+# and release new versions as needed.
+ARG BASE_TOOLS_VERSION=v0.0.1-alpha.1
+ARG BASE_IMAGE_VERSION=12.6-slim
 
-FROM ghcr.io/${REPO_OWNER}/${REPO_NAME}/base-tools:${BASE_TOOLS_VERSION} AS base-tools
+FROM ${REGISTRY}/${REPO}/base-tools:${BASE_TOOLS_VERSION} AS base-tools
 FROM debian:${BASE_IMAGE_VERSION}
 ARG L10N
 ARG ARCH
