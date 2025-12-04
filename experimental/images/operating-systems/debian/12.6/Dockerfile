@@ -29,7 +29,7 @@ ENV ARCH=${ARCH}
 ENV DEFAULT_DEVBOX_USER=${DEFAULT_DEVBOX_USER}
 ## S6_STAGE2_HOOK: Hook script executed BEFORE s6-rc compilation
 ## This allows us to dynamically disable services based on DEVBOX_ENV
-ENV S6_STAGE2_HOOK=/opt/base-tools/scripts/svc/pre-rc-init.sh
+ENV S6_STAGE2_HOOK=/etc/s6-overlay-hook/pre-rc-init.sh
 # Copy base tools from the base-tools stage
 COPY --from=base-tools ${BASE_TOOLS_DIR} ${BASE_TOOLS_DIR}
 # Add build script and execute it
