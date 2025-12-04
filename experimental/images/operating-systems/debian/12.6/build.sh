@@ -1,52 +1,32 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-export DEBIAN_FRONTEND=noninteractive
-apt-get update && \
-    apt-get install -y \
-    wget \
-    netcat-openbsd \
-    curl \
-    sudo \
-    vim \
-    openssl \
-    make \
-    git \
-    xz-utils \
-    openssh-client \
-    anacron \
-    logrotate \
-    openssh-server \
-    locales
+echo "Current BASE_TOOLS_DIR: $BASE_TOOLS_DIR"
+echo "Current L10N: $L10N"
+echo "Current ARCH: $ARCH"
+echo "Current DEFAULT_DEVBOX_USER: $DEFAULT_DEVBOX_USER"
 
+chmod +x $BASE_TOOLS_DIR/scripts/*.sh
 
-# Install base-tools
-# Determine architecture and set ARCH environment variable which is used by the install scripts
-export ARCH="$(dpkg --print-architecture)"
-export BASE_TOOLS_DIR=${BASE_TOOLS_DIR:-/opt/base-tools}
+# Install base packages for Debian
+$BASE_TOOLS_DIR/scripts/install-base-pkg-deb.sh
+
+# Instal cron and s6 from base-tools scripts
 $BASE_TOOLS_DIR/scripts/install-crond.sh
 $BASE_TOOLS_DIR/scripts/install-s6.sh
 
 # Configure svc
-# Important: s6 must be configured before other services that depend on it
-$BASE_TOOLS_DIR/scripts/svc/configure-s6.sh
-
-# Configure pre-rc-init hook FIRST
-# This hook runs BEFORE s6-rc compilation, allowing us to disable services
-# based on DEVBOX_ENV environment variable
-$BASE_TOOLS_DIR/scripts/svc/configure-pre-rc-init.sh
-
-# Configure individual services
-$BASE_TOOLS_DIR/scripts/svc/configure-startup.sh
-$BASE_TOOLS_DIR/scripts/svc/configure-sshd.sh
-$BASE_TOOLS_DIR/scripts/svc/configure-crond.sh
-$BASE_TOOLS_DIR/scripts/svc/configure-entrypoint.sh
-
+$BASE_TOOLS_DIR/scripts/configure-svc.sh
 
 # Configure other utilities
 $BASE_TOOLS_DIR/scripts/configure-logrotate.sh
 $BASE_TOOLS_DIR/scripts/configure-login.sh
 
+# Configure localization (L10N)
+$BASE_TOOLS_DIR/scripts/configure-l10n.sh
 
-# Cleanup apt cache
-$BASE_TOOLS_DIR/scripts/deb-cleanup.sh
+# Configure user devbox
+$BASE_TOOLS_DIR/scripts/configure-user.sh $DEFAULT_DEVBOX_USER
+
+# Cleanup
+$BASE_TOOLS_DIR/scripts/cleanup.sh
