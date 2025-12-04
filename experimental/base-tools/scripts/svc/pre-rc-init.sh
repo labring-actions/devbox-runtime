@@ -13,6 +13,9 @@
 #   3. Stage 2 Hook (THIS SCRIPT) ← Before s6-rc compile!
 #   4. s6-rc-compile (services in contents.d are compiled)
 #   5. s6-rc starts services
+# 
+# This hook should run BEFORE s6-rc compilation, allowing us to disable services
+# based on DEVBOX_ENV environment variable
 # ============================================================================
 
 set -eu
