@@ -15,14 +15,15 @@ inputs:
     description: 'JSON object containing Aliyun ACR credentials { "registry": string, "username": string, "password": string }'
     required: false
     default: '{}'
-  expt_base_image_naming:
+  expt_image_naming:
     description: 'Enable experimental base image naming conventions'
     required: false
-    default: 'false'
-  expt_runtime_image_naming:
-    description: 'Enable experimental runtime image naming conventions'
-    required: false
-    default: 'false'
+    type: choice
+    options:
+      - 'images'
+      - 'runtimes'
+      - 'none'
+    default: 'none'
 outputs:
   ghcr_image_name:
     description: 'Generated ghcr.io image name'
@@ -60,10 +61,10 @@ runs:
         image_name="${runtime_name}-${runtime_version}"
 
         # Generate ghcr.io image name
-        if [ "${{ inputs.expt_base_image_naming }}" = "true" ]; then
+        if [ "${{ inputs.expt_image_naming }}" = "images" ]; then
           # Experimental naming convention
           ghcr_image_name="${{ fromJson(inputs.ghcr_credentials).registry }}/${{ fromJson(inputs.ghcr_credentials).username }}/devbox-base-expt/${image_name}:${tag}"
-        elif [ "${{ inputs.expt_runtime_image_naming }}" = "true" ]; then
+        elif [ "${{ inputs.expt_image_naming }}" = "runtimes" ]; then
           # Experimental naming convention
           ghcr_image_name="${{ fromJson(inputs.ghcr_credentials).registry }}/${{ fromJson(inputs.ghcr_credentials).username }}/devbox-runtime-expt/${image_name}:${tag}"
         else
@@ -76,10 +77,10 @@ runs:
           # Parse Aliyun credentials
           registry=$(echo "$aliyun_credentials" | jq -r '.registry')
           namespace=$(echo "$aliyun_credentials" | jq -r '.namespace')
-          if [ "${{ inputs.expt_base_image_naming }}" = "true" ]; then
+          if [ "${{ inputs.expt_image_naming }}" = "images" ]; then
             # Experimental naming convention
             acr_image_name="${registry}/${namespace}/devbox-base-expt/${image_name}:${tag}"
-          elif [ "${{ inputs.expt_runtime_image_naming }}" = "true" ]; then
+          elif [ "${{ inputs.expt_image_naming }}" = "runtimes" ]; then
             # Experimental naming convention
             acr_image_name="${registry}/${namespace}/devbox-runtime-expt/${image_name}:${tag}"
           else

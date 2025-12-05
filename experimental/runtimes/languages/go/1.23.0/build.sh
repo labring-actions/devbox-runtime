@@ -20,6 +20,7 @@ else
 fi
 
 cp "$PROJECT_TEMPLATE_DIR/"*.sh "/home/$DEFAULT_DEVBOX_USER/project/"
+cp "$PROJECT_TEMPLATE_DIR/"*.go "/home/$DEFAULT_DEVBOX_USER/project/"
 
 # Set ownership to default devbox user
 chown -R "$DEFAULT_DEVBOX_USER:$DEFAULT_DEVBOX_USER" "/home/$DEFAULT_DEVBOX_USER/project"

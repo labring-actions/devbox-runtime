@@ -2,7 +2,6 @@
 ARG REPO=labring-actions/devbox-base-expt
 ARG REGISTRY=ghcr.io
 ARG L10N_NORMALIZED=en-us
-ARG DEFAULT_DEVBOX_USER=devbox
 
 # These ARGs are not recommended to be overridden at build time.
 # Instead, update the Dockerfile directly for consistent builds,
@@ -10,13 +9,9 @@ ARG DEFAULT_DEVBOX_USER=devbox
 ARG OS_IMAGE_VERSION=v0.0.1-alpha.1-${L10N_NORMALIZED}
 
 FROM ${REGISTRY}/${REPO}/debian-12.6:${OS_IMAGE_VERSION}
-ARG DEFAULT_DEVBOX_USER
-ENV PROJECT_TEMPLATE_DIR=/project-template
-COPY ./project-template ${PROJECT_TEMPLATE_DIR}
-COPY ./build.sh /build.sh
+LABEL org.opencontainers.image.authors="The Devbox Authors"
+# Add build script and execute it
+COPY build.sh /build.sh
 RUN chmod +x /build.sh && \
     /build.sh && \
-    rm -f /build.sh && \
-    rm -rf ${PROJECT_TEMPLATE_DIR}
-# Set the working directory to the default devbox user's project directory
-WORKDIR /home/${DEFAULT_DEVBOX_USER}/project
+    rm -f /build.sh
