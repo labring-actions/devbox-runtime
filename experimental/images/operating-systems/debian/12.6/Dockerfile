@@ -24,7 +24,7 @@ ENV DEBIAN_FRONTEND=noninteractive
 ## L10N: Internationalization setting
 ENV L10N=${L10N}
 ## ARCH: System architecture
-ENV ARCH=${ARCH} 
+ENV ARCH=${ARCH}
 ## DEFAULT_DEVBOX_USER: Default user for the devbox environment
 ENV DEFAULT_DEVBOX_USER=${DEFAULT_DEVBOX_USER}
 ## S6_STAGE2_HOOK: Hook script executed BEFORE s6-rc compilation

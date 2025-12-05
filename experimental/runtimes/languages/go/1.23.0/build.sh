@@ -10,7 +10,7 @@ if ! id -u "$DEFAULT_DEVBOX_USER" &>/dev/null; then
   exit 1
 fi
 
-mkdir -p /home/$DEFAULT_DEVBOX_USER/project
+mkdir -p "/home/$DEFAULT_DEVBOX_USER/project"
 
 if [ -f "$PROJECT_TEMPLATE_DIR/README.$L10N.md" ]; then
   echo "README $PROJECT_TEMPLATE_DIR/README.$L10N.md exists. Copying to /home/$DEFAULT_DEVBOX_USER/project/README.md"
@@ -23,4 +23,4 @@ cp "$PROJECT_TEMPLATE_DIR/"*.sh "/home/$DEFAULT_DEVBOX_USER/project/"
 cp "$PROJECT_TEMPLATE_DIR/"*.go "/home/$DEFAULT_DEVBOX_USER/project/"
 
 # Set ownership to default devbox user
-chown -R $DEFAULT_DEVBOX_USER:$DEFAULT_DEVBOX_USER /home/$DEFAULT_DEVBOX_USER/project
+chown -R "$DEFAULT_DEVBOX_USER:$DEFAULT_DEVBOX_USER" "/home/$DEFAULT_DEVBOX_USER/project"
