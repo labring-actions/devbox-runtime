@@ -15,5 +15,6 @@ apt-get update && \
     logrotate \
     openssh-server \
     locales \
+    ca-certificates \
     && apt-get clean \
     && rm -rf /var/lib/apt/lists/*
