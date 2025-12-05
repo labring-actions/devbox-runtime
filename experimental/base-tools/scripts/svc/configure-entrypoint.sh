@@ -21,7 +21,7 @@ if [ -f "$PROJECT_DIR/entrypoint.sh" ]; then
 	# This ensures relative paths in entrypoint.sh work correctly
 	cd "$PROJECT_DIR"
 	# Pass DEVBOX_ENV as first argument to entrypoint.sh
-	/bin/bash "$PROJECT_DIR/entrypoint.sh" "${DEVBOX_ENV:-development}"
+	exec "$PROJECT_DIR/entrypoint.sh" "${DEVBOX_ENV:-development}"
 fi
 
 entrypoint
