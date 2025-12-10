@@ -27,9 +27,14 @@ ENV L10N=${L10N}
 ENV ARCH=${ARCH}
 ## DEFAULT_DEVBOX_USER: Default user for the devbox environment
 ENV DEFAULT_DEVBOX_USER=${DEFAULT_DEVBOX_USER}
+## PROJECT_DIR: Default devbox project directory inside the container
+ENV PROJECT_DIR=/home/devbox/project
 ## S6_STAGE2_HOOK: Hook script executed BEFORE s6-rc compilation
 ## This allows us to dynamically disable services based on DEVBOX_ENV
 ENV S6_STAGE2_HOOK=/etc/s6-overlay-hook/pre-rc-init.d/pre-rc-init.sh
+## S6_KILL_GRACETIME: Time to wait before forcefully killing all processes during shutdown
+ENV S6_KILL_GRACETIME=500
+
 # Copy base tools from the base-tools stage
 COPY --from=base-tools ${BASE_TOOLS_DIR} ${BASE_TOOLS_DIR}
 # Add build script and execute it
