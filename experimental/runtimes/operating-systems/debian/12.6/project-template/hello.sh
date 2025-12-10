@@ -16,12 +16,12 @@ HTML
 
 echo "Starting HTTP server on port $PORT (serving $ROOT_DIR)"
 
-if command -v mini_httpd >/dev/null 2>&1; then
-    # Common mini-httpd usage: -p <port> -d <directory>
-    mini_httpd -p "$PORT" -d "$ROOT_DIR"
+if command -v busybox >/dev/null 2>&1; then
+    # Common busybox httpd usage: -p <port> -h <directory>
+    busybox httpd -p "$PORT" -h "$ROOT_DIR"
     rc=$?
     exit $rc
 fi
 
-echo "No supported HTTP server found (mini-httpd)." >&2
+echo "No supported HTTP server found (busybox httpd)." >&2
 exit 1
