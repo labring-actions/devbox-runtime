@@ -14,33 +14,10 @@ cp "$ROOT_DIR/handle-entrypoint.sh" "$S6_DIR/entrypoint/handle-entrypoint.sh"
 cat >"$S6_DIR/entrypoint/run" <<'entrypoint'
 #!/command/with-contenv bash
 set -euo pipefail
-
-PROJECT_DIR="/home/devbox/project"
-DEFAULT_DEVBOX_USER=${DEFAULT_DEVBOX_USER:-devbox}
-
-if [ -f "$PROJECT_DIR/entrypoint.sh" ]; then
-	# Change to project directory before executing entrypoint.sh
-	# This ensures relative paths in entrypoint.sh work correctly
-	cd "$PROJECT_DIR"
-	chmod +x ./entrypoint.sh
-	# Pass DEVBOX_ENV as first argument to entrypoint.sh
-	s6-setuidgid $DEFAULT_DEVBOX_USER ./entrypoint.sh "${DEVBOX_ENV:-development}" & 
-	CHILD_PID=$!
-	cleanup() {
-	  pkill -TERM -P $CHILD_PID 2>/dev/null
-	}
-	if [ -n "${CHILD_PID:-}" ]; then
-	  trap cleanup SIGTERM SIGINT
-	  # Wait for the child process and propagate its exit code
-	  wait "$CHILD_PID"
-	  rc=$?
-	  exit "$rc"
-	fi
-
-	# No child started; exit success
-	exit 0
-fi
-
+SOURCE_DIR=$(dirname "$(readlink -f "${BASH_SOURCE[0]}")")
+chmod +x "$SOURCE_DIR/handle-entrypoint.sh"
+"$SOURCE_DIR/handle-entrypoint.sh" &
+exit 0
 entrypoint
 echo oneshot >"$S6_DIR/entrypoint/type"
 echo '/etc/s6-overlay/s6-rc.d/entrypoint/run' >"$S6_DIR/entrypoint/up"
