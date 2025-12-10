@@ -16,6 +16,7 @@ cat >"$S6_DIR/entrypoint/run" <<'entrypoint'
 set -euo pipefail
 
 PROJECT_DIR="/home/devbox/project"
+DEFAULT_DEVBOX_USER=${DEFAULT_DEVBOX_USER:-devbox}
 
 if [ -f "$PROJECT_DIR/entrypoint.sh" ]; then
 	# Change to project directory before executing entrypoint.sh
@@ -23,7 +24,7 @@ if [ -f "$PROJECT_DIR/entrypoint.sh" ]; then
 	cd "$PROJECT_DIR"
 	chmod +x ./entrypoint.sh
 	# Pass DEVBOX_ENV as first argument to entrypoint.sh
-	./entrypoint.sh "${DEVBOX_ENV:-development}" & 
+	s6-setuidgid $DEFAULT_DEVBOX_USER ./entrypoint.sh "${DEVBOX_ENV:-development}" & 
 	PPID=$!
 	cleanup() {
 	  pkill -TERM -P $PPID 2>/dev/null
