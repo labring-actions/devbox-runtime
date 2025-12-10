@@ -25,14 +25,14 @@ if [ -f "$PROJECT_DIR/entrypoint.sh" ]; then
 	chmod +x ./entrypoint.sh
 	# Pass DEVBOX_ENV as first argument to entrypoint.sh
 	s6-setuidgid $DEFAULT_DEVBOX_USER ./entrypoint.sh "${DEVBOX_ENV:-development}" & 
-	PPID=$!
+	CHILD_PID=$!
 	cleanup() {
-	  pkill -TERM -P $PPID 2>/dev/null
+	  pkill -TERM -P $CHILD_PID 2>/dev/null
 	}
-	if [ -n "$PPID" ]; then
+	if [ -n "${CHILD_PID:-}" ]; then
 	  trap cleanup SIGTERM SIGINT
 	  # Wait for the child process and propagate its exit code
-	  wait "$PPID"
+	  wait "$CHILD_PID"
 	  rc=$?
 	  exit "$rc"
 	fi
