@@ -18,8 +18,9 @@ echo "Starting HTTP server on port $PORT (serving $ROOT_DIR)"
 
 if command -v mini_httpd >/dev/null 2>&1; then
     # Common mini-httpd usage: -p <port> -d <directory>
-    exec mini_httpd -p "$PORT" -d "$ROOT_DIR"
-    exit 0
+    mini_httpd -p "$PORT" -d "$ROOT_DIR"
+    rc=$?
+    exit $rc
 fi
 
 echo "No supported HTTP server found (mini-httpd)." >&2
