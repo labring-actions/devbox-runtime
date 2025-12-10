@@ -1,4 +1,4 @@
-#!/usr/bin/env bash
+#!/usr/env/bin bash
 set -euo pipefail
 
 PROJECT_DIR=${PROJECT_DIR:-/home/devbox/project}
