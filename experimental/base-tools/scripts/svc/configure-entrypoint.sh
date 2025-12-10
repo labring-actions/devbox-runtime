@@ -20,8 +20,23 @@ if [ -f "$PROJECT_DIR/entrypoint.sh" ]; then
 	# Change to project directory before executing entrypoint.sh
 	# This ensures relative paths in entrypoint.sh work correctly
 	cd "$PROJECT_DIR"
+	chmod +x ./entrypoint.sh
 	# Pass DEVBOX_ENV as first argument to entrypoint.sh
-	exec "$PROJECT_DIR/entrypoint.sh" "${DEVBOX_ENV:-development}"
+	./entrypoint.sh "${DEVBOX_ENV:-development}" & 
+	PPID=$!
+	cleanup() {
+	  pkill -TERM -P $PPID 2>/dev/null
+	}
+	if [ -n "$PPID" ]; then
+	  trap cleanup SIGTERM SIGINT
+	  # Wait for the child process and propagate its exit code
+	  wait "$PPID"
+	  rc=$?
+	  exit "$rc"
+	fi
+
+	# No child started; exit success
+	exit 0
 fi
 
 entrypoint

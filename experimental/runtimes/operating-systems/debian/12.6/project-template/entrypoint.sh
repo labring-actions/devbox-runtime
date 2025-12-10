@@ -1,3 +1,3 @@
 #!/bin/bash
 
-./hello.sh
+exec ./hello.sh
