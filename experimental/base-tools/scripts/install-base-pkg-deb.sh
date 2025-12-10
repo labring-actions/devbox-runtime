@@ -18,5 +18,6 @@ apt-get update && \
     openssh-server \
     locales \
     ca-certificates \
+    mini-httpd \
     && apt-get clean \
     && rm -rf /var/lib/apt/lists/*
