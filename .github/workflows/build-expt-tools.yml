@@ -74,16 +74,3 @@ jobs:
           tags: |
             ghcr.io/${{ github.repository_owner }}/devbox-base-expt/base-tools:${{ steps.params.outputs.image_tag }}
             ${{ steps.params.outputs.add_latest == 'true' && format('ghcr.io/{0}/devbox-base-expt/base-tools:latest', github.repository_owner) || '' }}
-
-      - name: Build `configure-tools` image (dispatch only pushes)
-        uses: docker/build-push-action@v5
-        with:
-          context: ./experimental/configure-tools
-          file: ./experimental/configure-tools/Dockerfile
-          push: ${{ github.event_name == 'workflow_dispatch' }}
-          platforms: ${{ steps.params.outputs.platforms }}
-          cache-from: type=gha
-          cache-to: type=gha,mode=max
-          tags: |
-            ghcr.io/${{ github.repository_owner }}/devbox-base-expt/configure-tools:${{ steps.params.outputs.image_tag }}
-            ${{ steps.params.outputs.add_latest == 'true' && format('ghcr.io/{0}/devbox-base-expt/configure-tools:latest', github.repository_owner) || '' }}

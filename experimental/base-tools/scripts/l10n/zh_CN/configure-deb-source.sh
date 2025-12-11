@@ -31,20 +31,5 @@ echo "Installing $SOURCE_FILE -> $TARGET"
 cp -a "$SOURCE_FILE" "$TARGET"
 chmod 644 "$TARGET"
 
-echo "Refreshing apt lists"
-if command -v apt-get >/dev/null 2>&1; then
-  # Update keyring first if present in the image
-  if [ -f /usr/share/keyrings/debian-archive-keyring.gpg ]; then
-    apt-get update -y || true
-  else
-    # If no keyring installed, attempt to install keyring (best-effort)
-    if apt-get --version >/dev/null 2>&1; then
-      apt-get update -y || true
-    fi
-  fi
-else
-  echo "apt-get not found, skipping apt update"
-fi
-
 echo "Done. Current contents of $TARGET:"
 cat "$TARGET" || true

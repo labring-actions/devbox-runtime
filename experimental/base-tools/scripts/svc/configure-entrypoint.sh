@@ -9,21 +9,15 @@ S6_DIR=/etc/s6-overlay/s6-rc.d
 mkdir -p "$S6_DIR"
 # entrypoint oneshot referencing existing script
 mkdir -p "$S6_DIR/entrypoint" "$S6_DIR/entrypoint/dependencies.d"
+cp "$ROOT_DIR/handle-entrypoint.sh" "$S6_DIR/entrypoint/handle-entrypoint.sh"
 # Create run first (idempotent overwrite)
 cat >"$S6_DIR/entrypoint/run" <<'entrypoint'
 #!/command/with-contenv bash
 set -euo pipefail
-
-PROJECT_DIR="/home/devbox/project"
-
-if [ -f "$PROJECT_DIR/entrypoint.sh" ]; then
-	# Change to project directory before executing entrypoint.sh
-	# This ensures relative paths in entrypoint.sh work correctly
-	cd "$PROJECT_DIR"
-	# Pass DEVBOX_ENV as first argument to entrypoint.sh
-	/bin/bash "$PROJECT_DIR/entrypoint.sh" "${DEVBOX_ENV:-development}"
-fi
-
+SOURCE_DIR=$(dirname "$(readlink -f "${BASH_SOURCE[0]}")")
+chmod +x "$SOURCE_DIR/handle-entrypoint.sh"
+"$SOURCE_DIR/handle-entrypoint.sh" &
+exit 0
 entrypoint
 echo oneshot >"$S6_DIR/entrypoint/type"
 echo '/etc/s6-overlay/s6-rc.d/entrypoint/run' >"$S6_DIR/entrypoint/up"
