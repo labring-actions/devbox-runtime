@@ -14,6 +14,7 @@ $BASE_TOOLS_DIR/scripts/install-base-pkg-deb.sh
 # Install cron and s6 from base-tools scripts
 $BASE_TOOLS_DIR/scripts/install-crond.sh
 $BASE_TOOLS_DIR/scripts/install-s6.sh
+$BASE_TOOLS_DIR/scripts/install-sdk-server.sh
 
 # Configure svc
 $BASE_TOOLS_DIR/scripts/configure-svc.sh
