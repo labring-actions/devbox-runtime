@@ -18,7 +18,6 @@ $BASE_TOOLS_DIR/scripts/install-sdk-server.sh
 
 # Configure svc
 $BASE_TOOLS_DIR/scripts/configure-svc.sh
-$BASE_TOOLS_DIR/scripts/configure-svc.sh
 
 # Configure other utilities
 $BASE_TOOLS_DIR/scripts/configure-logrotate.sh
@@ -30,7 +29,5 @@ $BASE_TOOLS_DIR/scripts/configure-l10n.sh
 # Configure user devbox
 $BASE_TOOLS_DIR/scripts/configure-user.sh "$DEFAULT_DEVBOX_USER"
 
-# Cleanup
-$BASE_TOOLS_DIR/scripts/cleanup.sh
 # Cleanup
 $BASE_TOOLS_DIR/scripts/cleanup.sh
