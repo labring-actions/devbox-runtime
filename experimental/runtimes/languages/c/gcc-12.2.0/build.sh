@@ -16,7 +16,7 @@ mkdir -p "$TARGET_DIR"
 if [ -f "$PROJECT_TEMPLATE_DIR/README.$L10N.md" ]; then
   echo "README $PROJECT_TEMPLATE_DIR/README.$L10N.md exists. Copying to $TARGET_DIR/README.md"
   cp "$PROJECT_TEMPLATE_DIR/README.$L10N.md" "$TARGET_DIR/README.md"
-else
+else 
   echo "README $PROJECT_TEMPLATE_DIR/README.$L10N.md does not exist. Skipping copy."
 fi
 
