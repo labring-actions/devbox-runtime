@@ -16,22 +16,7 @@ on:
         default: 'en_US'
       arch:
         description: 'System architecture (e.g., amd64, arm64)'
-      l10n:
-        description: 'Localization setting (e.g., en_US, zh_CN)'
         required: false
-        type: choice
-        options:
-          - en_US
-          - zh_CN
-        default: 'en_US'
-      arch:
-        description: 'System architecture (e.g., amd64, arm64)'
-        required: false
-        type: choice
-        options:
-          - amd64
-          - arm64
-        default: 'amd64'
         type: choice
         options:
           - amd64
@@ -87,9 +72,6 @@ jobs:
           else
             tag=$(echo "${{ github.sha }}" | cut -c1-7)
           fi
-          # Convert l10n to lowercase with hyphens (e.g., en_US -> en-us)
-          l10n_normalized=$(echo "${{ inputs.l10n }}" | tr '[:upper:]' '[:lower:]' | tr '_' '-')
-          tag_l10n=$tag-$l10n_normalized
           # Convert l10n to lowercase with hyphens (e.g., en_US -> en-us)
           l10n_normalized=$(echo "${{ inputs.l10n }}" | tr '[:upper:]' '[:lower:]' | tr '_' '-')
           tag_l10n=$tag-$l10n_normalized
