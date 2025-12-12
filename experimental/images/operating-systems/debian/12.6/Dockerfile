@@ -39,8 +39,6 @@ ENV S6_KILL_GRACETIME=500
 COPY --from=base-tools ${BASE_TOOLS_DIR} ${BASE_TOOLS_DIR}
 # Add build script and execute it
 COPY build.sh /build.sh
-# Add build script and execute it
-COPY build.sh /build.sh
 RUN chmod +x /build.sh && \
     /build.sh && \
     rm -f /build.sh && \
