@@ -1,22 +1,21 @@
-# Python HTTP Server Example
+# Python HTTP 服务器示例
 
-This is a simple Python HTTP server application that demonstrates basic server functionality.
+这是一个简单的 Python HTTP 服务器应用程序，演示了基本的服务器功能。
 
-## Project Description
+## 项目描述
 
-This project creates a basic HTTP server using Python's built-in `http.server` module. The server listens on port 8080 and returns a "Hello World!" message when accessed.
+该项目使用 Python 内置的 `http.server` 模块创建一个基本的 HTTP 服务器。服务器监听 8080 端口，访问时返回 "Hello World!" 消息。
 
-## Environment
+## 运行环境
 
-This project runs on a Debian 12 system with Python, which is pre-configured in the Devbox environment. You don't need to worry about setting up Python or system dependencies yourself. The development environment includes all necessary tools for building and running Python applications. If you need to make adjustments to match your specific requirements, you can modify the configuration files accordingly.
+该项目在预配置了 Python 的 Debian 12 系统上运行（Devbox 环境）。您无需担心手动设置 Python 或系统依赖项。开发环境包含构建和运行 Python 应用程序所需的所有工具。如果需要针对特定需求进行调整，可以相应修改配置文件。
 
-## Project Execution
+## 项目执行
 
-**Development mode:** For normal development environment, simply enter Devbox and run `bash entrypoint.sh` in the terminal.
+**开发模式：** 在常规开发环境中，直接进入 Devbox 并在终端运行 `bash entrypoint.sh`。
 
-**Production mode:** After release, the project will be automatically packaged into a Docker image and deployed according to the `entrypoint.sh` script.
+**生产模式：** 发布后，项目将根据 `entrypoint.sh` 脚本自动打包为 Docker 镜像并部署。
 
+DevBox: 编码、构建、部署，我们来打理其余工作。
 
-DevBox: Code. Build. Deploy. We've Got the Rest.
-
-With DevBox, you can focus entirely on writing great code while we handle the infrastructure, scaling, and deployment. Seamless development from start to production.
+使用 DevBox，您可以专注于编写优秀代码，其余基础设施、扩展和部署交由我们处理。从开发到生产的无缝体验。

@@ -1,22 +1,22 @@
-# Rust Actix Web Example Project
+# Rust Actix Web 示例项目
 
-This is a simple Rust web server application example that demonstrates basic HTTP server functionality.
+这是一个简单的 Rust Web 服务器应用程序示例，演示了基本的 HTTP 服务器功能。
 
-## Project Description
+## 项目描述
 
-This project creates a basic HTTP server that listens on 0.0.0.0:8080 and returns a "Hello, World!" message. The project supports both development and production environment modes.
+该项目创建一个基本的 HTTP 服务器，监听 0.0.0.0:8080 端口并返回 "Hello, World!" 消息。该项目支持开发和生产环境模式。
 
-## Environment
+## 运行环境
 
-This project runs on a Debian 12 system with Rust, which is pre-configured in the Devbox environment. You don't need to worry about setting up Rust or system dependencies yourself. The development environment includes all necessary tools for building and running Rust applications with the Actix web framework. If you need to make adjustments to match your specific requirements, you can modify the configuration files accordingly.
+该项目在带有 Rust 的 Debian 12 系统上运行，Rust 环境已在 Devbox 中预配置。您无需担心自己设置 Rust 或系统依赖项。开发环境包含构建和运行带有 Actix Web 框架的 Rust 应用程序所需的所有工具。如果您需要进行调整以满足特定需求，可以相应地修改配置文件。
 
-## Project Execution
+## 项目执行
 
-**Development mode:** For normal development environment, simply enter Devbox and run `bash entrypoint.sh` in the terminal.
+**开发模式：** 对于正常开发环境，直接进入 Devbox 并在终端中运行 `bash entrypoint.sh`。
 
-**Production mode:** After release, the project will be automatically packaged into a Docker image and deployed according to the `entrypoint.sh` script and command parameters.
+**生产模式：** 发布后，项目将根据 `entrypoint.sh` 脚本和命令参数自动打包成 Docker 镜像并部署。
 
 
-DevBox: Code. Build. Deploy. We've Got the Rest.
+DevBox: 编码、构建、部署，我们来打理其余工作。
 
-With DevBox, you can focus entirely on writing great code while we handle the infrastructure, scaling, and deployment. Seamless development from start to production.
+使用 DevBox，您可以专注于编写优秀代码，其余基础设施、扩展和部署交由我们处理。从开发到生产的无缝体验。

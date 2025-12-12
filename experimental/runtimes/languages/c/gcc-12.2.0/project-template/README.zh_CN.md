@@ -1,22 +1,22 @@
-# C HTTP Server Example
+# C HTTP 服务器示例
 
-This is a simple C web server application example that demonstrates basic HTTP server functionality.
+这是一个简单的 C Web 服务器应用程序示例，演示了基本的 HTTP 服务器功能。
 
-## Project Description
+## 项目描述
 
-This project creates a lightweight HTTP server using C socket programming. The server listens on port 8080 and returns a "Hello, World from Development Server!" message when accessed. The project supports both development and production environment modes with graceful shutdown capabilities.
+该项目使用 C 套接字编程创建一个轻量级 HTTP 服务器。服务器监听 8080 端口，访问时返回 "Hello, World from Development Server!" 消息。该项目支持开发和生产环境模式，并具有优雅关闭功能。
 
-## Environment
+## 运行环境
 
-This project runs on a Debian 12 system with C development tools, which are pre-configured in the Devbox environment. You don't need to worry about setting up gcc compiler or system dependencies yourself. The development environment includes all necessary tools for building and running C applications. If you need to make adjustments to match your specific requirements, you can modify the configuration files accordingly.
+该项目在带有 C 开发工具的 Debian 12 系统上运行，C 开发工具已在 Devbox 中预配置。您无需担心自己设置 gcc 编译器或系统依赖项。开发环境包含构建和运行 C 应用程序所需的所有工具。如果您需要进行调整以满足特定需求，可以相应地修改配置文件。
 
-## Project Execution
+## 项目执行
 
-**Development mode:** For normal development environment, simply enter Devbox and run `bash entrypoint.sh` in the terminal. This will compile your C code with debugging flags and run the executable.
+**开发模式：** 对于正常开发环境，直接进入 Devbox 并在终端中运行 `bash entrypoint.sh`。这将使用调试标志编译您的 C 代码并运行可执行文件。
 
-**Production mode:** After release, the project will be automatically packaged into a Docker image and deployed according to the `entrypoint.sh` script with production parameters (run `bash entrypoint.sh production`). This will build an optimized executable binary and run it.
+**生产模式：** 发布后，项目将根据带有生产参数的 `entrypoint.sh` 脚本（运行 `bash entrypoint.sh production`）自动打包成 Docker 镜像并部署。这将构建优化的可执行二进制文件并运行它。
 
 
-DevBox: Code. Build. Deploy. We've Got the Rest.
+DevBox: 编码、构建、部署，我们来打理其余工作。
 
-With DevBox, you can focus entirely on writing great code while we handle the infrastructure, scaling, and deployment. Seamless development from start to production. 
+使用 DevBox，您可以专注于编写优秀代码，其余基础设施、扩展和部署交由我们处理。从开发到生产的无缝体验。 
