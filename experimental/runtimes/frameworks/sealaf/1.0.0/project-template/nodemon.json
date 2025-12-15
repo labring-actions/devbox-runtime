@@ -1,0 +1,20 @@
+{
+    "watch": [
+        "functions/",
+        ".env"
+    ],
+    "ignore": [
+        "*.test.ts",
+        "*.spec.ts",
+        "*.test.js",
+        "*.spec.js",
+        "node_modules/",
+        "dist"
+    ],
+    "ext": "ts,js,json,yaml,yml",
+    "exec": "tsx watch index.ts",
+    "delay": "1000",
+    "env": {
+        "NODE_ENV": "development"
+    }
+}

@@ -1,0 +1,29 @@
+{
+    "compileOnSave": true,
+    "compilerOptions": {
+        "target": "ESNext",
+        "module": "NodeNext",
+        "moduleResolution": "NodeNext",
+        "moduleDetection": "auto",
+        "removeComments": true,
+        "lib": [
+            "ESNext"
+        ],
+        "outDir": "dist",
+        "rootDir": ".",
+        "baseUrl": ".",
+        "strict": true,
+        "esModuleInterop": true,
+        "skipLibCheck": true,
+        "forceConsistentCasingInFileNames": true,
+        "importHelpers": true,
+        "composite": true,
+    },
+    "include": [
+        "**/*",
+    ],
+    "exclude": [
+        "node_modules",
+        "dist"
+    ]
+}

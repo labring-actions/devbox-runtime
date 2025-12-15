@@ -4,12 +4,10 @@ set -euo pipefail
 apt-get update && \
     apt-get install -y \
     wget \
-    netcat-openbsd \
     curl \
     sudo \
     vim \
     openssl \
-    make \
     git \
     xz-utils \
     openssh-client \
