@@ -61,3 +61,4 @@
 ![quick-start-10](https://github.com/labring/sealos/blob/main/docs/5.0/i18n/en/user-guide/devbox/images/quick-start-10.png?raw=true)
 
 This workflow lets you develop/debug in cloud while using local IDE, and share the app via public URL.
+
