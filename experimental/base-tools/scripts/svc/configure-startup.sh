@@ -10,7 +10,7 @@ S6_DIR=/etc/s6-overlay/s6-rc.d
 mkdir -p "$S6_DIR"
 # startup oneshot referencing existing script
 mkdir -p "$S6_DIR/startup" "$S6_DIR/startup/dependencies.d"
-cp "$ROOT_DIR/handle-startup.sh" "$S6_DIR/entrypoint/handle-startup.sh"
+cp "$ROOT_DIR/handle-startup.sh" "$S6_DIR/startup/handle-startup.sh"
 # copy default start up scripts to STARTUP_SCRIPTS_DIR
 # these scripts should exit quickly to prevent delaying container startup
 mkdir -p "$STARTUP_SCRIPTS_DIR"
