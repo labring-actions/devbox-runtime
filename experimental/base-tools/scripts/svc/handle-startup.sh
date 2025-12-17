@@ -16,6 +16,15 @@ fi
 
 # Run each startup program sequentially in lexical order for deterministic behavior
 # IMPORTANT: These programs should exit quickly to avoid delaying container startup
+run_startup_script() {
+    local script="$1"
+    echo "Running startup script: $script" >&2
+    if ! "$script"; then
+        echo "Startup script failed: $script" >&2
+        exit 1
+    fi
+}
+
 for script in "${STARTUP_SCRIPTS[@]}"; do
-    "$script"
+    run_startup_script "$script"
 done

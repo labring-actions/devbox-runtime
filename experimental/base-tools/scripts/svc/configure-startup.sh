@@ -11,11 +11,16 @@ mkdir -p "$S6_DIR"
 # startup oneshot referencing existing script
 mkdir -p "$S6_DIR/startup" "$S6_DIR/startup/dependencies.d"
 cp "$ROOT_DIR/handle-startup.sh" "$S6_DIR/startup/handle-startup.sh"
-# copy default start up scripts to STARTUP_SCRIPTS_DIR
-# these scripts should exit quickly to prevent delaying container startup
+# Copy default start up scripts to STARTUP_SCRIPTS_DIR
+# These scripts should exit quickly to prevent delaying container startup
 mkdir -p "$STARTUP_SCRIPTS_DIR"
-chmod +x "$ROOT_DIR/startup/"*
-cp -r $ROOT_DIR/startup/* "$STARTUP_SCRIPTS_DIR/"
+shopt -s nullglob
+startup_items=("$ROOT_DIR"/startup/*)
+if [ ${#startup_items[@]} -gt 0 ]; then
+    chmod +x "${startup_items[@]}"
+    cp -r "${startup_items[@]}" "$STARTUP_SCRIPTS_DIR/"
+fi
+shopt -u nullglob
 # Create run first (idempotent overwrite)
 cat >"$S6_DIR/startup/run" <<'STARTUP'
 #!/command/with-contenv bash
