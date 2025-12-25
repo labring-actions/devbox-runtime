@@ -140,7 +140,7 @@ jobs:
             REPO=${{ github.repository_owner }}/devbox-base-expt
             L10N=${{ inputs.l10n }}
             L10N_NORMALIZED=${{ needs.define-matrix.outputs.l10n_normalized }}
-            ARCH=${{ inputs.arch }} 
+            ARCH=${{ inputs.arch }}
           dockerfile: ${{ matrix.packages }}
           ghcr_credentials: ${{ format('{{"registry":"{0}","username":"{1}","password":"{2}"}}', 'ghcr.io', github.repository_owner, secrets.GITHUB_TOKEN) || '{}' }}
           ghcr_image_name: ${{ steps.generate-standard.outputs.ghcr_image_name }}
