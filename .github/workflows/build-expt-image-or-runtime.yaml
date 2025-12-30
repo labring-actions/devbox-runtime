@@ -49,6 +49,11 @@ on:
           - images
           - runtimes
         default: 'images'
+      tools_version:
+        description: 'Base tools version (optional, defaults to tag if not specified)'
+        required: false
+        type: string
+        default: ''
 
 jobs:
   # Define expt image matrix
@@ -58,6 +63,7 @@ jobs:
       tag: ${{ steps.set_tag.outputs.tag }}
       tag_l10n: ${{ steps.set_tag.outputs.tag_l10n }}
       l10n_normalized: ${{ steps.set_tag.outputs.l10n_normalized }}
+      tools_version: ${{ steps.set_tag.outputs.tools_version }}
       packages: ${{ steps.get_packages.outputs.packages }}
     steps:
       - name: Checkout code
@@ -75,9 +81,16 @@ jobs:
           # Convert l10n to lowercase with hyphens (e.g., en_US -> en-us)
           l10n_normalized=$(echo "${{ inputs.l10n }}" | tr '[:upper:]' '[:lower:]' | tr '_' '-')
           tag_l10n=$tag-$l10n_normalized
+          # Set tools_version: use inputs.tools_version if provided, otherwise use tag
+          if [ -n "${{ inputs.tools_version }}" ]; then
+            tools_version=${{ inputs.tools_version }}
+          else
+            tools_version=$tag
+          fi
           echo "tag=$tag" >> $GITHUB_OUTPUT
           echo "tag_l10n=$tag_l10n" >> $GITHUB_OUTPUT
           echo "l10n_normalized=$l10n_normalized" >> $GITHUB_OUTPUT
+          echo "tools_version=$tools_version" >> $GITHUB_OUTPUT
 
       - name: Get packages
         id: get_packages
@@ -141,6 +154,7 @@ jobs:
             L10N=${{ inputs.l10n }}
             L10N_NORMALIZED=${{ needs.define-matrix.outputs.l10n_normalized }}
             ARCH=${{ inputs.arch }}
+            BASE_TOOLS_VERSION=${{ needs.define-matrix.outputs.tools_version }}
           dockerfile: ${{ matrix.packages }}
           ghcr_credentials: ${{ format('{{"registry":"{0}","username":"{1}","password":"{2}"}}', 'ghcr.io', github.repository_owner, secrets.GITHUB_TOKEN) || '{}' }}
           ghcr_image_name: ${{ steps.generate-standard.outputs.ghcr_image_name }}
