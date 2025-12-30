@@ -2,6 +2,10 @@ name: Build Expt Images Or Runtimes
 on:
   workflow_dispatch:
     inputs:
+      tag:
+        description: 'Tag for the Docker image'
+        required: true
+        default: 'latest'
       kind:
         description: 'Type of packages to build'
         required: false
@@ -24,10 +28,6 @@ on:
           - images
           - runtimes
         default: 'images'
-      tag:
-        description: 'Tag for the Docker image'
-        required: true
-        default: 'latest'
       tools_version:
         description: 'Base tools version (optional, defaults to tag if not specified)'
         required: false
@@ -169,6 +169,7 @@ jobs:
             ARCH=${{ inputs.arch }}
             BASE_TOOLS_VERSION=${{ needs.define-matrix.outputs.tools_version }}
             OS_IMAGE_VERSION=${{ needs.define-matrix.outputs.os_version }}-${{ needs.define-matrix.outputs.l10n_normalized }}
+            RUNTIME_IMAGE_VERSION=${{ needs.define-matrix.outputs.tag_l10n }}
           dockerfile: ${{ matrix.packages }}
           ghcr_credentials: ${{ format('{{"registry":"{0}","username":"{1}","password":"{2}"}}', 'ghcr.io', github.repository_owner, secrets.GITHUB_TOKEN) || '{}' }}
           ghcr_image_name: ${{ steps.generate-standard.outputs.ghcr_image_name }}
