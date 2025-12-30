@@ -17,9 +17,6 @@ RUN chmod +x /build.sh && \
     /build.sh && \
     rm -f /build.sh && \
     rm -rf ${PROJECT_TEMPLATE_DIR}
-# Switch to the default devbox user and set HOME to the user's home directory
-ENV HOME=/home/${DEFAULT_DEVBOX_USER}
-USER ${DEFAULT_DEVBOX_USER}
 # Set the working directory to the default devbox user's project directory
 WORKDIR /home/${DEFAULT_DEVBOX_USER}/project
 
