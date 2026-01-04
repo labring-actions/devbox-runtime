@@ -19,5 +19,5 @@ case "${ARCH}" in
 esac
 
 mkdir -p /usr/sbin
-wget "https://github.com/zjy365/devbox-sdk/releases/download/devbox-sdk-server-v${DEVBOX_SDK_SERVER_VERSION}/devbox-sdk-server-linux-${DOWNLOAD_ARCH}" -O /usr/sbin/devbox-sdk-server
+wget "https://github.com/labring/devbox-sdk/releases/download/devbox-sdk-server-v${DEVBOX_SDK_SERVER_VERSION}/devbox-sdk-server-linux-${DOWNLOAD_ARCH}" -O /usr/sbin/devbox-sdk-server
 chmod +x /usr/sbin/devbox-sdk-server
