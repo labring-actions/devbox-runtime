@@ -38,6 +38,11 @@ on:
         required: false
         type: string
         default: ''
+      framework_image_version:
+        description: 'Framework image version (optional, defaults to tag if not specified)'
+        required: false
+        type: string
+        default: ''
       l10n:
         description: 'Localization setting (e.g., en_US, zh_CN)'
         required: false
@@ -68,6 +73,8 @@ jobs:
       tag: ${{ steps.set_tag.outputs.tag }}
       tag_l10n: ${{ steps.set_tag.outputs.tag_l10n }}
       l10n_normalized: ${{ steps.set_tag.outputs.l10n_normalized }}
+      framework_image_version: ${{ steps.set_tag.outputs.framework_image_version }}
+      framework_image_version_l10n: ${{ steps.set_tag.outputs.framework_image_version_l10n }}
       tools_version: ${{ steps.set_tag.outputs.tools_version }}
       os_version: ${{ steps.set_tag.outputs.os_version }}
       packages: ${{ steps.get_packages.outputs.packages }}
@@ -99,9 +106,18 @@ jobs:
           else
             os_version=$tag
           fi
+          # Set framework_image_version: use inputs.framework_image_version if provided, otherwise use tag
+          if [ -n "${{ inputs.framework_image_version }}" ]; then
+            framework_image_version=${{ inputs.framework_image_version }}
+          else
+            framework_image_version=$tag
+          fi
+          framework_image_version_l10n=$framework_image_version-$l10n_normalized
           echo "tag=$tag" >> $GITHUB_OUTPUT
           echo "tag_l10n=$tag_l10n" >> $GITHUB_OUTPUT
           echo "l10n_normalized=$l10n_normalized" >> $GITHUB_OUTPUT
+          echo "framework_image_version=$framework_image_version" >> $GITHUB_OUTPUT
+          echo "framework_image_version_l10n=$framework_image_version_l10n" >> $GITHUB_OUTPUT
           echo "tools_version=$tools_version" >> $GITHUB_OUTPUT
           echo "os_version=$os_version" >> $GITHUB_OUTPUT
 
@@ -169,7 +185,7 @@ jobs:
             ARCH=${{ inputs.arch }}
             BASE_TOOLS_VERSION=${{ needs.define-matrix.outputs.tools_version }}
             OS_IMAGE_VERSION=${{ needs.define-matrix.outputs.os_version }}-${{ needs.define-matrix.outputs.l10n_normalized }}
-            RUNTIME_IMAGE_VERSION=${{ needs.define-matrix.outputs.tag_l10n }}
+            RUNTIME_IMAGE_VERSION=${{ needs.define-matrix.outputs.framework_image_version_l10n != '' && needs.define-matrix.outputs.framework_image_version_l10n || needs.define-matrix.outputs.tag_l10n }}
           dockerfile: ${{ matrix.packages }}
           ghcr_credentials: ${{ format('{{"registry":"{0}","username":"{1}","password":"{2}"}}', 'ghcr.io', github.repository_owner, secrets.GITHUB_TOKEN) || '{}' }}
           ghcr_image_name: ${{ steps.generate-standard.outputs.ghcr_image_name }}
