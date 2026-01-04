@@ -6,27 +6,6 @@ on:
         description: 'Tag for the Docker image'
         required: true
         default: 'latest'
-      l10n:
-        description: 'Localization setting (e.g., en_US, zh_CN)'
-        required: false
-        type: choice
-        options:
-          - en_US
-          - zh_CN
-        default: 'en_US'
-      arch:
-        description: 'System architecture (e.g., amd64, arm64)'
-        required: false
-        type: choice
-        options:
-          - amd64
-          - arm64
-        default: 'amd64'
-      aliyun_enabled:
-        description: 'Enable Aliyun ACR builds'
-        required: false
-        type: boolean
-        default: false
       kind:
         description: 'Type of packages to build'
         required: false
@@ -49,6 +28,37 @@ on:
           - images
           - runtimes
         default: 'images'
+      tools_version:
+        description: 'Base tools version (optional, defaults to tag if not specified)'
+        required: false
+        type: string
+        default: ''
+      os_version:
+        description: 'OS image version (optional, defaults to tag if not specified)'
+        required: false
+        type: string
+        default: ''
+      l10n:
+        description: 'Localization setting (e.g., en_US, zh_CN)'
+        required: false
+        type: choice
+        options:
+          - en_US
+          - zh_CN
+        default: 'en_US'
+      arch:
+        description: 'System architecture (e.g., amd64, arm64)'
+        required: false
+        type: choice
+        options:
+          - amd64
+          - arm64
+        default: 'amd64'
+      aliyun_enabled:
+        description: 'Enable Aliyun ACR builds'
+        required: false
+        type: boolean
+        default: false
 
 jobs:
   # Define expt image matrix
@@ -58,6 +68,8 @@ jobs:
       tag: ${{ steps.set_tag.outputs.tag }}
       tag_l10n: ${{ steps.set_tag.outputs.tag_l10n }}
       l10n_normalized: ${{ steps.set_tag.outputs.l10n_normalized }}
+      tools_version: ${{ steps.set_tag.outputs.tools_version }}
+      os_version: ${{ steps.set_tag.outputs.os_version }}
       packages: ${{ steps.get_packages.outputs.packages }}
     steps:
       - name: Checkout code
@@ -75,9 +87,23 @@ jobs:
           # Convert l10n to lowercase with hyphens (e.g., en_US -> en-us)
           l10n_normalized=$(echo "${{ inputs.l10n }}" | tr '[:upper:]' '[:lower:]' | tr '_' '-')
           tag_l10n=$tag-$l10n_normalized
+          # Set tools_version: use inputs.tools_version if provided, otherwise use tag
+          if [ -n "${{ inputs.tools_version }}" ]; then
+            tools_version=${{ inputs.tools_version }}
+          else
+            tools_version=$tag
+          fi
+          # Set os_version: use inputs.os_version if provided, otherwise use tag
+          if [ -n "${{ inputs.os_version }}" ]; then
+            os_version=${{ inputs.os_version }}
+          else
+            os_version=$tag
+          fi
           echo "tag=$tag" >> $GITHUB_OUTPUT
           echo "tag_l10n=$tag_l10n" >> $GITHUB_OUTPUT
           echo "l10n_normalized=$l10n_normalized" >> $GITHUB_OUTPUT
+          echo "tools_version=$tools_version" >> $GITHUB_OUTPUT
+          echo "os_version=$os_version" >> $GITHUB_OUTPUT
 
       - name: Get packages
         id: get_packages
@@ -140,7 +166,10 @@ jobs:
             REPO=${{ github.repository_owner }}/devbox-base-expt
             L10N=${{ inputs.l10n }}
             L10N_NORMALIZED=${{ needs.define-matrix.outputs.l10n_normalized }}
-            ARCH=${{ inputs.arch }} 
+            ARCH=${{ inputs.arch }}
+            BASE_TOOLS_VERSION=${{ needs.define-matrix.outputs.tools_version }}
+            OS_IMAGE_VERSION=${{ needs.define-matrix.outputs.os_version }}-${{ needs.define-matrix.outputs.l10n_normalized }}
+            RUNTIME_IMAGE_VERSION=${{ needs.define-matrix.outputs.tag_l10n }}
           dockerfile: ${{ matrix.packages }}
           ghcr_credentials: ${{ format('{{"registry":"{0}","username":"{1}","password":"{2}"}}', 'ghcr.io', github.repository_owner, secrets.GITHUB_TOKEN) || '{}' }}
           ghcr_image_name: ${{ steps.generate-standard.outputs.ghcr_image_name }}
