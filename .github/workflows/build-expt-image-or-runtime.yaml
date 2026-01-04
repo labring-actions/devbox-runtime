@@ -185,7 +185,8 @@ jobs:
             ARCH=${{ inputs.arch }}
             BASE_TOOLS_VERSION=${{ needs.define-matrix.outputs.tools_version }}
             OS_IMAGE_VERSION=${{ needs.define-matrix.outputs.os_version }}-${{ needs.define-matrix.outputs.l10n_normalized }}
-            RUNTIME_IMAGE_VERSION=${{ needs.define-matrix.outputs.framework_image_version_l10n != '' && needs.define-matrix.outputs.framework_image_version_l10n || needs.define-matrix.outputs.tag_l10n }}
+            FRAMEWORK_IMAGE_VERSION=${{ needs.define-matrix.outputs.framework_image_version_l10n }}
+            RUNTIME_IMAGE_VERSION=${{ needs.define-matrix.outputs.tag_l10n }}
           dockerfile: ${{ matrix.packages }}
           ghcr_credentials: ${{ format('{{"registry":"{0}","username":"{1}","password":"{2}"}}', 'ghcr.io', github.repository_owner, secrets.GITHUB_TOKEN) || '{}' }}
           ghcr_image_name: ${{ steps.generate-standard.outputs.ghcr_image_name }}
