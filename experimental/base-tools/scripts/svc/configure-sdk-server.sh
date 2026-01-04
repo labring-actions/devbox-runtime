@@ -15,6 +15,8 @@ if [ -n "${DEVBOX_JWT_SECRET:-}" ] && [ "${DEVBOX_ENV:-}" != "production" ]; the
 	echo "DEVBOX_JWT_SECRET exists and is non-empty AND DEVBOX_ENV is not production"
 	# start the longrun devbox sdk server service.
 	export HOME=/home/devbox
+	export USER=devbox
+	export LOGNAME=devbox
 	exec s6-setuidgid devbox /usr/sbin/devbox-sdk-server --workspace-path=/home/devbox/project
 else
 	# custom exit code to indicate missing env var
