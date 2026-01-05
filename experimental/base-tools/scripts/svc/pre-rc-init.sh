@@ -13,7 +13,7 @@
 #   3. Stage 2 Hook (THIS SCRIPT) ← Before s6-rc compile!
 #   4. s6-rc-compile (services in contents.d are compiled)
 #   5. s6-rc starts services
-# 
+#
 # This hook should run BEFORE s6-rc compilation, allowing us to disable services
 # based on DEVBOX_ENV environment variable
 # ============================================================================
@@ -41,20 +41,20 @@ echo "[pre-rc-init] ========================================"
 should_enable_service() {
     local service="$1"
     local line
-    
+
     # Find service in configuration table
     line=$(echo "$SERVICE_CONFIG" | grep "^${service}|" || true)
-    
+
     if [ -z "$line" ]; then
         # Unconfigured services are enabled by default
         return 0
     fi
-    
+
     # Parse configuration: service name|development environment|production environment
     local dev_enabled prod_enabled
     dev_enabled=$(echo "$line" | cut -d'|' -f2)
     prod_enabled=$(echo "$line" | cut -d'|' -f3)
-    
+
     # Return corresponding enabled status based on current environment
     if [ "$DEVBOX_ENV" = "production" ]; then
         [ "$prod_enabled" = "1" ]
@@ -68,13 +68,13 @@ disable_service() {
     local service="$1"
     local target="$S6_DIR/user/contents.d/$service"
     local service_dir="$S6_DIR/$service"
-    
+
     # Remove from user bundle
     if [ -f "$target" ]; then
         echo "[pre-rc-init] Disabling: $service (removing from bundle)"
         rm -f "$target"
     fi
-    
+
     # Also remove the service definition directory
     # This ensures s6-rc-compile won't see this service at all
     # and /run/service/<service> won't be created
@@ -88,7 +88,7 @@ disable_service() {
 enable_service() {
     local service="$1"
     local target="$S6_DIR/user/contents.d/$service"
-    
+
     if [ -d "$S6_DIR/$service" ] && [ ! -f "$target" ]; then
         echo "[pre-rc-init] Enabling: $service"
         touch "$target"
@@ -100,7 +100,7 @@ echo "$SERVICE_CONFIG" | while IFS='|' read -r service dev prod; do
     # Trim whitespace from service name and skip empty/whitespace-only lines
     service=$(echo "$service" | xargs)
     [ -z "$service" ] && continue
-    
+
     if should_enable_service "$service"; then
         enable_service "$service"
     else
