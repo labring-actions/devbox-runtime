@@ -12,4 +12,5 @@ $SOURCE_DIR/svc/configure-s6-hook.sh
 $SOURCE_DIR/svc/configure-startup.sh
 $SOURCE_DIR/svc/configure-sshd.sh
 $SOURCE_DIR/svc/configure-crond.sh
+$SOURCE_DIR/svc/configure-sdk-server.sh
 $SOURCE_DIR/svc/configure-entrypoint.sh

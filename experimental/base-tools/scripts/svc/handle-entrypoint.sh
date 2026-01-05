@@ -11,6 +11,11 @@ if [ ! -f "$PROJECT_DIR/entrypoint.sh" ]; then
 	exit 0
 fi
 
+# Set necessary environment variables for the devbox user like docker engine would
+export HOME="/home/$DEFAULT_DEVBOX_USER"
+export USER="$DEFAULT_DEVBOX_USER"
+export LOGNAME="$DEFAULT_DEVBOX_USER"
+
 cd "$PROJECT_DIR"
 chmod +x ./entrypoint.sh
 s6-setuidgid "$DEFAULT_DEVBOX_USER" /bin/bash ./entrypoint.sh "${DEVBOX_ENV:-development}" &
