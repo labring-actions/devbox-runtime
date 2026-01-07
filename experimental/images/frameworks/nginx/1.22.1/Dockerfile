@@ -15,4 +15,3 @@ COPY build.sh /build.sh
 RUN chmod +x /build.sh && \
     /build.sh && \
     rm -f /build.sh
-
