@@ -17,7 +17,7 @@ on:
         default: 'operating-systems'
       name:
         required: false
-        description: 'Name of the specific package to build'
+        description: 'Specific package folder; leave empty to build all packages of the selected kind'
         type: string
         default: ''
       build_type:
@@ -44,20 +44,22 @@ on:
         type: string
         default: ''
       l10n:
-        description: 'Localization setting (e.g., en_US, zh_CN)'
+        description: 'Localization setting (choose one or both)'
         required: false
         type: choice
         options:
           - en_US
           - zh_CN
+          - both
         default: 'en_US'
       arch:
-        description: 'System architecture (e.g., amd64, arm64)'
+        description: 'System architecture (choose one or both)'
         required: false
         type: choice
         options:
           - amd64
           - arm64
+          - both
         default: 'amd64'
       aliyun_enabled:
         description: 'Enable Aliyun ACR builds'
@@ -71,12 +73,11 @@ jobs:
     runs-on: ubuntu-latest
     outputs:
       tag: ${{ steps.set_tag.outputs.tag }}
-      tag_l10n: ${{ steps.set_tag.outputs.tag_l10n }}
-      l10n_normalized: ${{ steps.set_tag.outputs.l10n_normalized }}
       framework_image_version: ${{ steps.set_tag.outputs.framework_image_version }}
-      framework_image_version_l10n: ${{ steps.set_tag.outputs.framework_image_version_l10n }}
       tools_version: ${{ steps.set_tag.outputs.tools_version }}
       os_version: ${{ steps.set_tag.outputs.os_version }}
+      l10n_matrix: ${{ steps.set_matrix.outputs.l10n_matrix }}
+      arch_matrix: ${{ steps.set_matrix.outputs.arch_matrix }}
       packages: ${{ steps.get_packages.outputs.packages }}
     steps:
       - name: Checkout code
@@ -91,9 +92,6 @@ jobs:
           else
             tag=$(echo "${{ github.sha }}" | cut -c1-7)
           fi
-          # Convert l10n to lowercase with hyphens (e.g., en_US -> en-us)
-          l10n_normalized=$(echo "${{ inputs.l10n }}" | tr '[:upper:]' '[:lower:]' | tr '_' '-')
-          tag_l10n=$tag-$l10n_normalized
           # Set tools_version: use inputs.tools_version if provided, otherwise use tag
           if [ -n "${{ inputs.tools_version }}" ]; then
             tools_version=${{ inputs.tools_version }}
@@ -112,14 +110,54 @@ jobs:
           else
             framework_image_version=$tag
           fi
-          framework_image_version_l10n=$framework_image_version-$l10n_normalized
           echo "tag=$tag" >> $GITHUB_OUTPUT
-          echo "tag_l10n=$tag_l10n" >> $GITHUB_OUTPUT
-          echo "l10n_normalized=$l10n_normalized" >> $GITHUB_OUTPUT
           echo "framework_image_version=$framework_image_version" >> $GITHUB_OUTPUT
-          echo "framework_image_version_l10n=$framework_image_version_l10n" >> $GITHUB_OUTPUT
           echo "tools_version=$tools_version" >> $GITHUB_OUTPUT
           echo "os_version=$os_version" >> $GITHUB_OUTPUT
+
+      - name: Build localization and architecture matrix
+        id: set_matrix
+        run: |
+          l10n_values=()
+          case "${{ inputs.l10n }}" in
+            en_US)
+              l10n_values+=('{"display":"en_US","normalized":"en-us"}')
+              ;;
+            zh_CN)
+              l10n_values+=('{"display":"zh_CN","normalized":"zh-cn"}')
+              ;;
+            both)
+              l10n_values+=('{"display":"en_US","normalized":"en-us"}')
+              l10n_values+=('{"display":"zh_CN","normalized":"zh-cn"}')
+              ;;
+            *)
+              echo "Error: Unknown l10n option '${{ inputs.l10n }}'." >&2
+              exit 1
+              ;;
+          esac
+          l10n_matrix=$(printf '%s\n' "${l10n_values[@]}" | jq -s -c '.')
+
+          arch_values=()
+          case "${{ inputs.arch }}" in
+            amd64)
+              arch_values+=("amd64")
+              ;;
+            arm64)
+              arch_values+=("arm64")
+              ;;
+            both)
+              arch_values+=("amd64")
+              arch_values+=("arm64")
+              ;;
+            *)
+              echo "Error: Unknown arch option '${{ inputs.arch }}'." >&2
+              exit 1
+              ;;
+          esac
+          arch_matrix=$(printf '%s\n' "${arch_values[@]}" | jq -R -s 'split("\n")[:-1]')
+
+          echo "l10n_matrix=$l10n_matrix" >> $GITHUB_OUTPUT
+          echo "arch_matrix=$arch_matrix" >> $GITHUB_OUTPUT
 
       - name: Get packages
         id: get_packages
@@ -158,6 +196,8 @@ jobs:
       fail-fast: false
       matrix:
         packages: ${{ fromJson(needs.define-matrix.outputs.packages) }}
+        l10n: ${{ fromJson(needs.define-matrix.outputs.l10n_matrix) }}
+        arch: ${{ fromJson(needs.define-matrix.outputs.arch_matrix) }}
     permissions:
       contents: read
       packages: write
@@ -171,7 +211,7 @@ jobs:
         uses: ./.github/actions/generate-image-names
         with:
           dockerfile: ${{ matrix.packages }}
-          tag: ${{ needs.define-matrix.outputs.tag_l10n }}
+          tag: ${{ format('{0}-{1}', needs.define-matrix.outputs.tag, matrix.l10n.normalized) }}
           ghcr_credentials: ${{ format('{{"registry":"{0}","username":"{1}","password":"{2}"}}', 'ghcr.io', github.repository_owner, secrets.GITHUB_TOKEN) || '{}' }}
           aliyun_credentials: ${{ inputs.aliyun_enabled == 'true' && format('{{"registry":"{0}","username":"{1}","password":"{2}", "namespace":"{3}"}}', secrets.ALIYUN_REGISTRY, secrets.ALIYUN_USERNAME, secrets.ALIYUN_PASSWORD, secrets.ALIYUN_NAMESPACE) || '{}' }}
           expt_image_naming: ${{ inputs.build_type }}
@@ -180,13 +220,13 @@ jobs:
         with:
           build_args: |
             REPO=${{ github.repository_owner }}/devbox-base-expt
-            L10N=${{ inputs.l10n }}
-            L10N_NORMALIZED=${{ needs.define-matrix.outputs.l10n_normalized }}
-            ARCH=${{ inputs.arch }}
+            L10N=${{ matrix.l10n.display }}
+            L10N_NORMALIZED=${{ matrix.l10n.normalized }}
+            ARCH=${{ matrix.arch }}
             BASE_TOOLS_VERSION=${{ needs.define-matrix.outputs.tools_version }}
-            OS_IMAGE_VERSION=${{ needs.define-matrix.outputs.os_version }}-${{ needs.define-matrix.outputs.l10n_normalized }}
-            FRAMEWORK_IMAGE_VERSION=${{ needs.define-matrix.outputs.framework_image_version_l10n }}
-            RUNTIME_IMAGE_VERSION=${{ needs.define-matrix.outputs.tag_l10n }}
+            OS_IMAGE_VERSION=${{ needs.define-matrix.outputs.os_version }}-${{ matrix.l10n.normalized }}
+            FRAMEWORK_IMAGE_VERSION=${{ needs.define-matrix.outputs.framework_image_version }}-${{ matrix.l10n.normalized }}
+            RUNTIME_IMAGE_VERSION=${{ format('{0}-{1}', needs.define-matrix.outputs.tag, matrix.l10n.normalized) }}
           dockerfile: ${{ matrix.packages }}
           ghcr_credentials: ${{ format('{{"registry":"{0}","username":"{1}","password":"{2}"}}', 'ghcr.io', github.repository_owner, secrets.GITHUB_TOKEN) || '{}' }}
           ghcr_image_name: ${{ steps.generate-standard.outputs.ghcr_image_name }}
@@ -213,6 +253,7 @@ jobs:
       - name: Output built image names (standard)
         run: |
           echo "## 🐳 Built OS Base Images (Standard)" >> $GITHUB_STEP_SUMMARY
+          echo "Localization: ${{ matrix.l10n.display }} (normalized: ${{ matrix.l10n.normalized }}), Arch: ${{ matrix.arch }}" >> $GITHUB_STEP_SUMMARY
           echo "| Image Name | Registry |" >> $GITHUB_STEP_SUMMARY
           echo "|------------|----------|" >> $GITHUB_STEP_SUMMARY
           echo "| ${{ steps.generate-standard.outputs.ghcr_image_name }} | GHCR |" >> $GITHUB_STEP_SUMMARY
