@@ -23,10 +23,9 @@ RUN apt-get update && \
     rm -rf /var/lib/apt/lists/*
 
 USER devbox
-RUN sudo rm -rf /home/devbox/project/*
-COPY project /home/devbox/project
-RUN sudo chown -R devbox:devbox /home/devbox/project && \
-    sudo chmod -R 777 /home/devbox/project && \
+RUN rm -rf /home/devbox/project/*
+COPY --chown=devbox:devbox project /home/devbox/project
+RUN chmod -R 777 /home/devbox/project && \
     chmod -R +x /home/devbox/project/entrypoint.sh && \
     python3.10 -m venv /home/devbox/project
 

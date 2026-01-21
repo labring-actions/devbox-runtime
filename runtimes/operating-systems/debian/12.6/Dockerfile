@@ -40,10 +40,11 @@ RUN chmod +x /usr/start/startup.sh && \
     chown -R devbox:devbox /home/devbox/.ssh && \
     chmod -R 770 /home/devbox/.ssh
 
+# Copy project as root, set correct ownership/permissions without sudo.
+COPY --chown=devbox:devbox project /home/devbox/project
+RUN chmod -R 777 /home/devbox/project
+
 USER devbox
-COPY project /home/devbox/project
-RUN sudo chown -R devbox:devbox /home/devbox/project && \
-    sudo chmod -R 777 /home/devbox/project
 
 ENTRYPOINT ["/usr/bin/dumb-init", "--"]
 CMD ["sudo", "-E", "/usr/start/startup.sh"]

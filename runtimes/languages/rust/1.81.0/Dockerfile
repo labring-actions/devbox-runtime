@@ -17,9 +17,8 @@ RUN curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y
 
 ENV PATH="/home/devbox/.cargo/bin:${PATH}"
 RUN cd /home/devbox/project && rm -rf ./*
-COPY project /home/devbox/project
-RUN sudo chown -R devbox:devbox /home/devbox/project && \
-    sudo chmod -R 777 /home/devbox/project && \
+COPY --chown=devbox:devbox project /home/devbox/project
+RUN chmod -R 777 /home/devbox/project && \
     chmod -R +x /home/devbox/project/entrypoint.sh
 
 RUN cd /home/devbox/project && \

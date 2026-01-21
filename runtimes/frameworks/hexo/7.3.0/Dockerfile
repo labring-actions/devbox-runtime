@@ -2,16 +2,17 @@ ARG BASE_IMAGE=ghcr.io/labring-actions/devbox/node.js-20:latest
 FROM $BASE_IMAGE
 
 USER root
-RUN rm -rf /home/devbox/project/* && \
-    mkdir -p /home/devbox/.devbox
+RUN npm install -g hexo-cli
 
 USER devbox
-RUN sudo npm install -g hexo-cli && \
+RUN rm -rf /home/devbox/project/* && \
     hexo init /home/devbox/project && \
     cd /home/devbox/project && \
     npm install
 
-COPY project /home/devbox/project
-RUN sudo chown -R devbox:devbox /home/devbox/project && \
-    sudo chmod -R 777 /home/devbox/project && \
-    chmod -R +x /home/devbox/project/entrypoint.sh
+USER root
+COPY --chown=devbox:devbox project/entrypoint.sh /home/devbox/project/entrypoint.sh
+RUN chmod -R 777 /home/devbox/project && \
+    chmod +x /home/devbox/project/entrypoint.sh
+
+USER devbox
