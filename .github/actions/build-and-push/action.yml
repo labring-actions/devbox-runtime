@@ -57,7 +57,8 @@ runs:
       with:
         context: ${{ steps.get_docker_build_context.outputs.dockerfile_dir }}
         file: ${{ inputs.dockerfile }}
-        platforms: linux/amd64
+        multiPlatform: true
+        platforms: linux/amd64,linux/arm64
         build-args: |
           ${{ inputs.build_args }}
           ${{ inputs.build_base_image != '' && format('BASE_IMAGE={0}', inputs.build_base_image) || '' }}
