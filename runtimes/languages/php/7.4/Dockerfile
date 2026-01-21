@@ -15,7 +15,6 @@ COPY php.ini /etc/php/7.4/apache2/php.ini
 
 USER devbox
 RUN cd /home/devbox/project && rm -rf ./*
-COPY project /home/devbox/project
-RUN sudo chown -R devbox:devbox /home/devbox/project && \
-    sudo chmod -R 777 /home/devbox/project && \
+COPY --chown=devbox:devbox project /home/devbox/project
+RUN chmod -R 777 /home/devbox/project && \
     chmod -R +x /home/devbox/project/entrypoint.sh

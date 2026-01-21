@@ -45,14 +45,11 @@ RUN chmod +x /usr/start/startup.sh && \
     chown -R devbox:devbox /home/devbox/.ssh && \
     chmod -R 770 /home/devbox/.ssh
 
+COPY --chown=devbox:devbox project /home/devbox/project
+RUN chmod -R 777 /home/devbox/project && \
+    chmod +x /home/devbox/project/entrypoint.sh
+
 USER devbox
-COPY project /home/devbox/project
-RUN sudo chown -R devbox:devbox /home/devbox/project && \
-    sudo chmod -R 777 /home/devbox/project && \
-    sudo chmod -R +x /home/devbox/project/entrypoint.sh
-
-
-USER root
 
 ENTRYPOINT ["/usr/bin/dumb-init", "--"]
 CMD ["sudo", "-E", "/usr/start/startup.sh"]
