@@ -49,17 +49,17 @@ COPY --chown=devbox:devbox project /home/devbox/project
 RUN chmod -R 777 /home/devbox/project && \
     chmod +x /home/devbox/project/entrypoint.sh
 
+EXPOSE 22
+ARG CN_PATCH_ENABLED=false
+# Copy sources.list to tmp directory, if cn patch is enabled, copy it to /etc/apt/sources.list
+COPY sources.list /tmp/sources.list
+RUN if [ "$CN_PATCH_ENABLED" = "true" ]; then \
+        cp /tmp/sources.list /etc/apt/sources.list; \
+    fi
+
 USER devbox
 
 ENTRYPOINT ["/usr/bin/dumb-init", "--"]
 CMD ["sudo", "-E", "/usr/start/startup.sh"]
 
 WORKDIR /home/devbox/project
-
-EXPOSE 22
-ARG CN_PATCH_ENABLED=false
-# Copy sources.list to tmp directory, if cn patch is enabled, copy it to /etc/apt/sources.list
-COPY sources.list /tmp/sources.list
-RUN if [ "$CN_PATCH_ENABLED" = "true" ]; then \
-        sudo cp /tmp/sources.list /etc/apt/sources.list; \
-    fi

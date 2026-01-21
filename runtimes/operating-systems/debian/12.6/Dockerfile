@@ -44,6 +44,14 @@ RUN chmod +x /usr/start/startup.sh && \
 COPY --chown=devbox:devbox project /home/devbox/project
 RUN chmod -R 777 /home/devbox/project
 
+# DO CN PATCH in the end of the Dockerfile
+ARG CN_PATCH_ENABLED=false
+# Copy debian.sources to tmp directory, if cn patch is enabled, copy it to /etc/apt/sources.list.d/debian.sources
+COPY debian.sources /tmp/debian.sources
+RUN if [ "$CN_PATCH_ENABLED" = "true" ]; then \
+       cp /tmp/debian.sources /etc/apt/sources.list.d/debian.sources; \
+    fi
+
 USER devbox
 
 ENTRYPOINT ["/usr/bin/dumb-init", "--"]
@@ -51,11 +59,3 @@ CMD ["sudo", "-E", "/usr/start/startup.sh"]
 
 WORKDIR /home/devbox/project
 EXPOSE 22
-
-# DO CN PATCH in the end of the Dockerfile
-ARG CN_PATCH_ENABLED=false
-# Copy debian.sources to tmp directory, if cn patch is enabled, copy it to /etc/apt/sources.list.d/debian.sources
-COPY debian.sources /tmp/debian.sources
-RUN if [ "$CN_PATCH_ENABLED" = "true" ]; then \
-       sudo cp /tmp/debian.sources /etc/apt/sources.list.d/debian.sources; \
-    fi
