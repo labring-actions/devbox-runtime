@@ -3,10 +3,11 @@
 from __future__ import annotations
 
 import asyncio
+import json
 import logging
 import shlex
 from dataclasses import dataclass
-from typing import Callable, Iterable, List, Optional
+from typing import Any, Callable, Dict, Iterable, List, Optional, Tuple
 from urllib.parse import urlparse
 
 from asyncio.subprocess import PIPE
@@ -62,6 +63,18 @@ class GHCRClient:
                 logger.warning("Failed to fetch tags: %s", exc)
         return results
 
+    async def get_architectures(self, image_refs: Iterable[str]) -> Dict[str, List[str]]:
+        unique_refs = list(dict.fromkeys(image_refs))
+        tasks = [asyncio.create_task(self._fetch_architectures(image_ref)) for image_ref in unique_refs]
+        results: Dict[str, List[str]] = {}
+        for task in asyncio.as_completed(tasks):
+            try:
+                image_ref, archs = await task
+                results[image_ref] = archs
+            except Exception as exc:  # noqa: BLE001
+                logger.warning("Failed to fetch architectures: %s", exc)
+        return results
+
     async def _fetch_runtime_tags(self, runtime: RuntimeImage, progress_cb: Optional[Callable[[int], None]]) -> List[TagInfo]:
         image_repo = f"{self.registry}/{self.repository}/{runtime.image_name}"
         try:
@@ -87,6 +100,66 @@ class GHCRClient:
             if progress_cb:
                 progress_cb(1)
         return records
+
+    async def _fetch_architectures(self, image_ref: str) -> Tuple[str, List[str]]:
+        try:
+            manifest_raw = await self._run_crane(["manifest", image_ref])
+        except RuntimeError as exc:
+            logger.warning("Unable to inspect manifest for %s: %s", image_ref, exc)
+            return image_ref, []
+        manifest = self._parse_json(manifest_raw, image_ref, "manifest")
+        if manifest:
+            archs = self._extract_architectures(manifest)
+            if archs:
+                return image_ref, archs
+        try:
+            config_raw = await self._run_crane(["config", image_ref])
+        except RuntimeError as exc:
+            logger.warning("Unable to inspect config for %s: %s", image_ref, exc)
+            return image_ref, []
+        config = self._parse_json(config_raw, image_ref, "config")
+        if config:
+            return image_ref, self._extract_architectures(config)
+        return image_ref, []
+
+    def _parse_json(self, raw: str, image_ref: str, label: str) -> Optional[Dict[str, Any]]:
+        try:
+            return json.loads(raw)
+        except json.JSONDecodeError as exc:
+            logger.warning("Unable to parse %s JSON for %s: %s", label, image_ref, exc)
+            return None
+
+    def _extract_architectures(self, payload: Dict[str, Any]) -> List[str]:
+        archs: set[str] = set()
+        manifests = payload.get("manifests")
+        if isinstance(manifests, list):
+            for entry in manifests:
+                platform = entry.get("platform", {}) if isinstance(entry, dict) else {}
+                arch = self._normalize_arch_field(platform.get("architecture"))
+                if not arch:
+                    continue
+                variant = self._normalize_arch_field(platform.get("variant"))
+                archs.add(self._format_arch(arch, variant))
+        if archs:
+            return sorted(archs)
+        arch = self._normalize_arch_field(payload.get("architecture"))
+        if arch:
+            variant = self._normalize_arch_field(payload.get("variant"))
+            archs.add(self._format_arch(arch, variant))
+        return sorted(archs)
+
+    @staticmethod
+    def _format_arch(arch: str, variant: Optional[str]) -> str:
+        return f"{arch}/{variant}" if variant else arch
+
+    @staticmethod
+    def _normalize_arch_field(value: Any) -> Optional[str]:
+        if not isinstance(value, str):
+            return None
+        cleaned = value.strip()
+        if not cleaned or cleaned.lower() == "unknown":
+            return None
+        return cleaned
 
     async def _run_crane(self, args: List[str]) -> str:
         cmd = [self.crane_bin, *args]

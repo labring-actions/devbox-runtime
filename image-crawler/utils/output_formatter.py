@@ -48,15 +48,17 @@ class OutputFormatter:
             versioned = bucket.get("versioned", 0)
             print(f"- {category}: {count} (其中 v 开头版本: {versioned})")
         print()
-        print("📋 镜像版本列表 (按类别、名称排序，展示 类别 | 名称 | 版本 | 镜像全路径):")
+        print("📋 镜像版本列表 (按类别、名称排序，展示 类别 | 名称 | 版本 | 架构 | 镜像全路径):")
         for image in versions_list:
             icon = self.icons.get(image.version_type, self.icons["other"])
             label = self._apply_color(image.version, image.version_type)
+            arch_label = ",".join(image.architectures) if image.architectures else "-"
             line = (
                 f"{icon} "
                 f"{image.category:<10} "
                 f"{image.name:<30} "
                 f"{label:<12} "
+                f"{arch_label:<16} "
                 f"{image.full_tag}"
             )
             print(line)

@@ -30,6 +30,7 @@ class ImageVersion:
     digest: Optional[str]
     source: str
     version_type: str
+    architectures: List[str] = field(default_factory=list)
     parsed_version: Optional[Version] = field(default=None, repr=False, compare=False)
 
     @property
