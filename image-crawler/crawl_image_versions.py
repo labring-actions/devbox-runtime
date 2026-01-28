@@ -123,6 +123,10 @@ async def run_crawler(
     versions = parser.parse_tags(tag_infos, pattern=filter_pattern)
     if latest_only:
         versions = parser.filter_latest_versions(versions)
+    if latest_only and "console" in output_formats:
+        arch_map = await client.get_architectures([image.full_tag for image in versions])
+        for image in versions:
+            image.architectures = arch_map.get(image.full_tag, [])
     metadata = formatter.build_metadata(versions, crawl_started)
 
     if not versions:
