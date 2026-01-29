@@ -31,10 +31,16 @@ on:
         required: false
         type: boolean
         default: true
+    outputs:
+      image_tag:
+        description: 'Resolved image tag used for base-tools'
+        value: ${{ jobs.build.outputs.image_tag }}
 
 jobs:
   build:
     runs-on: ubuntu-latest
+    outputs:
+      image_tag: ${{ steps.params.outputs.image_tag }}
     permissions:
       contents: read
       packages: write

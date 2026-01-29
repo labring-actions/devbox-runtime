@@ -278,6 +278,7 @@ jobs:
       - name: Build and push standard images
         uses: ./.github/actions/build-and-push
         with:
+          platforms: linux/${{ matrix.arch }}
           build_args: |
             REPO=${{ github.repository_owner }}/devbox-base-expt
             L10N=${{ matrix.l10n.display }}

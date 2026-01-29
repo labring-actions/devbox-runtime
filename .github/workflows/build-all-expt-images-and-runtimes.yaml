@@ -69,7 +69,7 @@ jobs:
       kind: operating-systems
       name: ''
       build_type: images
-      tools_version: ${{ inputs.tools_version }}
+      tools_version: ${{ needs['build-tools'].outputs.image_tag }}
       os_version: ${{ inputs.os_version }}
       framework_image_version: ${{ inputs.framework_image_version }}
       l10n: ${{ inputs.l10n }}
@@ -79,14 +79,14 @@ jobs:
 
   build-language-base:
     name: Base Images (Languages)
-    needs: build-os-base
+    needs: [build-tools, build-os-base]
     uses: ./.github/workflows/build-expt-image-or-runtime.yaml
     with:
       tag: ${{ inputs.tag }}
       kind: languages
       name: ''
       build_type: images
-      tools_version: ${{ inputs.tools_version }}
+      tools_version: ${{ needs['build-tools'].outputs.image_tag }}
       os_version: ${{ inputs.os_version }}
       framework_image_version: ${{ inputs.framework_image_version }}
       l10n: ${{ inputs.l10n }}
@@ -96,14 +96,14 @@ jobs:
 
   build-framework-base:
     name: Base Images (Frameworks)
-    needs: build-language-base
+    needs: [build-tools, build-language-base]
     uses: ./.github/workflows/build-expt-image-or-runtime.yaml
     with:
       tag: ${{ inputs.tag }}
       kind: frameworks
       name: ''
       build_type: images
-      tools_version: ${{ inputs.tools_version }}
+      tools_version: ${{ needs['build-tools'].outputs.image_tag }}
       os_version: ${{ inputs.os_version }}
       framework_image_version: ${{ inputs.framework_image_version }}
       l10n: ${{ inputs.l10n }}
@@ -113,14 +113,14 @@ jobs:
 
   build-os-runtime:
     name: Runtime Images (OS)
-    needs: build-framework-base
+    needs: [build-tools, build-framework-base]
     uses: ./.github/workflows/build-expt-image-or-runtime.yaml
     with:
       tag: ${{ inputs.tag }}
       kind: operating-systems
       name: ''
       build_type: runtimes
-      tools_version: ${{ inputs.tools_version }}
+      tools_version: ${{ needs['build-tools'].outputs.image_tag }}
       os_version: ${{ inputs.os_version }}
       framework_image_version: ${{ inputs.framework_image_version }}
       l10n: ${{ inputs.l10n }}
@@ -130,14 +130,14 @@ jobs:
 
   build-language-runtime:
     name: Runtime Images (Languages)
-    needs: build-os-runtime
+    needs: [build-tools, build-os-runtime]
     uses: ./.github/workflows/build-expt-image-or-runtime.yaml
     with:
       tag: ${{ inputs.tag }}
       kind: languages
       name: ''
       build_type: runtimes
-      tools_version: ${{ inputs.tools_version }}
+      tools_version: ${{ needs['build-tools'].outputs.image_tag }}
       os_version: ${{ inputs.os_version }}
       framework_image_version: ${{ inputs.framework_image_version }}
       l10n: ${{ inputs.l10n }}
@@ -147,14 +147,14 @@ jobs:
 
   build-framework-runtime:
     name: Runtime Images (Frameworks)
-    needs: build-language-runtime
+    needs: [build-tools, build-language-runtime]
     uses: ./.github/workflows/build-expt-image-or-runtime.yaml
     with:
       tag: ${{ inputs.tag }}
       kind: frameworks
       name: ''
       build_type: runtimes
-      tools_version: ${{ inputs.tools_version }}
+      tools_version: ${{ needs['build-tools'].outputs.image_tag }}
       os_version: ${{ inputs.os_version }}
       framework_image_version: ${{ inputs.framework_image_version }}
       l10n: ${{ inputs.l10n }}
