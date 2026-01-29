@@ -66,6 +66,66 @@ on:
         required: false
         type: boolean
         default: false
+  workflow_call:
+    inputs:
+      tag:
+        description: 'Tag for the Docker image'
+        required: true
+        type: string
+      kind:
+        description: 'Type of packages to build'
+        required: false
+        type: string
+        default: 'operating-systems'
+      name:
+        description: 'Specific package folder; leave empty to build all packages of the selected kind'
+        required: false
+        type: string
+        default: ''
+      build_type:
+        description: 'Type of build to perform'
+        required: false
+        type: string
+        default: 'images'
+      tools_version:
+        description: 'Base tools version (optional, defaults to tag if not specified)'
+        required: false
+        type: string
+        default: ''
+      os_version:
+        description: 'OS image version (optional, defaults to tag if not specified)'
+        required: false
+        type: string
+        default: ''
+      framework_image_version:
+        description: 'Framework image version (optional, defaults to tag if not specified)'
+        required: false
+        type: string
+        default: ''
+      l10n:
+        description: 'Localization setting (choose one or both)'
+        required: false
+        type: string
+        default: 'en_US'
+      arch:
+        description: 'System architecture (choose one or both)'
+        required: false
+        type: string
+        default: 'amd64'
+      aliyun_enabled:
+        description: 'Enable Aliyun ACR builds'
+        required: false
+        type: boolean
+        default: false
+    secrets:
+      ALIYUN_REGISTRY:
+        required: false
+      ALIYUN_USERNAME:
+        required: false
+      ALIYUN_PASSWORD:
+        required: false
+      ALIYUN_NAMESPACE:
+        required: false
 
 jobs:
   # Define expt image matrix
@@ -252,7 +312,7 @@ jobs:
           docker builder prune -af || true
       - name: Output built image names (standard)
         run: |
-          echo "## 🐳 Built OS Base Images (Standard)" >> $GITHUB_STEP_SUMMARY
+          echo "## 🐳 Built ${{ inputs.kind }} ${{ inputs.build_type }} (Standard)" >> $GITHUB_STEP_SUMMARY
           echo "Localization: ${{ matrix.l10n.display }} (normalized: ${{ matrix.l10n.normalized }}), Arch: ${{ matrix.arch }}" >> $GITHUB_STEP_SUMMARY
           echo "| Image Name | Registry |" >> $GITHUB_STEP_SUMMARY
           echo "|------------|----------|" >> $GITHUB_STEP_SUMMARY

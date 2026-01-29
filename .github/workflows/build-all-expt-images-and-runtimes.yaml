@@ -1,0 +1,205 @@
+name: Build All Expt Images And Runtimes
+
+on:
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: 'Tag for the Docker image'
+        required: true
+        default: 'latest'
+      tools_version:
+        description: 'Base tools version (optional, defaults to tag if not specified)'
+        required: false
+        type: string
+        default: ''
+      os_version:
+        description: 'OS image version (optional, defaults to tag if not specified)'
+        required: false
+        type: string
+        default: ''
+      framework_image_version:
+        description: 'Framework image version (optional, defaults to tag if not specified)'
+        required: false
+        type: string
+        default: ''
+      l10n:
+        description: 'Localization setting (choose one or both)'
+        required: false
+        type: choice
+        options:
+          - en_US
+          - zh_CN
+          - both
+        default: 'en_US'
+      arch:
+        description: 'System architecture (choose one or both)'
+        required: false
+        type: choice
+        options:
+          - amd64
+          - arm64
+          - both
+        default: 'amd64'
+      aliyun_enabled:
+        description: 'Enable Aliyun ACR builds'
+        required: false
+        type: boolean
+        default: false
+
+permissions:
+  contents: read
+  packages: write
+
+jobs:
+  build-tools:
+    name: Tools Image
+    uses: ./.github/workflows/build-expt-tools.yml
+    with:
+      image_tag: ${{ inputs.tools_version != '' && inputs.tools_version || inputs.tag }}
+      architectures: ${{ inputs.arch == 'both' && 'amd64,arm64' || inputs.arch }}
+      push: true
+    secrets: inherit
+
+  build-os-base:
+    name: Base Images (OS)
+    needs: build-tools
+    uses: ./.github/workflows/build-expt-image-or-runtime.yaml
+    with:
+      tag: ${{ inputs.tag }}
+      kind: operating-systems
+      name: ''
+      build_type: images
+      tools_version: ${{ inputs.tools_version }}
+      os_version: ${{ inputs.os_version }}
+      framework_image_version: ${{ inputs.framework_image_version }}
+      l10n: ${{ inputs.l10n }}
+      arch: ${{ inputs.arch }}
+      aliyun_enabled: ${{ inputs.aliyun_enabled }}
+    secrets: inherit
+
+  build-language-base:
+    name: Base Images (Languages)
+    needs: build-os-base
+    uses: ./.github/workflows/build-expt-image-or-runtime.yaml
+    with:
+      tag: ${{ inputs.tag }}
+      kind: languages
+      name: ''
+      build_type: images
+      tools_version: ${{ inputs.tools_version }}
+      os_version: ${{ inputs.os_version }}
+      framework_image_version: ${{ inputs.framework_image_version }}
+      l10n: ${{ inputs.l10n }}
+      arch: ${{ inputs.arch }}
+      aliyun_enabled: ${{ inputs.aliyun_enabled }}
+    secrets: inherit
+
+  build-framework-base:
+    name: Base Images (Frameworks)
+    needs: build-language-base
+    uses: ./.github/workflows/build-expt-image-or-runtime.yaml
+    with:
+      tag: ${{ inputs.tag }}
+      kind: frameworks
+      name: ''
+      build_type: images
+      tools_version: ${{ inputs.tools_version }}
+      os_version: ${{ inputs.os_version }}
+      framework_image_version: ${{ inputs.framework_image_version }}
+      l10n: ${{ inputs.l10n }}
+      arch: ${{ inputs.arch }}
+      aliyun_enabled: ${{ inputs.aliyun_enabled }}
+    secrets: inherit
+
+  build-os-runtime:
+    name: Runtime Images (OS)
+    needs: build-framework-base
+    uses: ./.github/workflows/build-expt-image-or-runtime.yaml
+    with:
+      tag: ${{ inputs.tag }}
+      kind: operating-systems
+      name: ''
+      build_type: runtimes
+      tools_version: ${{ inputs.tools_version }}
+      os_version: ${{ inputs.os_version }}
+      framework_image_version: ${{ inputs.framework_image_version }}
+      l10n: ${{ inputs.l10n }}
+      arch: ${{ inputs.arch }}
+      aliyun_enabled: ${{ inputs.aliyun_enabled }}
+    secrets: inherit
+
+  build-language-runtime:
+    name: Runtime Images (Languages)
+    needs: build-os-runtime
+    uses: ./.github/workflows/build-expt-image-or-runtime.yaml
+    with:
+      tag: ${{ inputs.tag }}
+      kind: languages
+      name: ''
+      build_type: runtimes
+      tools_version: ${{ inputs.tools_version }}
+      os_version: ${{ inputs.os_version }}
+      framework_image_version: ${{ inputs.framework_image_version }}
+      l10n: ${{ inputs.l10n }}
+      arch: ${{ inputs.arch }}
+      aliyun_enabled: ${{ inputs.aliyun_enabled }}
+    secrets: inherit
+
+  build-framework-runtime:
+    name: Runtime Images (Frameworks)
+    needs: build-language-runtime
+    uses: ./.github/workflows/build-expt-image-or-runtime.yaml
+    with:
+      tag: ${{ inputs.tag }}
+      kind: frameworks
+      name: ''
+      build_type: runtimes
+      tools_version: ${{ inputs.tools_version }}
+      os_version: ${{ inputs.os_version }}
+      framework_image_version: ${{ inputs.framework_image_version }}
+      l10n: ${{ inputs.l10n }}
+      arch: ${{ inputs.arch }}
+      aliyun_enabled: ${{ inputs.aliyun_enabled }}
+    secrets: inherit
+
+  build-summary:
+    runs-on: ubuntu-latest
+    needs:
+      [
+        build-tools,
+        build-os-base,
+        build-language-base,
+        build-framework-base,
+        build-os-runtime,
+        build-language-runtime,
+        build-framework-runtime
+      ]
+    if: always()
+    steps:
+      - name: Build Summary
+        run: |
+          echo "## 🎉 Build Summary" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "| Component | Status |" >> $GITHUB_STEP_SUMMARY
+          echo "|-----------|--------|" >> $GITHUB_STEP_SUMMARY
+          echo "| Tools Image | ${{ needs.build-tools.result }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| Base Images (OS) | ${{ needs.build-os-base.result }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| Base Images (Languages) | ${{ needs.build-language-base.result }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| Base Images (Frameworks) | ${{ needs.build-framework-base.result }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| Runtime Images (OS) | ${{ needs.build-os-runtime.result }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| Runtime Images (Languages) | ${{ needs.build-language-runtime.result }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| Runtime Images (Frameworks) | ${{ needs.build-framework-runtime.result }} |" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+
+          if [[ "${{ needs.build-tools.result }}" == "success" && \
+                "${{ needs.build-os-base.result }}" == "success" && \
+                "${{ needs.build-language-base.result }}" == "success" && \
+                "${{ needs.build-framework-base.result }}" == "success" && \
+                "${{ needs.build-os-runtime.result }}" == "success" && \
+                "${{ needs.build-language-runtime.result }}" == "success" && \
+                "${{ needs.build-framework-runtime.result }}" == "success" ]]; then
+            echo "✅ All images and runtimes built successfully!" >> $GITHUB_STEP_SUMMARY
+          else
+            echo "❌ Some builds failed. Please check the logs above." >> $GITHUB_STEP_SUMMARY
+            exit 1
+          fi

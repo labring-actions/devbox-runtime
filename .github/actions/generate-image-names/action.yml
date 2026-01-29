@@ -18,11 +18,7 @@ inputs:
   expt_image_naming:
     description: 'Enable experimental base image naming conventions'
     required: false
-    type: choice
-    options:
-      - 'images'
-      - 'runtimes'
-      - 'none'
+    # Allowed values: images, runtimes, none
     default: 'none'
 outputs:
   ghcr_image_name:
