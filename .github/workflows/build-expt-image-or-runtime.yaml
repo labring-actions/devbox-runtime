@@ -317,7 +317,7 @@ jobs:
             --user devbox \
             --entrypoint /bin/bash \
             -v "$test_dir:/tests:ro" \
-            "$image" -c "set +u; [ -f /etc/profile ] && . /etc/profile || true; if [ -d /etc/profile.d ]; then for f in /etc/profile.d/*.sh; do [ -r \"$f\" ] && . \"$f\" || true; done; fi; [ -f /home/devbox/.bashrc ] && . /home/devbox/.bashrc || true; set -u; bash /tests/smoke.sh"
+            "$image" -c "bash /tests/smoke.sh"
       - name: Clean up images (standard)
         if: always()
         run: |
