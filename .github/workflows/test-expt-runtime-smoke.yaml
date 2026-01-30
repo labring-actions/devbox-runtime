@@ -133,4 +133,4 @@ jobs:
             --user devbox \
             --entrypoint /bin/bash \
             -v "$test_dir:/tests:ro" \
-            "$image" -lc "bash /tests/smoke.sh"
+            "$image" -l -c "bash /tests/smoke.sh"
