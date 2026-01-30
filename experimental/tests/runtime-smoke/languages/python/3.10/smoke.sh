@@ -8,6 +8,17 @@ if [ ! -d "$project_dir" ]; then
   exit 1
 fi
 
+# load profile env (best effort)
+set +u
+[ -f /etc/profile ] && . /etc/profile || true
+if [ -d /etc/profile.d ]; then
+  for f in /etc/profile.d/*.sh; do
+    [ -r "$f" ] && . "$f" || true
+  done
+fi
+[ -f /home/devbox/.bashrc ] && . /home/devbox/.bashrc || true
+set -u
+
 cd "$project_dir"
 
 python3 -c 'import sys; sys.exit(0 if sys.version_info[:2]==(3,10) else 1)'

@@ -8,6 +8,17 @@ if [ ! -d "$project_dir" ]; then
   exit 1
 fi
 
+# load profile env (best effort)
+set +u
+[ -f /etc/profile ] && . /etc/profile || true
+if [ -d /etc/profile.d ]; then
+  for f in /etc/profile.d/*.sh; do
+    [ -r "$f" ] && . "$f" || true
+  done
+fi
+[ -f /home/devbox/.bashrc ] && . /home/devbox/.bashrc || true
+set -u
+
 cd "$project_dir"
 
 rustc --version | grep -q '1.81.0'
