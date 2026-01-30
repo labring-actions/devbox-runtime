@@ -1,0 +1,133 @@
+name: Test Expt Runtime Smoke
+
+on:
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: 'Runtime image tag (without l10n suffix)'
+        required: true
+        default: 'latest'
+      kind:
+        description: 'Runtime kind to test'
+        required: false
+        type: choice
+        options:
+          - all
+          - operating-systems
+          - languages
+          - frameworks
+        default: 'all'
+      name:
+        description: 'Specific package folder under kind; leave empty to test all'
+        required: false
+        type: string
+        default: ''
+
+permissions:
+  contents: read
+  packages: read
+
+jobs:
+  define-matrix:
+    runs-on: ubuntu-latest
+    outputs:
+      packages: ${{ steps.get_packages.outputs.packages }}
+      tag: ${{ steps.set_tag.outputs.tag }}
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Set up tag
+        id: set_tag
+        run: |
+          if [ -n "${{ inputs.tag }}" ]; then
+            tag=${{ inputs.tag }}
+          else
+            tag=$(echo "${{ github.sha }}" | cut -c1-7)
+          fi
+          echo "tag=$tag" >> $GITHUB_OUTPUT
+
+      - name: Get packages
+        id: get_packages
+        run: |
+          kind="${{ inputs.kind }}"
+          name="${{ inputs.name }}"
+          if [ "$kind" = "all" ] || [ -z "$kind" ]; then
+            base_path="experimental/runtimes"
+          else
+            base_path="experimental/runtimes/$kind"
+          fi
+
+          if [ -n "$name" ]; then
+            echo "Looking for specific package: $name"
+            target_dockerfiles=$(find "$base_path/$name" -name "Dockerfile")
+            if [ -z "$target_dockerfiles" ]; then
+              echo "Error: No Dockerfile found for package '$name' in '$base_path'" >&2
+              exit 1
+            fi
+          else
+            echo "No specific package provided, gathering all packages from: $base_path"
+            target_dockerfiles=$(find "$base_path" -name "Dockerfile")
+          fi
+
+          packages=$(echo "$target_dockerfiles" | jq -R -s 'split("\n")[:-1]')
+
+          echo "packages<<EOF" >> $GITHUB_OUTPUT
+          echo "$packages" >> $GITHUB_OUTPUT
+          echo "EOF" >> $GITHUB_OUTPUT
+
+          package_count=$(echo "$packages" | jq 'length // 0')
+          echo "Found $package_count packages to test"
+
+  smoke-test:
+    runs-on: ubuntu-latest
+    needs: define-matrix
+    strategy:
+      fail-fast: false
+      matrix:
+        packages: ${{ fromJson(needs.define-matrix.outputs.packages) }}
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Login to GitHub Container Registry
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.repository_owner }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Generate image names (expt runtimes)
+        id: generate-runtime
+        uses: ./.github/actions/generate-image-names
+        with:
+          dockerfile: ${{ matrix.packages }}
+          tag: ${{ format('{0}-{1}', needs.define-matrix.outputs.tag, 'en-us') }}
+          ghcr_credentials: ${{ format('{"registry":"{0}","username":"{1}","password":"{2}"}', 'ghcr.io', github.repository_owner, secrets.GITHUB_TOKEN) || '{}' }}
+          expt_image_naming: runtimes
+
+      - name: Run smoke test (en_US, amd64)
+        shell: bash
+        run: |
+          set -euo pipefail
+          image="${{ steps.generate-runtime.outputs.ghcr_image_name }}"
+          dockerfile="${{ matrix.packages }}"
+          rel_path="${dockerfile#experimental/runtimes/}"
+          rel_path="${rel_path%/Dockerfile}"
+          test_dir="$GITHUB_WORKSPACE/experimental/tests/runtime-smoke/$rel_path"
+          test_script="$test_dir/smoke.sh"
+          if [ ! -f "$test_script" ]; then
+            echo "Smoke script not found: $test_script" >&2
+            exit 1
+          fi
+          echo "Smoke test: $dockerfile -> $image"
+          docker pull "$image"
+          docker run --rm \
+            -e L10N=en_US \
+            --entrypoint /bin/sh \
+            -v "$test_dir:/tests:ro" \
+            "$image" -c "/bin/sh /tests/smoke.sh"
