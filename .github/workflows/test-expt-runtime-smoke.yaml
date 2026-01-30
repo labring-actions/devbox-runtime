@@ -107,7 +107,7 @@ jobs:
         with:
           dockerfile: ${{ matrix.packages }}
           tag: ${{ format('{0}-{1}', needs.define-matrix.outputs.tag, 'en-us') }}
-          ghcr_credentials: ${{ format('{"registry":"{0}","username":"{1}","password":"{2}"}', 'ghcr.io', github.repository_owner, secrets.GITHUB_TOKEN) || '{}' }}
+          ghcr_credentials: ${{ format('{{"registry":"{0}","username":"{1}","password":"{2}"}}', 'ghcr.io', github.repository_owner, secrets.GITHUB_TOKEN) || '{}' }}
           expt_image_naming: runtimes
 
       - name: Run smoke test (en_US, amd64)
