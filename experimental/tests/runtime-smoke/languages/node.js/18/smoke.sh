@@ -19,6 +19,22 @@ fi
 [ -f /home/devbox/.bashrc ] && . /home/devbox/.bashrc || true
 set -u
 
+
+if [ "${SMOKE_DEBUG:-}" = "1" ]; then
+  echo "SMOKE_DEBUG=1"
+  echo "user=$(id -un) uid=$(id -u) gid=$(id -g)"
+  echo "HOME=$HOME"
+  echo "SHELL=${SHELL:-}"
+  echo "PATH=$PATH"
+  for cmd in go python3 node php dotnet java javac gcc g++ cargo rustc; do
+    if command -v "$cmd" >/dev/null 2>&1; then
+      echo "cmd:$cmd=$(command -v "$cmd")"
+    else
+      echo "cmd:$cmd=missing"
+    fi
+  done
+fi
+
 cd "$project_dir"
 
 node -e 'process.exit(process.versions.node.split(".")[0]==="18"?0:1)'

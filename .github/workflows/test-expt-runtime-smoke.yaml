@@ -128,6 +128,7 @@ jobs:
           docker pull "$image"
           docker run --rm \
             -e L10N=en_US \
+            -e SMOKE_DEBUG=1 \
             --entrypoint /bin/bash \
             -v "$test_dir:/tests:ro" \
             "$image" -lc "cp /tests/smoke.sh /tmp/smoke.sh && chmod +x /tmp/smoke.sh && su - devbox -c '/tmp/smoke.sh'"
