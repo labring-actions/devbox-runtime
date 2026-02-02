@@ -34,25 +34,20 @@ on:
     outputs:
       image_tag:
         description: 'Resolved image tag used for base-tools'
-        value: ${{ jobs.build.outputs.image_tag }}
+        value: ${{ jobs.params.outputs.image_tag }}
 
 jobs:
-  build:
+  params:
     runs-on: ubuntu-latest
     outputs:
       image_tag: ${{ steps.params.outputs.image_tag }}
+      add_latest: ${{ steps.params.outputs.add_latest }}
+      arch_matrix: ${{ steps.params.outputs.arch_matrix }}
     permissions:
       contents: read
-      packages: write
     steps:
       - name: Checkout
         uses: actions/checkout@v4
-
-      - name: Set up QEMU
-        uses: docker/setup-qemu-action@v3
-
-      - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v3
 
       - name: Compute build parameters
         id: params
@@ -62,18 +57,18 @@ jobs:
           if [ -z "$ARCHS" ]; then ARCHS="amd64,arm64"; fi
           # Normalize: remove spaces
           ARCHS="$(echo "$ARCHS" | tr -d ' ')"
-          ALLOWED="amd64 arm64 armv7"
+          ALLOWED="amd64 arm64"
           IFS=',' read -r -a REQ_ARCHS <<< "$ARCHS"
-          PLATFORM_LIST=""
+          ARCH_JSON=""
           for a in "${REQ_ARCHS[@]}"; do
             if [[ ! " $ALLOWED " =~ " $a " ]]; then
               echo "ERROR: Unsupported architecture '$a'. Allowed: $ALLOWED" >&2
               exit 1
             fi
-            if [ -n "$PLATFORM_LIST" ]; then PLATFORM_LIST+=","; fi
-            PLATFORM_LIST+="linux/$a"
+            ARCH_JSON+="$a\n"
           done
-          echo "platforms=$PLATFORM_LIST" >> $GITHUB_OUTPUT
+          arch_matrix=$(printf '%b' "$ARCH_JSON" | jq -R -s -c 'split("\n")[:-1]')
+          echo "arch_matrix=$arch_matrix" >> $GITHUB_OUTPUT
           TAG_INPUT="${{ inputs.image_tag }}"
           if [ -z "$TAG_INPUT" ]; then TAG_INPUT="${GITHUB_SHA:0:8}"; fi
           echo "image_tag=$TAG_INPUT" >> $GITHUB_OUTPUT
@@ -82,6 +77,23 @@ jobs:
           else
             echo "add_latest=false" >> $GITHUB_OUTPUT
           fi
+  build:
+    runs-on: ${{ matrix.arch == 'arm64' && 'ubuntu-24.04-arm' || 'ubuntu-latest' }}
+    needs: params
+    strategy:
+      fail-fast: false
+      matrix:
+        arch: ${{ fromJson(needs.params.outputs.arch_matrix) }}
+    permissions:
+      contents: read
+      packages: write
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
       - name: Log in to GHCR (push enabled)
         if: ${{ inputs.push }}
         uses: docker/login-action@v3
@@ -90,15 +102,56 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Build `base-tools` image
+      - name: Build `base-tools` image (${{ matrix.arch }})
         uses: docker/build-push-action@v5
         with:
           context: ./experimental/base-tools
           file: ./experimental/base-tools/Dockerfile
           push: ${{ inputs.push }}
-          platforms: ${{ steps.params.outputs.platforms }}
+          platforms: ${{ format('linux/{0}', matrix.arch) }}
           cache-from: type=gha
           cache-to: type=gha,mode=max
           tags: |
-            ghcr.io/${{ github.repository_owner }}/devbox-base-expt/base-tools:${{ steps.params.outputs.image_tag }}
-            ${{ steps.params.outputs.add_latest == 'true' && format('ghcr.io/{0}/devbox-base-expt/base-tools:latest', github.repository_owner) || '' }}
+            ghcr.io/${{ github.repository_owner }}/devbox-base-expt/base-tools:${{ needs.params.outputs.image_tag }}-${{ matrix.arch }}
+            ${{ needs.params.outputs.add_latest == 'true' && format('ghcr.io/{0}/devbox-base-expt/base-tools:latest-{1}', github.repository_owner, matrix.arch) || '' }}
+
+  manifest:
+    runs-on: ubuntu-latest
+    needs: [params, build]
+    if: ${{ inputs.push }}
+    permissions:
+      contents: read
+      packages: write
+    steps:
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Log in to GHCR
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Create multi-arch manifest
+        shell: bash
+        run: |
+          set -euo pipefail
+          base="ghcr.io/${{ github.repository_owner }}/devbox-base-expt/base-tools:${{ needs.params.outputs.image_tag }}"
+          arches=$(echo '${{ needs.params.outputs.arch_matrix }}' | jq -r '.[]')
+          imgs=()
+          for a in $arches; do
+            imgs+=("${base}-${a}")
+          done
+          echo "Creating manifest: $base <- ${imgs[*]}"
+          docker buildx imagetools create -t "$base" "${imgs[@]}"
+
+          if [ "${{ needs.params.outputs.add_latest }}" = "true" ]; then
+            latest="ghcr.io/${{ github.repository_owner }}/devbox-base-expt/base-tools:latest"
+            latest_imgs=()
+            for a in $arches; do
+              latest_imgs+=("${latest}-${a}")
+            done
+            echo "Creating manifest: $latest <- ${latest_imgs[*]}"
+            docker buildx imagetools create -t "$latest" "${latest_imgs[@]}"
+          fi
