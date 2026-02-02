@@ -13,7 +13,8 @@ ARG BASE_IMAGE_VERSION=12.4.1-devel-ubuntu22.04
 FROM ${REGISTRY}/${REPO}/base-tools:${BASE_TOOLS_VERSION} AS base-tools
 FROM nvidia/cuda:${BASE_IMAGE_VERSION}
 ARG L10N
-ARG ARCH
+ARG ARCH=amd64
+ARG TARGETARCH
 ARG DEFAULT_DEVBOX_USER
 LABEL org.opencontainers.image.authors="The Devbox Authors"
 # Define some environment variables
@@ -23,8 +24,8 @@ ENV BASE_TOOLS_DIR=/opt/base-tools
 ENV DEBIAN_FRONTEND=noninteractive
 ## L10N: Internationalization setting
 ENV L10N=${L10N}
-## ARCH: System architecture
-ENV ARCH=${ARCH}
+## ARCH: System architecture (TARGETARCH from buildx multi-platform, else ARCH build-arg)
+ENV ARCH=${TARGETARCH:-${ARCH}}
 ## DEFAULT_DEVBOX_USER: Default user for the devbox environment
 ENV DEFAULT_DEVBOX_USER=${DEFAULT_DEVBOX_USER}
 ## PROJECT_DIR: Default devbox project directory inside the container
@@ -44,4 +45,3 @@ RUN chmod +x /build.sh && \
     rm -f /build.sh && \
     rm -rf ${BASE_TOOLS_DIR}
 ENTRYPOINT [ "/init" ]
-

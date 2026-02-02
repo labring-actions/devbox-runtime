@@ -138,6 +138,8 @@ jobs:
       os_version: ${{ steps.set_tag.outputs.os_version }}
       l10n_matrix: ${{ steps.set_matrix.outputs.l10n_matrix }}
       arch_matrix: ${{ steps.set_matrix.outputs.arch_matrix }}
+      platforms: ${{ steps.set_matrix.outputs.platforms }}
+      platforms_include_amd64: ${{ steps.set_matrix.outputs.platforms_include_amd64 }}
       packages: ${{ steps.get_packages.outputs.packages }}
     steps:
       - name: Checkout code
@@ -197,27 +199,38 @@ jobs:
           esac
           l10n_matrix=$(printf '%s\n' "${l10n_values[@]}" | jq -s -c '.')
 
-          arch_values=()
+          # Single platforms string for buildx (one job builds all requested arches, manifest list)
           case "${{ inputs.arch }}" in
             amd64)
-              arch_values+=("amd64")
+              platforms="linux/amd64"
+              platforms_include_amd64="true"
               ;;
             arm64)
-              arch_values+=("arm64")
+              platforms="linux/arm64"
+              platforms_include_amd64="false"
               ;;
             both)
-              arch_values+=("amd64")
-              arch_values+=("arm64")
+              platforms="linux/amd64,linux/arm64"
+              platforms_include_amd64="true"
               ;;
             *)
               echo "Error: Unknown arch option '${{ inputs.arch }}'." >&2
               exit 1
               ;;
           esac
+          echo "platforms=$platforms" >> $GITHUB_OUTPUT
+          echo "platforms_include_amd64=$platforms_include_amd64" >> $GITHUB_OUTPUT
+          # Keep arch_matrix for any consumers (e.g. step summary); single arch or both
+          arch_values=()
+          case "${{ inputs.arch }}" in
+            amd64) arch_values+=("amd64") ;;
+            arm64) arch_values+=("arm64") ;;
+            both)  arch_values+=("amd64") ; arch_values+=("arm64") ;;
+          esac
           arch_matrix=$(printf '%s\n' "${arch_values[@]}" | jq -R -s -c 'split("\n")[:-1]')
+          echo "arch_matrix=$arch_matrix" >> $GITHUB_OUTPUT
 
           echo "l10n_matrix=$l10n_matrix" >> $GITHUB_OUTPUT
-          echo "arch_matrix=$arch_matrix" >> $GITHUB_OUTPUT
 
       - name: Get packages
         id: get_packages
@@ -257,7 +270,6 @@ jobs:
       matrix:
         packages: ${{ fromJson(needs.define-matrix.outputs.packages) }}
         l10n: ${{ fromJson(needs.define-matrix.outputs.l10n_matrix) }}
-        arch: ${{ fromJson(needs.define-matrix.outputs.arch_matrix) }}
     permissions:
       contents: read
       packages: write
@@ -278,12 +290,11 @@ jobs:
       - name: Build and push standard images
         uses: ./.github/actions/build-and-push
         with:
-          platforms: linux/${{ matrix.arch }}
+          platforms: ${{ needs.define-matrix.outputs.platforms }}
           build_args: |
             REPO=${{ github.repository_owner }}/devbox-base-expt
             L10N=${{ matrix.l10n.display }}
             L10N_NORMALIZED=${{ matrix.l10n.normalized }}
-            ARCH=${{ matrix.arch }}
             BASE_TOOLS_VERSION=${{ needs.define-matrix.outputs.tools_version }}
             OS_IMAGE_VERSION=${{ needs.define-matrix.outputs.os_version }}-${{ matrix.l10n.normalized }}
             FRAMEWORK_IMAGE_VERSION=${{ needs.define-matrix.outputs.framework_image_version }}-${{ matrix.l10n.normalized }}
@@ -294,7 +305,7 @@ jobs:
           aliyun_credentials: ${{ inputs.aliyun_enabled == 'true' && format('{{"registry":"{0}","username":"{1}","password":"{2}", "namespace":"{3}"}}', secrets.ALIYUN_REGISTRY, secrets.ALIYUN_USERNAME, secrets.ALIYUN_PASSWORD, secrets.ALIYUN_NAMESPACE) || '{}' }}
           acr_image_name: ${{ steps.generate-standard.outputs.acr_image_name }}
       - name: Runtime smoke test (en_US, amd64)
-        if: ${{ inputs.build_type == 'runtimes' && matrix.arch == 'amd64' && matrix.l10n.normalized == 'en-us' }}
+        if: ${{ inputs.build_type == 'runtimes' && needs.define-matrix.outputs.platforms_include_amd64 == 'true' && matrix.l10n.normalized == 'en-us' }}
         shell: bash
         run: |
           set -euo pipefail
@@ -337,7 +348,7 @@ jobs:
       - name: Output built image names (standard)
         run: |
           echo "## 🐳 Built ${{ inputs.kind }} ${{ inputs.build_type }} (Standard)" >> $GITHUB_STEP_SUMMARY
-          echo "Localization: ${{ matrix.l10n.display }} (normalized: ${{ matrix.l10n.normalized }}), Arch: ${{ matrix.arch }}" >> $GITHUB_STEP_SUMMARY
+          echo "Localization: ${{ matrix.l10n.display }} (normalized: ${{ matrix.l10n.normalized }}), Platforms: ${{ needs.define-matrix.outputs.platforms }}" >> $GITHUB_STEP_SUMMARY
           echo "| Image Name | Registry |" >> $GITHUB_STEP_SUMMARY
           echo "|------------|----------|" >> $GITHUB_STEP_SUMMARY
           echo "| ${{ steps.generate-standard.outputs.ghcr_image_name }} | GHCR |" >> $GITHUB_STEP_SUMMARY
