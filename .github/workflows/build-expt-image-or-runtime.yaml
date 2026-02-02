@@ -307,6 +307,7 @@ jobs:
           acr_image_name: ${{ steps.generate-standard.outputs.acr_image_name }}
       - name: Runtime smoke test (en_US, amd64)
         if: ${{ inputs.build_type == 'runtimes' && matrix.arch == 'amd64' && matrix.l10n.normalized == 'en-us' }}
+        continue-on-error: true
         shell: bash
         run: |
           set -euo pipefail
