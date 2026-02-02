@@ -3,13 +3,13 @@ set -euo pipefail
 
 SOURCE_DIR=$(dirname "$(readlink -f "${BASH_SOURCE[0]}")")
 chmod +x "$SOURCE_DIR/"*.sh
-# Configure APT source list by distro: Debian -> debian.sources; Ubuntu -> Tsinghua Ubuntu mirror
+# Configure APT source list by distro: Debian -> USTC mirror; Ubuntu -> Tsinghua Ubuntu mirror
 if [ -f /etc/os-release ]; then
   # shellcheck source=/dev/null
   . /etc/os-release
   case "${ID:-}" in
     debian)
-      "$SOURCE_DIR/configure-deb-source.sh"
+      "$SOURCE_DIR/configure-debian-source.sh"
       ;;
     ubuntu)
       "$SOURCE_DIR/configure-ubuntu-source.sh"
