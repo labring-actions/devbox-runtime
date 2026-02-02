@@ -5,7 +5,8 @@ set -euo pipefail
 # Usage: run as root; requires VERSION_CODENAME from /etc/os-release (e.g. jammy, noble)
 
 TARGET=/etc/apt/sources.list
-MIRROR="http://mirrors.tuna.tsinghua.edu.cn/ubuntu"
+MIRROR_AMD64="http://mirrors.tuna.tsinghua.edu.cn/ubuntu"
+MIRROR_PORTS="http://mirrors.tuna.tsinghua.edu.cn/ubuntu-ports"
 
 if [ "$(id -u)" -ne 0 ]; then
   echo "This script must be run as root" >&2
@@ -25,6 +26,16 @@ if [ -z "$CODENAME" ]; then
   echo "VERSION_CODENAME not set in /etc/os-release" >&2
   exit 1
 fi
+
+ARCH="$(dpkg --print-architecture)"
+case "$ARCH" in
+  amd64)
+    MIRROR="$MIRROR_AMD64"
+    ;;
+  *)
+    MIRROR="$MIRROR_PORTS"
+    ;;
+esac
 
 mkdir -p "$(dirname "$TARGET")"
 if [ -f "$TARGET" ]; then

@@ -5,7 +5,7 @@ set -euo pipefail
 # Usage: run as root; requires VERSION_CODENAME from /etc/os-release (e.g. bookworm)
 
 TARGET=/etc/apt/sources.list
-MIRROR="http://mirrors.ustc.edu.cn/debian"
+MIRROR="http://mirrors.tuna.tsinghua.edu.cn/debian"
 
 if [ "$(id -u)" -ne 0 ]; then
   echo "This script must be run as root" >&2
