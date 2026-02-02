@@ -31,4 +31,3 @@ wget https://www.python.org/ftp/python/3.10.16/Python-3.10.16.tgz && \
 if [ "$L10N" = "zh_CN" ]; then
     pip3.10 config set global.index-url https://mirrors.tuna.tsinghua.edu.cn/pypi/web/simple || true
 fi
-

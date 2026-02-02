@@ -176,30 +176,20 @@ jobs:
       ]
     if: always()
     steps:
-      - name: Build Summary
+      - name: Download image lists
+        continue-on-error: true
+        uses: actions/download-artifact@v4
+        with:
+          pattern: image-list-*
+          path: image-lists
+      - name: Write image list summary
+        if: always()
+        shell: bash
         run: |
-          echo "## 🎉 Build Summary" >> $GITHUB_STEP_SUMMARY
-          echo "" >> $GITHUB_STEP_SUMMARY
-          echo "| Component | Status |" >> $GITHUB_STEP_SUMMARY
-          echo "|-----------|--------|" >> $GITHUB_STEP_SUMMARY
-          echo "| Tools Image | ${{ needs.build-tools.result }} |" >> $GITHUB_STEP_SUMMARY
-          echo "| Base Images (OS) | ${{ needs.build-os-base.result }} |" >> $GITHUB_STEP_SUMMARY
-          echo "| Base Images (Languages) | ${{ needs.build-language-base.result }} |" >> $GITHUB_STEP_SUMMARY
-          echo "| Base Images (Frameworks) | ${{ needs.build-framework-base.result }} |" >> $GITHUB_STEP_SUMMARY
-          echo "| Runtime Images (OS) | ${{ needs.build-os-runtime.result }} |" >> $GITHUB_STEP_SUMMARY
-          echo "| Runtime Images (Languages) | ${{ needs.build-language-runtime.result }} |" >> $GITHUB_STEP_SUMMARY
-          echo "| Runtime Images (Frameworks) | ${{ needs.build-framework-runtime.result }} |" >> $GITHUB_STEP_SUMMARY
-          echo "" >> $GITHUB_STEP_SUMMARY
-
-          if [[ "${{ needs.build-tools.result }}" == "success" && \
-                "${{ needs.build-os-base.result }}" == "success" && \
-                "${{ needs.build-language-base.result }}" == "success" && \
-                "${{ needs.build-framework-base.result }}" == "success" && \
-                "${{ needs.build-os-runtime.result }}" == "success" && \
-                "${{ needs.build-language-runtime.result }}" == "success" && \
-                "${{ needs.build-framework-runtime.result }}" == "success" ]]; then
-            echo "✅ All images and runtimes built successfully!" >> $GITHUB_STEP_SUMMARY
-          else
-            echo "❌ Some builds failed. Please check the logs above." >> $GITHUB_STEP_SUMMARY
-            exit 1
+          set -euo pipefail
+          if [ -d image-lists ]; then
+            find image-lists -type f -print0 | xargs -0 cat | sed '/^[[:space:]]*$/d' | sort -u > "$GITHUB_STEP_SUMMARY"
           fi
+      - name: Fail if any builds failed
+        if: ${{ !(needs.build-tools.result == 'success' && needs.build-os-base.result == 'success' && needs.build-language-base.result == 'success' && needs.build-framework-base.result == 'success' && needs.build-os-runtime.result == 'success' && needs.build-language-runtime.result == 'success' && needs.build-framework-runtime.result == 'success') }}
+        run: exit 1
