@@ -30,8 +30,8 @@ if [ -z "$DEVBOX_HOME" ]; then
   DEVBOX_HOME="/home/${DEFAULT_DEVBOX_USER}"
 fi
 mkdir -p "$DEVBOX_HOME/.clawdbot" -p "$TARGET_DIR/workspace"
-if [ -f "$PROJECT_TEMPLATE_DIR/clawdbot.json" ]; then
-  cp "$PROJECT_TEMPLATE_DIR/clawdbot.json" "$DEVBOX_HOME/.clawdbot/clawdbot.json"
+if [ -f "$PROJECT_TEMPLATE_DIR/openclaw.json" ]; then
+  cp "$PROJECT_TEMPLATE_DIR/openclaw.json" "$DEVBOX_HOME/.clawdbot/openclaw.json"
 fi
 
 # Seed .env from example if present.
@@ -42,7 +42,7 @@ fi
 # If we wrote a localized README.md, remove the localized variants to keep the
 # project dir clean (optional; safe if they don't exist).
 rm -f "$TARGET_DIR/README.en_US.md" "$TARGET_DIR/README.zh_CN.md" || true
-rm -r "$TARGET_DIR/clawdbot.json" || true
+rm -r "$TARGET_DIR/openclaw.json" || true
 
 # Ensure entrypoint is executable if present.
 if [ -f "$TARGET_DIR/entrypoint.sh" ]; then
