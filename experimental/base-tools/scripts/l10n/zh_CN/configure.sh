@@ -21,5 +21,7 @@ if [ -f /etc/os-release ]; then
 else
   echo "Skipping APT source config: /etc/os-release not found."
 fi
+# configure timezone
+"$SOURCE_DIR/configure-timezone.sh"
 # configure locale
 "$SOURCE_DIR/configure-locale.sh"
