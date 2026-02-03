@@ -19,3 +19,6 @@ RUN chmod +x /build.sh && \
     rm -rf ${PROJECT_TEMPLATE_DIR}
 # Set the working directory to the default devbox user's project directory
 WORKDIR /home/${DEFAULT_DEVBOX_USER}/project
+
+ENV NODE_ENV=production
+ENV CLAWDBOT_GATEWAY_BIND=0.0.0.0

@@ -11,37 +11,37 @@ fi
 
 npm install -g "clawdbot@${CLAWDBOT_VERSION}"
 
-mkdir -p "$DEVBOX_HOME/.clawdbot" "$DEVBOX_HOME/workspace"
-cat <<'JSON' > "$DEVBOX_HOME/.clawdbot/clawdbot.json"
-{
-  "gateway": {
-    "controlUi": {
-      "enabled": true,
-      "allowInsecureAuth": true
-    }
-  },
-  "messages": {
-    "ackReactionScope": "group-mentions"
-  },
-  "agents": {
-    "defaults": {
-      "maxConcurrent": 4,
-      "subagents": {
-        "maxConcurrent": 8
-      },
-      "compaction": {
-        "mode": "safeguard"
-      }
-    }
-  },
-  "plugins": {
-    "entries": {
-      "telegram": {
-        "enabled": true
-      }
-    }
-  }
-}
-JSON
+# Install clawhub packages as the devbox user.
+if command -v clawhub >/dev/null 2>&1; then
+  su - "$DEFAULT_DEVBOX_USER" -c "\
+    clawhub install openai-whisper && \
+    clawhub install auto-updater && \
+    clawhub install marketing-skills && \
+    clawhub install kubectl && \
+    clawhub install ralph-loops" \
+    openclaw plugins install @m1heng-clawd/feishu
+else
+  echo "clawhub not found; skipping clawhub installs."
+fi
 
-chown -R "$DEFAULT_DEVBOX_USER:$DEFAULT_DEVBOX_USER" "$DEVBOX_HOME/.clawdbot" "$DEVBOX_HOME/workspace"
+ARCH="$(dpkg --print-architecture 2>/dev/null || uname -m)"
+case "$ARCH" in
+  amd64)
+    apt-get update
+    apt-get install -y wget
+    wget https://dl.google.com/linux/direct/google-chrome-stable_current_amd64.deb
+    dpkg -i google-chrome-stable_current_amd64.deb || true
+    apt-get -f install -y
+    rm -f google-chrome-stable_current_amd64.deb
+    ;;
+  # TODO: add Chrome install for arm64|aarch64
+  # arm64|aarch64)
+  #   apt-get update
+  #   apt-get install -y chromium
+  #   ;;
+  *)
+    echo "Skipping Chrome install for arch: $ARCH"
+    ;;
+esac
+apt-get clean
+rm -rf /var/lib/apt/lists/*

@@ -24,9 +24,25 @@ fi
 # Using `/.` keeps hidden files/dirs if present.
 cp -R "${PROJECT_TEMPLATE_DIR}/." "$TARGET_DIR/"
 
+# Seed runtime config and workspace for the devbox user.
+DEVBOX_HOME="$(getent passwd "$DEFAULT_DEVBOX_USER" | cut -d: -f6 || true)"
+if [ -z "$DEVBOX_HOME" ]; then
+  DEVBOX_HOME="/home/${DEFAULT_DEVBOX_USER}"
+fi
+mkdir -p "$DEVBOX_HOME/.clawdbot" -p "$TARGET_DIR/workspace"
+if [ -f "$PROJECT_TEMPLATE_DIR/clawdbot.json" ]; then
+  cp "$PROJECT_TEMPLATE_DIR/clawdbot.json" "$DEVBOX_HOME/.clawdbot/clawdbot.json"
+fi
+
+# Seed .env from example if present.
+if [ -f "$TARGET_DIR/.env.example" ]; then
+  cp "$TARGET_DIR/.env.example" "$TARGET_DIR/.env"
+fi
+
 # If we wrote a localized README.md, remove the localized variants to keep the
 # project dir clean (optional; safe if they don't exist).
 rm -f "$TARGET_DIR/README.en_US.md" "$TARGET_DIR/README.zh_CN.md" || true
+rm -r "$TARGET_DIR/clawdbot.json" || true
 
 # Ensure entrypoint is executable if present.
 if [ -f "$TARGET_DIR/entrypoint.sh" ]; then
@@ -34,4 +50,4 @@ if [ -f "$TARGET_DIR/entrypoint.sh" ]; then
 fi
 
 # Set ownership to default devbox user
-chown -R "$DEFAULT_DEVBOX_USER:$DEFAULT_DEVBOX_USER" "$TARGET_DIR"
+chown -R "$DEFAULT_DEVBOX_USER:$DEFAULT_DEVBOX_USER" "$TARGET_DIR" "$DEVBOX_HOME/.clawdbot" "$DEVBOX_HOME/workspace"
