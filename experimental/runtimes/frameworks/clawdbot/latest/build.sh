@@ -50,4 +50,4 @@ if [ -f "$TARGET_DIR/entrypoint.sh" ]; then
 fi
 
 # Set ownership to default devbox user
-chown -R "$DEFAULT_DEVBOX_USER:$DEFAULT_DEVBOX_USER" "$TARGET_DIR" "$DEVBOX_HOME/.clawdbot" "$DEVBOX_HOME/workspace"
+chown -R "$DEFAULT_DEVBOX_USER:$DEFAULT_DEVBOX_USER" "$TARGET_DIR" "$DEVBOX_HOME/.clawdbot" "$TARGET_DIR/workspace"
