@@ -16,8 +16,9 @@ apt-get update && \
     openssh-server \
     locales \
     ca-certificates \
-    busybox \
-    && apt-get clean \
-    && rm -rf /var/lib/apt/lists/*
+    busybox
 
 DEBIAN_FRONTEND=noninteractive apt-get install -y tzdata
+
+apt-get clean && \
+rm -rf /var/lib/apt/lists/*
