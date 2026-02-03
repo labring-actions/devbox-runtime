@@ -1,9 +1,7 @@
 const fs = require("fs");
-const os = require("os");
 const path = require("path");
 
-const homeDir = process.env.HOME || os.homedir();
-const configDir = process.env.CLAWDBOT_CONFIG_DIR || path.join(homeDir, ".clawdbot", "devices");
+const configDir = "/home/devbox/project/devices";
 const pendingPath = path.join(configDir, "pending.json");
 const pairedPath = path.join(configDir, "paired.json");
 
