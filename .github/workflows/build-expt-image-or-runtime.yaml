@@ -292,6 +292,9 @@ jobs:
         uses: ./.github/actions/build-and-push
         with:
           platforms: ${{ format('linux/{0}', matrix.arch) }}
+          # Note: NODE_IMAGE_VERSION and RUNTIME_IMAGE_VERSION are the same for now,
+          # but we keep them separate for future flexibility;
+          # OR: we need change the logic to avoid duplicate build arguments
           build_args: |
             REPO=${{ github.repository_owner }}/devbox-base-expt
             L10N=${{ matrix.l10n.display }}
@@ -299,6 +302,7 @@ jobs:
             BASE_TOOLS_VERSION=${{ needs.define-matrix.outputs.tools_version }}
             OS_IMAGE_VERSION=${{ needs.define-matrix.outputs.os_version }}-${{ matrix.l10n.normalized }}
             FRAMEWORK_IMAGE_VERSION=${{ needs.define-matrix.outputs.framework_image_version }}-${{ matrix.l10n.normalized }}
+            NODE_IMAGE_VERSION=${{ format('{0}-{1}', needs.define-matrix.outputs.tag, matrix.l10n.normalized) }}
             RUNTIME_IMAGE_VERSION=${{ format('{0}-{1}', needs.define-matrix.outputs.tag, matrix.l10n.normalized) }}
           dockerfile: ${{ matrix.packages }}
           ghcr_credentials: ${{ format('{{"registry":"{0}","username":"{1}","password":"{2}"}}', 'ghcr.io', github.repository_owner, secrets.GITHUB_TOKEN) || '{}' }}

@@ -1,0 +1,29 @@
+{
+  "gateway": {
+    "controlUi": {
+      "enabled": true,
+      "allowInsecureAuth": true
+    }
+  },
+  "messages": {
+    "ackReactionScope": "group-mentions"
+  },
+  "agents": {
+    "defaults": {
+      "maxConcurrent": 4,
+      "subagents": {
+        "maxConcurrent": 8
+      },
+      "compaction": {
+        "mode": "safeguard"
+      }
+    }
+  },
+  "plugins": {
+    "entries": {
+      "telegram": {
+        "enabled": true
+      }
+    }
+  }
+}
