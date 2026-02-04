@@ -10,6 +10,8 @@ if [ -z "$DEVBOX_HOME" ]; then
 fi
 
 npm install -g "openclaw@${OPENCLAW_VERSION}"
+RUN npm install -g bun
+RUN npm install -g clawhub
 
 # Install clawhub packages as the devbox user.
 if command -v clawhub >/dev/null 2>&1; then
