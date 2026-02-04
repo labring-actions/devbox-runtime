@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-CLAWDBOT_VERSION=${CLAWDBOT_VERSION:-latest}
+OPENCLAW_VERSION=${OPENCLAW_VERSION:-latest}
 DEFAULT_DEVBOX_USER=${DEFAULT_DEVBOX_USER:-devbox}
 
 DEVBOX_HOME="$(getent passwd "$DEFAULT_DEVBOX_USER" | cut -d: -f6 || true)"
@@ -9,7 +9,9 @@ if [ -z "$DEVBOX_HOME" ]; then
   DEVBOX_HOME="/home/${DEFAULT_DEVBOX_USER}"
 fi
 
-npm install -g "clawdbot@${CLAWDBOT_VERSION}"
+npm install -g "openclaw@${OPENCLAW_VERSION}"
+RUN npm install -g bun
+RUN npm install -g clawhub
 
 # Install clawhub packages as the devbox user.
 if command -v clawhub >/dev/null 2>&1; then
@@ -31,7 +33,8 @@ case "$ARCH" in
     apt-get install -y wget
     wget https://dl.google.com/linux/direct/google-chrome-stable_current_amd64.deb
     dpkg -i google-chrome-stable_current_amd64.deb || true
-    apt-get -f install -y
+    apt --fix-broken install -y
+    dpkg -i google-chrome-stable_current_amd64.deb
     rm -f google-chrome-stable_current_amd64.deb
     ;;
   # TODO: add Chrome install for arm64|aarch64

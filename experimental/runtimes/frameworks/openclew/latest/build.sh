@@ -29,9 +29,9 @@ DEVBOX_HOME="$(getent passwd "$DEFAULT_DEVBOX_USER" | cut -d: -f6 || true)"
 if [ -z "$DEVBOX_HOME" ]; then
   DEVBOX_HOME="/home/${DEFAULT_DEVBOX_USER}"
 fi
-mkdir -p "$DEVBOX_HOME/.clawdbot" -p "$TARGET_DIR/workspace"
+mkdir -p "$DEVBOX_HOME/.openclaw" -p "$TARGET_DIR/workspace"
 if [ -f "$PROJECT_TEMPLATE_DIR/openclaw.json" ]; then
-  cp "$PROJECT_TEMPLATE_DIR/openclaw.json" "$DEVBOX_HOME/.clawdbot/openclaw.json"
+  cp "$PROJECT_TEMPLATE_DIR/openclaw.json" "$DEVBOX_HOME/.openclaw/openclaw.json"
 fi
 
 # Seed .env from example if present.
@@ -50,4 +50,4 @@ if [ -f "$TARGET_DIR/entrypoint.sh" ]; then
 fi
 
 # Set ownership to default devbox user
-chown -R "$DEFAULT_DEVBOX_USER:$DEFAULT_DEVBOX_USER" "$TARGET_DIR" "$DEVBOX_HOME/.clawdbot" "$TARGET_DIR/workspace"
+chown -R "$DEFAULT_DEVBOX_USER:$DEFAULT_DEVBOX_USER" "$TARGET_DIR" "$DEVBOX_HOME/.openclaw" "$TARGET_DIR/workspace"
