@@ -1,22 +1,57 @@
-# C HTTP Server Example
+# C GCC 12.2.0 Runtime Template
 
-This is a simple C web server application example that demonstrates basic HTTP server functionality.
+This template provides a minimal C HTTP service for DevBox runtime **GCC 12.2.0 (C)**.
 
-## Project Description
+## Runtime Summary
 
-This project creates a lightweight HTTP server using C socket programming. The server listens on port 8080 and returns a "Hello, World from Development Server!" message when accessed. The project supports both development and production environment modes with graceful shutdown capabilities.
+- Compiler version: `gcc 12.2.0`
+- Base runtime image: `c-gcc-12.2.0`
+- Entrypoint script: `entrypoint.sh`
+- Default service port: `8080` (overridable by `PORT` in code)
 
-## Environment
+## Template Files
 
-This project runs on a Debian 12 system with C development tools, which are pre-configured in the Devbox environment. You don't need to worry about setting up gcc compiler or system dependencies yourself. The development environment includes all necessary tools for building and running C applications. If you need to make adjustments to match your specific requirements, you can modify the configuration files accordingly.
+- `hello_world.c`: socket-based HTTP server with graceful shutdown
+- `entrypoint.sh`: mode-aware compile-and-run script
 
-## Project Execution
+## Run in DevBox
 
-**Development mode:** For normal development environment, simply enter Devbox and run `bash entrypoint.sh` in the terminal. This will compile your C code with debugging flags and run the executable.
+Run commands from `/home/devbox/project`.
 
-**Production mode:** After release, the project will be automatically packaged into a Docker image and deployed according to the `entrypoint.sh` script with production parameters (run `bash entrypoint.sh production`). This will build an optimized executable binary and run it.
+### Development mode
 
+```bash
+bash entrypoint.sh
+```
 
-DevBox: Code. Build. Deploy. We've Got the Rest.
+Behavior:
+- Builds with `gcc -Wall hello_world.c -o hello_world`
+- Runs `./hello_world`
 
-With DevBox, you can focus entirely on writing great code while we handle the infrastructure, scaling, and deployment. Seamless development from start to production. 
+### Production mode
+
+```bash
+bash entrypoint.sh production
+```
+
+Behavior:
+- Builds optimized binary: `gcc -O2 -Wall hello_world.c -o hello_world`
+- Runs `./hello_world`
+
+## Verify Service
+
+```bash
+curl http://127.0.0.1:8080
+```
+
+Expected output:
+
+```text
+Hello, World from Development Server!
+```
+
+## Customization
+
+- Extend request parsing and routing in `hello_world.c`.
+- Export `PORT` if you need a non-default listening port.
+- Replace manual build commands with Makefile when project complexity increases.

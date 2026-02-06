@@ -1,22 +1,56 @@
-# C++ HTTP Server Example
+# C++ GCC 12.2.0 Runtime Template
 
-This is a simple C++ web server application example that demonstrates basic HTTP server functionality.
+This template provides a minimal C++ HTTP service for DevBox runtime **GCC 12.2.0 (C++)**.
 
-## Project Description
+## Runtime Summary
 
-This project creates a lightweight HTTP server using C++ socket programming. The server listens on port 8080 and returns a "Hello, World!" message when accessed. The project supports both development and production environment modes.
+- Compiler version: `g++ (GCC) 12.2.0`
+- Base runtime image: `cpp-gcc-12.2.0`
+- Entrypoint script: `entrypoint.sh`
+- Default service port: `8080`
 
-## Environment
+## Template Files
 
-This project runs on a Debian 12 system with C++ development tools, which are pre-configured in the Devbox environment. You don't need to worry about setting up g++ compiler or system dependencies yourself. The development environment includes all necessary tools for building and running C++ applications. If you need to make adjustments to match your specific requirements, you can modify the configuration files accordingly.
+- `hello_world.cpp`: socket-based HTTP server
+- `entrypoint.sh`: compile-and-run script for both modes
 
-## Project Execution
+## Run in DevBox
 
-**Development mode:** For normal development environment, simply enter Devbox and run `bash entrypoint.sh` in the terminal. This will compile your C++ code and run the executable.
+Run commands from `/home/devbox/project`.
 
-**Production mode:** After release, the project will be automatically packaged into a Docker image and deployed according to the `entrypoint.sh` script with production parameters (run `bash entrypoint.sh production`). This will build the executable binary and run it.
+### Development mode
 
+```bash
+bash entrypoint.sh
+```
 
-DevBox: Code. Build. Deploy. We've Got the Rest.
+Behavior:
+- Compiles with `g++ hello_world.cpp -o hello_world`
+- Runs `./hello_world`
 
-With DevBox, you can focus entirely on writing great code while we handle the infrastructure, scaling, and deployment. Seamless development from start to production. 
+### Production mode
+
+```bash
+bash entrypoint.sh production
+```
+
+Behavior:
+- Uses the same compile-and-run command path.
+
+## Verify Service
+
+```bash
+curl http://127.0.0.1:8080
+```
+
+Expected output:
+
+```text
+Hello, World!
+```
+
+## Customization
+
+- Add routing or protocol handling logic in `hello_world.cpp`.
+- Introduce `Makefile` or CMake for larger codebases.
+- Keep build target name in `entrypoint.sh` consistent with your binary output.

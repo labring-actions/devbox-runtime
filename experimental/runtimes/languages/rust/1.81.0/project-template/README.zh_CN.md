@@ -1,22 +1,57 @@
-# Rust Actix Web 示例项目
+# Rust 1.81.0 运行时模板
 
-这是一个简单的 Rust Web 服务器应用程序示例，演示了基本的 HTTP 服务器功能。
+该模板为 DevBox **Rust 1.81.0** 运行时提供一个基于 Actix Web 的最小 HTTP 服务。
 
-## 项目描述
+## 运行时概览
 
-该项目创建一个基本的 HTTP 服务器，监听 0.0.0.0:8080 端口并返回 "Hello, World!" 消息。该项目支持开发和生产环境模式。
+- 语言版本：`Rust 1.81.0`
+- 基础运行时镜像：`rust-1.81.0`
+- 启动脚本：`entrypoint.sh`
+- 默认服务端口：`8080`
 
-## 运行环境
+## 模板文件
 
-该项目在带有 Rust 的 Debian 12 系统上运行，Rust 环境已在 Devbox 中预配置。您无需担心自己设置 Rust 或系统依赖项。开发环境包含构建和运行带有 Actix Web 框架的 Rust 应用程序所需的所有工具。如果您需要进行调整以满足特定需求，可以相应地修改配置文件。
+- `Cargo.toml` / `Cargo.lock`：项目与依赖配置
+- `src/main.rs`：Actix Web 服务入口
+- `entrypoint.sh`：开发/生产模式启动逻辑
 
-## 项目执行
+## 在 DevBox 中运行
 
-**开发模式：** 对于正常开发环境，直接进入 Devbox 并在终端中运行 `bash entrypoint.sh`。
+以下命令在 `/home/devbox/project` 目录执行。
 
-**生产模式：** 发布后，项目将根据 `entrypoint.sh` 脚本和命令参数自动打包成 Docker 镜像并部署。
+### 开发模式
 
+```bash
+bash entrypoint.sh
+```
 
-DevBox: 编码、构建、部署，我们来打理其余工作。
+行为说明：
+- 使用 `cargo run` 启动。
 
-使用 DevBox，您可以专注于编写优秀代码，其余基础设施、扩展和部署交由我们处理。从开发到生产的无缝体验。
+### 生产模式
+
+```bash
+bash entrypoint.sh production
+```
+
+行为说明：
+- 先构建 release 二进制：`cargo build --release --bin hello_world`
+- 再运行：`./target/release/hello_world`
+
+## 验证服务
+
+```bash
+curl http://127.0.0.1:8080
+```
+
+预期输出：
+
+```text
+Hello, World!
+```
+
+## 自定义建议
+
+- 在 `src/main.rs` 中扩展路由和中间件。
+- 在 `Cargo.toml` 中新增依赖。
+- 若修改可执行目标名，请同步更新 `entrypoint.sh` 与 `Cargo.toml`。

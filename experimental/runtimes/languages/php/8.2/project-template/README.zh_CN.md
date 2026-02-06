@@ -1,22 +1,57 @@
-# PHP Web 服务器示例
+# PHP 8.2 运行时模板
 
-这是一个简单的 PHP Web 服务器应用程序示例，演示了基本的 HTTP 服务器功能。
+该模板为 DevBox **PHP 8.2** 运行时提供一个最小可运行的 HTTP 服务。
 
-## 项目描述
+## 运行时概览
 
-该项目使用 PHP 内置服务器功能创建一个基本的 PHP Web 服务器。服务器监听 8080 端口，访问时返回 "Hello World!" 消息。该项目支持开发和生产环境模式。
+- 语言版本：`PHP 8.2`
+- 基础运行时镜像：`php-8.2`
+- 启动脚本：`entrypoint.sh`
+- 默认服务端口：`8080`
 
-## 运行环境
+## 模板文件
 
-该项目在带有 PHP 的 Debian 12 系统上运行，PHP 环境已在 Devbox 中预配置。您无需担心自己设置 PHP 或系统依赖项。开发环境包含构建和运行 PHP 应用程序所需的所有工具。如果您需要进行调整以满足特定需求，可以相应地修改配置文件。
+- `hello_world.php`：示例响应脚本
+- `entrypoint.sh`：按模式启动 PHP 内置 Web Server
 
-## 项目执行
+## 在 DevBox 中运行
 
-**开发模式：** 对于正常开发环境，直接进入 Devbox 并在终端中运行 `bash entrypoint.sh`。
+以下命令在 `/home/devbox/project` 目录执行。
 
-**生产模式：** 发布后，项目将根据带有生产参数的 `entrypoint.sh` 脚本（运行 `bash entrypoint.sh production`）自动打包成 Docker 镜像并部署。
+### 开发模式
 
+```bash
+bash entrypoint.sh
+```
 
-DevBox: 编码、构建、部署，我们来打理其余工作。
+行为说明：
+- 执行 `php -S 0.0.0.0:8080 hello_world.php`
+- 开启开发排障常用的错误日志参数。
 
-使用 DevBox，您可以专注于编写优秀代码，其余基础设施、扩展和部署交由我们处理。从开发到生产的无缝体验。 
+### 生产模式
+
+```bash
+bash entrypoint.sh production
+```
+
+行为说明：
+- 同样监听 `8080` 端口启动内置服务
+- 额外启用 `opcache` 相关参数以模拟生产性能配置。
+
+## 验证服务
+
+```bash
+curl http://127.0.0.1:8080
+```
+
+预期输出：
+
+```text
+Hello, World!
+```
+
+## 自定义建议
+
+- 将 `hello_world.php` 替换为业务入口文件。
+- 使用 Laravel/Symfony 等框架时，请同步调整 `entrypoint.sh` 启动命令。
+- 根据场景完善 `entrypoint.sh` 中的 PHP ini 参数。
