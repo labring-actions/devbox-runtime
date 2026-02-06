@@ -20,8 +20,7 @@ if command -v clawhub >/dev/null 2>&1; then
     clawhub install auto-updater && \
     clawhub install marketing-skills && \
     clawhub install kubectl && \
-    clawhub install ralph-loops" \
-    openclaw plugins install @m1heng-clawd/feishu
+    clawhub install ralph-loops"
 else
   echo "clawhub not found; skipping clawhub installs."
 fi
