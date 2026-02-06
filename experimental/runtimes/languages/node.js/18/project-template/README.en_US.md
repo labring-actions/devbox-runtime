@@ -1,22 +1,55 @@
-# Node.js Example Project
+# Node.js 18 Runtime Template
 
-This is a simple Node.js server application example that demonstrates basic HTTP server functionality.
+This template provides a minimal Node.js HTTP service for DevBox runtime **Node.js 18**.
 
-## Project Description
+## Runtime Summary
 
-This project creates a basic HTTP server that listens on 0.0.0.0:corresponding port and returns a "Hello World!" message. The project supports both development and production environment modes.
+- Language version: `Node.js 18`
+- Base runtime image: `node.js-18`
+- Entrypoint script: `entrypoint.sh`
+- Default service port: `8080`
 
-## Environment
+## Template Files
 
-This project runs on a Debian 12 system with Node.js, which is pre-configured in the Devbox environment. You don't need to worry about setting up Node.js or system dependencies yourself. The development environment includes all necessary tools for building and running Node.js applications. If you need to make adjustments to match your specific requirements, you can modify the configuration files accordingly.
+- `hello_world.js`: HTTP server using Node built-in `http`
+- `entrypoint.sh`: startup script with environment mode switch
 
-## Project Execution
-**Development mode:** For normal development environment, simply enter Devbox and run `bash entrypoint.sh` in the terminal.
-**Production mode:** After release, the project will be automatically packaged into a Docker image and deployed according to the `entrypoint.sh` script and command parameters.
+## Run in DevBox
 
-Within Devbox, you only need to focus on development - you can trust that everything is application-ready XD
+Run commands from `/home/devbox/project`.
 
+### Development mode
 
-DevBox: Code. Build. Deploy. We've Got the Rest.
+```bash
+bash entrypoint.sh
+```
 
-With DevBox, you can focus entirely on writing great code while we handle the infrastructure, scaling, and deployment. Seamless development from start to production. 
+Behavior:
+- Starts service with `NODE_ENV=development node hello_world.js`.
+
+### Production mode
+
+```bash
+bash entrypoint.sh production
+```
+
+Behavior:
+- Starts service with `NODE_ENV=production node hello_world.js`.
+
+## Verify Service
+
+```bash
+curl http://127.0.0.1:8080
+```
+
+Expected output:
+
+```text
+Hello World!
+```
+
+## Customization
+
+- Replace `hello_world.js` with your app entry (Express/Fastify/Nest, etc.).
+- Keep `entrypoint.sh` aligned with your actual start command.
+- Add dependency install/build steps when migrating to package-based projects.

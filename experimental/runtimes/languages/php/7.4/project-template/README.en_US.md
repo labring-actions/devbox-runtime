@@ -1,22 +1,57 @@
-# PHP Web Server Example
+# PHP 7.4 Runtime Template
 
-This is a simple PHP web server application example that demonstrates basic HTTP server functionality.
+This template provides a minimal PHP HTTP service for DevBox runtime **PHP 7.4**.
 
-## Project Description
+## Runtime Summary
 
-This project creates a basic PHP web server using PHP's built-in server capabilities. The server listens on port 8080 and returns a "Hello World!" message when accessed. The project supports both development and production environment modes.
+- Language version: `PHP 7.4`
+- Base runtime image: `php-7.4`
+- Entrypoint script: `entrypoint.sh`
+- Default service port: `8080`
 
-## Environment
+## Template Files
 
-This project runs on a Debian 12 system with PHP, which is pre-configured in the Devbox environment. You don't need to worry about setting up PHP or system dependencies yourself. The development environment includes all necessary tools for building and running PHP applications. If you need to make adjustments to match your specific requirements, you can modify the configuration files accordingly.
+- `hello_world.php`: sample response script
+- `entrypoint.sh`: starts PHP built-in web server for different modes
 
-## Project Execution
+## Run in DevBox
 
-**Development mode:** For normal development environment, simply enter Devbox and run `bash entrypoint.sh` in the terminal.
+Run commands from `/home/devbox/project`.
 
-**Production mode:** After release, the project will be automatically packaged into a Docker image and deployed according to the `entrypoint.sh` script with production parameters (run `bash entrypoint.sh production`).
+### Development mode
 
+```bash
+bash entrypoint.sh
+```
 
-DevBox: Code. Build. Deploy. We've Got the Rest.
+Behavior:
+- Runs `php -S 0.0.0.0:8080 hello_world.php`
+- Enables error logging parameters for development troubleshooting.
 
-With DevBox, you can focus entirely on writing great code while we handle the infrastructure, scaling, and deployment. Seamless development from start to production. 
+### Production mode
+
+```bash
+bash entrypoint.sh production
+```
+
+Behavior:
+- Runs the same built-in server on port `8080`
+- Enables `opcache` related options for production-like performance.
+
+## Verify Service
+
+```bash
+curl http://127.0.0.1:8080
+```
+
+Expected output:
+
+```text
+Hello, World!
+```
+
+## Customization
+
+- Replace `hello_world.php` with your real application entry.
+- If using frameworks (Laravel/Symfony), update the command in `entrypoint.sh`.
+- Align PHP ini options in entrypoint with your runtime requirements.

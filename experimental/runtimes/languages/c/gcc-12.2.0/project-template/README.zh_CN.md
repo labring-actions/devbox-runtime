@@ -1,22 +1,57 @@
-# C HTTP 服务器示例
+# C GCC 12.2.0 运行时模板
 
-这是一个简单的 C Web 服务器应用程序示例，演示了基本的 HTTP 服务器功能。
+该模板为 DevBox **GCC 12.2.0（C）** 运行时提供一个最小可运行的 HTTP 服务。
 
-## 项目描述
+## 运行时概览
 
-该项目使用 C 套接字编程创建一个轻量级 HTTP 服务器。服务器监听 8080 端口，访问时返回 "Hello, World from Development Server!" 消息。该项目支持开发和生产环境模式，并具有优雅关闭功能。
+- 编译器版本：`gcc 12.2.0`
+- 基础运行时镜像：`c-gcc-12.2.0`
+- 启动脚本：`entrypoint.sh`
+- 默认服务端口：`8080`（代码中可通过 `PORT` 覆盖）
 
-## 运行环境
+## 模板文件
 
-该项目在带有 C 开发工具的 Debian 12 系统上运行，C 开发工具已在 Devbox 中预配置。您无需担心自己设置 gcc 编译器或系统依赖项。开发环境包含构建和运行 C 应用程序所需的所有工具。如果您需要进行调整以满足特定需求，可以相应地修改配置文件。
+- `hello_world.c`：带优雅退出逻辑的 socket HTTP 服务
+- `entrypoint.sh`：按模式切换的编译运行脚本
 
-## 项目执行
+## 在 DevBox 中运行
 
-**开发模式：** 对于正常开发环境，直接进入 Devbox 并在终端中运行 `bash entrypoint.sh`。这将使用调试标志编译您的 C 代码并运行可执行文件。
+以下命令在 `/home/devbox/project` 目录执行。
 
-**生产模式：** 发布后，项目将根据带有生产参数的 `entrypoint.sh` 脚本（运行 `bash entrypoint.sh production`）自动打包成 Docker 镜像并部署。这将构建优化的可执行二进制文件并运行它。
+### 开发模式
 
+```bash
+bash entrypoint.sh
+```
 
-DevBox: 编码、构建、部署，我们来打理其余工作。
+行为说明：
+- 使用 `gcc -Wall hello_world.c -o hello_world` 编译
+- 运行 `./hello_world`
 
-使用 DevBox，您可以专注于编写优秀代码，其余基础设施、扩展和部署交由我们处理。从开发到生产的无缝体验。 
+### 生产模式
+
+```bash
+bash entrypoint.sh production
+```
+
+行为说明：
+- 使用优化参数编译：`gcc -O2 -Wall hello_world.c -o hello_world`
+- 运行 `./hello_world`
+
+## 验证服务
+
+```bash
+curl http://127.0.0.1:8080
+```
+
+预期输出：
+
+```text
+Hello, World from Development Server!
+```
+
+## 自定义建议
+
+- 在 `hello_world.c` 中扩展请求解析与路由处理。
+- 若需非默认端口，可通过环境变量 `PORT` 覆盖。
+- 项目复杂后建议引入 Makefile 管理构建。

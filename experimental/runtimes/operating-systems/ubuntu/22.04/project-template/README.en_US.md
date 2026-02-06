@@ -1,64 +1,45 @@
-# Quick Start
+# Ubuntu 22.04 Runtime Template
 
-> This guide explains how to create, develop, and deploy a Next.js app with Sealos Devbox, including remote development via Cursor IDE and cloud deployment.
+This template provides a minimal **operating-system runtime** based on Ubuntu 22.04.
+Use it when you need a general-purpose Ubuntu environment and full control of your software stack.
 
-## Create a Devbox project
+## Runtime Summary
 
-1. Open Sealos Desktop → Devbox → New Project.
-2. Choose Next.js as the framework; set CPU and memory.
-![quick-start-1](https://github.com/labring/sealos/blob/main/docs/5.0/i18n/en/user-guide/devbox/images/quick-start-1.png?raw=true)
-3. Network:
-   - Expose port 3000 (Next.js default).
-   - Enable public access (auto-random domain) or set a custom domain.
-   > Keep the exposed port consistent with your Next.js config.
-![quick-start-2](https://github.com/labring/sealos/blob/main/docs/5.0/i18n/en/user-guide/devbox/images/quick-start-2.png?raw=true)
-4. Click Create.
+- OS version: `Ubuntu 22.04`
+- Base runtime image: `ubuntu-22.04`
+- Entrypoint script: `entrypoint.sh`
+- Default service port: `8080`
 
-## Connect Cursor IDE
+## Template Files
 
-- Find your Devbox project in the list; choose IDE from the dropdown.
-![quick-start-3](https://github.com/labring/sealos/blob/main/docs/5.0/i18n/en/user-guide/devbox/images/quick-start-3.png?raw=true)
-1. Launch local Cursor IDE (select Cursor in the dropdown).
-2. Cursor prompts to install the Devbox plugin, then connects via SSH.  
-   > You can switch to VSCode / Insiders / Cursor / Windsurf anytime.
+- `entrypoint.sh`: creates a static `index.html` and starts `busybox httpd`
 
-## Develop
+## Run in DevBox
 
-1. After Cursor connects, edit files directly in the remote workspace.
-![quick-start-4](https://github.com/labring/sealos/blob/main/docs/5.0/i18n/en/user-guide/devbox/images/quick-start-4.png?raw=true)
-   > Remote dev keeps env parity; accessible from any Cursor-installed device.
-2. Debug Next.js:
-   ```bash
-   npm run dev
-   ```
-3. Access the running app:
-   - In Sealos Devbox UI, open project details → click the public URL.
-![quick-start-5](https://github.com/labring/sealos/blob/main/docs/5.0/i18n/en/user-guide/devbox/images/quick-start-5.png?raw=true)
-4. See your Next.js page:
-![quick-start-6](https://github.com/labring/sealos/blob/main/docs/5.0/i18n/en/user-guide/devbox/images/quick-start-6.png?raw=true)
+Run commands from `/home/devbox/project`.
 
-## Release
+```bash
+bash entrypoint.sh
+```
 
-1. In Cursor terminal:
-   ```bash
-   npm run build
-   ```
-2. In project details → Version History → Publish Version.
-3. Fill image name (pre-filled), version (e.g., v1.0), description.
-![quick-start-7](https://github.com/labring/sealos/blob/main/docs/5.0/i18n/en/user-guide/devbox/images/quick-start-7.png?raw=true)
-4. After publish, the version appears with status/time/description.
-![quick-start-8](https://github.com/labring/sealos/blob/main/docs/5.0/i18n/en/user-guide/devbox/images/quick-start-8.png?raw=true)
-> Each release snapshots your code for versioning and rollback.
+Behavior:
+- Uses `PORT` environment variable when provided, defaults to `8080`.
+- Serves files from `/home/devbox/project/www`.
 
-## Deploy
+## Verify Service
 
-1. In Version History, pick a version → Deploy.
-2. Configure in the Sealos App console:
-   - App name, resources (CPU/Mem), env vars, volumes.
-![quick-start-9](https://github.com/labring/sealos/blob/main/docs/5.0/i18n/en/user-guide/devbox/images/quick-start-9.png?raw=true)
-3. Click Deploy.
-4. When status is “running”, click Public Address to open the app.
-![quick-start-10](https://github.com/labring/sealos/blob/main/docs/5.0/i18n/en/user-guide/devbox/images/quick-start-10.png?raw=true)
+```bash
+curl http://127.0.0.1:8080
+```
 
-This workflow lets you develop/debug in cloud while using local IDE, and share the app via public URL.
+Expected output:
 
+```text
+Hello, World!
+```
+
+## Customization
+
+- Replace `entrypoint.sh` with your own process startup script.
+- Install your required runtime/toolchain directly in this Ubuntu base.
+- Align container exposed ports with your service port.

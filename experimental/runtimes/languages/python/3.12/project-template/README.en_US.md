@@ -1,22 +1,58 @@
-# Python HTTP Server Example
+# Python 3.12 Runtime Template
 
-This is a simple Python HTTP server application that demonstrates basic server functionality.
+This template provides a minimal Python HTTP service for DevBox runtime **Python 3.12**.
 
-## Project Description
+## Runtime Summary
 
-This project creates a basic HTTP server using Python's built-in `http.server` module. The server listens on port 8080 and returns a "Hello World!" message when accessed.
+- Language version: `Python 3.12`
+- Base runtime image: `python-3.12`
+- Entrypoint script: `entrypoint.sh`
+- Default service port: `8080`
 
-## Environment
+## Template Files
 
-This project runs on a Debian 12 system with Python, which is pre-configured in the Devbox environment. You don't need to worry about setting up Python or system dependencies yourself. The development environment includes all necessary tools for building and running Python applications. If you need to make adjustments to match your specific requirements, you can modify the configuration files accordingly.
+- `hello.py`: HTTP server implemented with `http.server`
+- `entrypoint.sh`: startup script for development/production modes
 
-## Project Execution
+## Run in DevBox
 
-**Development mode:** For normal development environment, simply enter Devbox and run `bash entrypoint.sh` in the terminal.
+Run commands from `/home/devbox/project`.
 
-**Production mode:** After release, the project will be automatically packaged into a Docker image and deployed according to the `entrypoint.sh` script.
+### Development mode
 
+```bash
+bash entrypoint.sh
+```
 
-DevBox: Code. Build. Deploy. We've Got the Rest.
+Behavior:
+- If `bin/activate` exists, it is sourced first.
+- Starts the app with `python3 hello.py`.
 
-With DevBox, you can focus entirely on writing great code while we handle the infrastructure, scaling, and deployment. Seamless development from start to production.
+### Production mode
+
+```bash
+bash entrypoint.sh production
+```
+
+Behavior:
+- Uses the same startup command (`python3 hello.py`) for a deterministic runtime path.
+
+## Verify Service
+
+After startup, check the endpoint:
+
+```bash
+curl http://127.0.0.1:8080
+```
+
+Expected output:
+
+```text
+Hello, World!
+```
+
+## Customization
+
+- Update `hello.py` to add routes or business logic.
+- Replace `entrypoint.sh` if you need process managers (for example `gunicorn` or `uvicorn`).
+- Keep container exposed port and app listen port consistent.

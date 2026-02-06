@@ -1,22 +1,55 @@
-# Node.js 示例项目
+# Node.js 22 运行时模板
 
-这是一个简单的 Node.js 服务器应用程序示例，演示了基本的 HTTP 服务器功能。
+该模板为 DevBox **Node.js 22** 运行时提供一个最小可运行的 HTTP 服务。
 
-## 项目描述
+## 运行时概览
 
-该项目创建一个基本的 HTTP 服务器，监听 0.0.0.0:对应端口并返回 "Hello World!" 消息。该项目支持开发和生产环境模式。
+- 语言版本：`Node.js 22`
+- 基础运行时镜像：`node.js-22`
+- 启动脚本：`entrypoint.sh`
+- 默认服务端口：`8080`
 
-## 运行环境
+## 模板文件
 
-该项目在带有 Node.js 的 Debian 12 系统上运行，Node.js 环境已在 Devbox 中预配置。您无需担心自己设置 Node.js 或系统依赖项。开发环境包含构建和运行 Node.js 应用程序所需的所有工具。如果您需要进行调整以满足特定需求，可以相应地修改配置文件。
+- `hello_world.js`：基于 Node 内置 `http` 模块的 HTTP 服务
+- `entrypoint.sh`：可切换环境模式的启动脚本
 
-## 项目执行
-**开发模式：** 对于正常开发环境，直接进入 Devbox 并在终端中运行 `bash entrypoint.sh`。
-**生产模式：** 发布后，项目将根据 `entrypoint.sh` 脚本和命令参数自动打包成 Docker 镜像并部署。
+## 在 DevBox 中运行
 
-在 Devbox 中，您只需专注于开发 - 您可以放心一切就绪 XD
+以下命令在 `/home/devbox/project` 目录执行。
 
+### 开发模式
 
-DevBox: 编码、构建、部署，我们来打理其余工作。
+```bash
+bash entrypoint.sh
+```
 
-使用 DevBox，您可以专注于编写优秀代码，其余基础设施、扩展和部署交由我们处理。从开发到生产的无缝体验。 
+行为说明：
+- 以 `NODE_ENV=development node hello_world.js` 启动服务。
+
+### 生产模式
+
+```bash
+bash entrypoint.sh production
+```
+
+行为说明：
+- 以 `NODE_ENV=production node hello_world.js` 启动服务。
+
+## 验证服务
+
+```bash
+curl http://127.0.0.1:8080
+```
+
+预期输出：
+
+```text
+Hello World!
+```
+
+## 自定义建议
+
+- 可将 `hello_world.js` 替换为实际应用入口（Express/Fastify/Nest 等）。
+- 若调整启动命令，请同步修改 `entrypoint.sh`。
+- 迁移为依赖化项目后，补充依赖安装与构建步骤。

@@ -1,22 +1,56 @@
-# Go HTTP Server Example
+# Go 1.22.5 Runtime Template
 
-This is a simple Go web server application example that demonstrates basic HTTP server functionality.
+This template provides a minimal Go HTTP service for DevBox runtime **Go 1.22.5**.
 
-## Project Description
+## Runtime Summary
 
-This project creates a lightweight HTTP server using Go's standard `net/http` package. The server listens on port 8080 and returns a "Hello, World!" message when accessed. The project supports both development and production environment modes.
+- Language version: `Go 1.22.5`
+- Base runtime image: `go-1.22.5`
+- Entrypoint script: `entrypoint.sh`
+- Default service port: `8080`
 
-## Environment
+## Template Files
 
-This project runs on a Debian 12 system with Go, which is pre-configured in the Devbox environment. You don't need to worry about setting up Go or system dependencies yourself. The development environment includes all necessary tools for building and running Go applications. If you need to make adjustments to match your specific requirements, you can modify the configuration files accordingly.
+- `main.go`: HTTP server using `net/http`
+- `entrypoint.sh`: mode-aware startup script
 
-## Project Execution
+## Run in DevBox
 
-**Development mode:** For normal development environment, simply enter Devbox and run `bash entrypoint.sh` in the terminal. This will directly run the application with `go run`.
+Run commands from `/home/devbox/project`.
 
-**Production mode:** After release, the project will be automatically packaged into a Docker image and deployed according to the `entrypoint.sh` script with production parameters (run `bash entrypoint.sh production`). This will build an executable binary and run it.
+### Development mode
 
+```bash
+bash entrypoint.sh
+```
 
-DevBox: Code. Build. Deploy. We've Got the Rest.
+Behavior:
+- Runs `go run main.go` for fast iteration.
 
-With DevBox, you can focus entirely on writing great code while we handle the infrastructure, scaling, and deployment. Seamless development from start to production. 
+### Production mode
+
+```bash
+bash entrypoint.sh production
+```
+
+Behavior:
+- Builds binary: `go build -o hello_world main.go`
+- Runs binary: `./hello_world`
+
+## Verify Service
+
+```bash
+curl http://127.0.0.1:8080
+```
+
+Expected output:
+
+```text
+Hello, World!
+```
+
+## Customization
+
+- Add handlers/routes in `main.go`.
+- Replace the single-file layout with a standard module structure when scaling.
+- Keep the entrypoint build target aligned with your binary name.

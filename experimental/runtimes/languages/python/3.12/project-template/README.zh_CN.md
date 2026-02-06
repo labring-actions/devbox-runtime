@@ -1,21 +1,58 @@
-# Python HTTP 服务器示例
+# Python 3.12 运行时模板
 
-这是一个简单的 Python HTTP 服务器应用程序，演示了基本的服务器功能。
+该模板为 DevBox **Python 3.12** 运行时提供一个最小可运行的 HTTP 服务。
 
-## 项目描述
+## 运行时概览
 
-该项目使用 Python 内置的 `http.server` 模块创建一个基本的 HTTP 服务器。服务器监听 8080 端口，访问时返回 "Hello World!" 消息。
+- 语言版本：`Python 3.12`
+- 基础运行时镜像：`python-3.12`
+- 启动脚本：`entrypoint.sh`
+- 默认服务端口：`8080`
 
-## 运行环境
+## 模板文件
 
-该项目在预配置了 Python 的 Debian 12 系统上运行（Devbox 环境）。您无需担心手动设置 Python 或系统依赖项。开发环境包含构建和运行 Python 应用程序所需的所有工具。如果需要针对特定需求进行调整，可以相应修改配置文件。
+- `hello.py`：基于 `http.server` 的 HTTP 服务
+- `entrypoint.sh`：开发/生产模式启动脚本
 
-## 项目执行
+## 在 DevBox 中运行
 
-**开发模式：** 在常规开发环境中，直接进入 Devbox 并在终端运行 `bash entrypoint.sh`。
+以下命令在 `/home/devbox/project` 目录执行。
 
-**生产模式：** 发布后，项目将根据 `entrypoint.sh` 脚本自动打包为 Docker 镜像并部署。
+### 开发模式
 
-DevBox: 编码、构建、部署，我们来打理其余工作。
+```bash
+bash entrypoint.sh
+```
 
-使用 DevBox，您可以专注于编写优秀代码，其余基础设施、扩展和部署交由我们处理。从开发到生产的无缝体验。
+行为说明：
+- 若存在 `bin/activate`，会先自动 `source` 虚拟环境。
+- 使用 `python3 hello.py` 启动应用。
+
+### 生产模式
+
+```bash
+bash entrypoint.sh production
+```
+
+行为说明：
+- 与开发模式使用同一启动命令（`python3 hello.py`），保证运行路径一致。
+
+## 验证服务
+
+启动后执行：
+
+```bash
+curl http://127.0.0.1:8080
+```
+
+预期输出：
+
+```text
+Hello, World!
+```
+
+## 自定义建议
+
+- 在 `hello.py` 中扩展路由或业务逻辑。
+- 若需要进程管理，可将 `entrypoint.sh` 替换为 `gunicorn`/`uvicorn` 启动方式。
+- 保持容器暴露端口与应用监听端口一致。

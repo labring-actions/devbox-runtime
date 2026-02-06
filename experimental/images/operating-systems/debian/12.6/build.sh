@@ -29,5 +29,14 @@ $BASE_TOOLS_DIR/scripts/configure-l10n.sh
 # Configure user devbox
 $BASE_TOOLS_DIR/scripts/configure-user.sh "$DEFAULT_DEVBOX_USER"
 
+# Install user-facing runtime docs (single source from base-tools)
+if [ -d "$BASE_TOOLS_DIR/docs" ]; then
+    install -d /usr/share/devbox/docs
+    cp "$BASE_TOOLS_DIR"/docs/README.s6-user-guide*.md /usr/share/devbox/docs/
+    chmod 644 /usr/share/devbox/docs/README.s6-user-guide*.md
+else
+    echo "No docs directory found in $BASE_TOOLS_DIR; skipping s6 user-guide install"
+fi
+
 # Cleanup
 $BASE_TOOLS_DIR/scripts/cleanup.sh

@@ -20,6 +20,13 @@ else
   echo "README $PROJECT_TEMPLATE_DIR/README.$L10N.md does not exist. Skipping copy."
 fi
 
+DOCS_DIR=${DOCS_DIR:-/usr/share/devbox/docs}
+if [ -f "$DOCS_DIR/README.s6-user-guide.$L10N.md" ]; then
+  cp "$DOCS_DIR/README.s6-user-guide.$L10N.md" "$TARGET_DIR/README.s6-user-guide.md"
+elif [ -f "$DOCS_DIR/README.s6-user-guide.en_US.md" ]; then
+  cp "$DOCS_DIR/README.s6-user-guide.en_US.md" "$TARGET_DIR/README.s6-user-guide.md"
+fi
+
 # Copy project template contents (except localized readmes handled above).
 # Using `/.` keeps hidden files/dirs if present.
 cp -R "${PROJECT_TEMPLATE_DIR}/." "$TARGET_DIR/"
