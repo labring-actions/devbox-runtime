@@ -3,24 +3,28 @@ FROM $BASE_IMAGE
 
 USER root
 RUN apt-get update && \
-    apt-get install -y wget build-essential libncursesw5-dev libssl-dev \
-        libsqlite3-dev tk-dev libgdbm-dev libc6-dev libbz2-dev libffi-dev zlib1g-dev && \
-    wget https://www.python.org/ftp/python/3.12.8/Python-3.12.8.tgz && \
+    apt-get install -y wget build-essential libssl-dev libffi-dev zlib1g-dev && \
+    cd /tmp && wget https://www.python.org/ftp/python/3.12.8/Python-3.12.8.tgz && \
     tar xzf Python-3.12.8.tgz && \
     cd Python-3.12.8 && \
-    ./configure --enable-optimizations && \
-    make -j $(nproc) && \
+    ./configure && \
+    make -j $(($(nproc) / 2)) && \
     make altinstall && \
     cd .. && \
-    rm -rf Python-3.12.8 Python-3.12.8.tgz && \
     ln -s /usr/local/bin/python3.12 /usr/bin/python3 && \
     ln -s /usr/local/bin/python3.12 /usr/bin/python && \
     python3.12 -m ensurepip --upgrade && \
     ln -s /usr/local/bin/pip3.12 /usr/bin/pip && \
     ln -s /usr/local/bin/pip3.12 /usr/bin/pip3 && \
     mkdir /root/.devbox && \
+    apt-get remove -y build-essential libssl-dev libffi-dev zlib1g-dev && \
+    apt-get autoremove -y && \
     apt-get clean && \
-    rm -rf /var/lib/apt/lists/*
+    rm -rf /var/lib/apt/lists/* && \
+    rm -rf Python-3.12.8 Python-3.12.8.tgz && \
+    rm -rf /tmp/* /var/tmp/* && \
+    find /usr/local -name "*.pyc" -delete && \
+    find /usr/local -name "__pycache__" -type d -exec rm -rf {} + 2>/dev/null || true
 
 USER devbox
 RUN rm -rf /home/devbox/project/*
