@@ -10,12 +10,10 @@ ARG RUNTIME_IMAGE_VERSION=v0.0.1-alpha.1-${L10N_NORMALIZED}
 
 FROM ${REGISTRY}/${REPO}/sandbox-latest:${RUNTIME_IMAGE_VERSION}
 LABEL org.opencontainers.image.authors="The Devbox Authors"
-ENV PROJECT_TEMPLATE_DIR=/project-template
-COPY ./project-template ${PROJECT_TEMPLATE_DIR}
+
 COPY ./build.sh /build.sh
 RUN chmod +x /build.sh && \
     /build.sh && \
     rm -f /build.sh && \
-    rm -rf ${PROJECT_TEMPLATE_DIR}
 # Set the working directory to the default devbox user's project directory
-WORKDIR /home/${DEFAULT_DEVBOX_USER}/project
+WORKDIR /home/${DEFAULT_DEVBOX_USER}/workspace

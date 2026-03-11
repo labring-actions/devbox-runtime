@@ -34,3 +34,8 @@ fi
 node --version
 bun --version
 python3.14 --version
+
+rm -rf /home/devbox/project
+
+mkdir -p /home/devbox/workspace
+chown -R devbox:devbox /home/devbox/workspace
