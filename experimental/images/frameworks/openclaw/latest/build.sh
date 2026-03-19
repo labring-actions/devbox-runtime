@@ -15,7 +15,6 @@ npm install -g clawhub
 
 install_clawhub_skill() {
   local skill="$1"
-  local allow_suspicious_retry="${2:-false}"
   local output=""
 
   if output=$(su - "$DEFAULT_DEVBOX_USER" -c "clawhub install \"$skill\"" 2>&1); then
@@ -25,22 +24,18 @@ install_clawhub_skill() {
 
   printf '%s\n' "$output" >&2
 
-  if [ "$allow_suspicious_retry" != "true" ]; then
-    echo "Failed to install clawhub skill: $skill" >&2
-    return 1
+  if printf '%s\n' "$output" | grep -q "Use --force to install suspicious skills in non-interactive mode"; then
+    if [ "${CLAWHUB_ALLOW_SUSPICIOUS_SKILLS:-false}" = "true" ]; then
+      echo "Retrying suspicious skill '$skill' with --force (CLAWHUB_ALLOW_SUSPICIOUS_SKILLS=true)."
+      su - "$DEFAULT_DEVBOX_USER" -c "clawhub install --force \"$skill\""
+    else
+      echo "Skipping suspicious skill '$skill'. Set CLAWHUB_ALLOW_SUSPICIOUS_SKILLS=true to force install."
+    fi
+    return 0
   fi
 
-  if ! printf '%s\n' "$output" | grep -q "Use --force to install suspicious skills in non-interactive mode"; then
-    echo "Failed to install optional skill '$skill' for a reason unrelated to suspicious-skill policy." >&2
-    return 1
-  fi
-
-  if [ "${CLAWHUB_ALLOW_SUSPICIOUS_SKILLS:-false}" = "true" ]; then
-    echo "Retrying suspicious skill '$skill' with --force (CLAWHUB_ALLOW_SUSPICIOUS_SKILLS=true)."
-    su - "$DEFAULT_DEVBOX_USER" -c "clawhub install --force \"$skill\""
-  else
-    echo "Skipping suspicious skill '$skill'. Set CLAWHUB_ALLOW_SUSPICIOUS_SKILLS=true to force install."
-  fi
+  echo "Failed to install clawhub skill '$skill' for a reason unrelated to suspicious-skill policy." >&2
+  return 1
 }
 
 # Install clawhub packages as the devbox user.
@@ -48,7 +43,7 @@ if command -v clawhub >/dev/null 2>&1; then
   install_clawhub_skill openai-whisper
   install_clawhub_skill auto-updater
   install_clawhub_skill marketing-skills
-  install_clawhub_skill kubectl true
+  install_clawhub_skill kubectl
   install_clawhub_skill ralph-loops
 else
   echo "clawhub not found; skipping clawhub installs."
