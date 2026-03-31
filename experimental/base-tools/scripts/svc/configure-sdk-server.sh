@@ -21,7 +21,7 @@ if [ "${DEVBOX_ENV:-}" = "production" ]; then
 	exit 102
 fi
 
-if [ -n "${DEVBOX_RUN_AS_ROOT:-}" ]; then
+if [ -n "${DEVBOX_SDK_RUN_AS_ROOT:-}" ]; then
 	echo "DEVBOX_JWT_SECRET exists and is non-empty AND DEVBOX_ENV is not production"
 	echo "WARNING: The sdk server will be run as root, which is not recommended"
 	# start the longrun devbox sdk server service as root.

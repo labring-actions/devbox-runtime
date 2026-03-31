@@ -57,15 +57,15 @@ Additional note:
   - It only runs as `root` when all of the following are true:
     - `DEVBOX_JWT_SECRET` is non-empty
     - `DEVBOX_ENV != production`
-    - `DEVBOX_RUN_AS_ROOT` is non-empty
-  - `DEVBOX_RUN_AS_ROOT` is only used as an explicit switch for the sdk-server runtime user. The script checks only for a non-empty value, so any non-empty string enables root execution.
-  - In production, `sdk-server` does not start even if `DEVBOX_RUN_AS_ROOT` is set.
+    - `DEVBOX_SDK_RUN_AS_ROOT` is non-empty
+  - `DEVBOX_SDK_RUN_AS_ROOT` is only used as an explicit switch for the sdk-server runtime user. The script checks only for a non-empty value, so any non-empty string enables root execution.
+  - In production, `sdk-server` does not start even if `DEVBOX_SDK_RUN_AS_ROOT` is set.
   - If `DEVBOX_JWT_SECRET` is missing, the service exits with code `101`, and the `finish` script tells s6 not to restart it continuously.
   - If `DEVBOX_ENV=production`, the service exits with code `102`, and the `finish` script also prevents continuous restart attempts.
 
 Recommendation:
 
-- Do not set `DEVBOX_RUN_AS_ROOT` unless the sdk-server truly requires root privileges.
+- Do not set `DEVBOX_SDK_RUN_AS_ROOT` unless the sdk-server truly requires root privileges.
 - If you expose this variable in a runtime README or deployment guide, document the security tradeoff explicitly.
 
 ## 4. Project Contract (for runtime users)
@@ -142,7 +142,7 @@ ls -la /etc/s6-overlay/s6-rc.d/user/contents.d
 # inspect environment
 echo "$DEVBOX_ENV"
 echo "$DEVBOX_JWT_SECRET"
-echo "$DEVBOX_RUN_AS_ROOT"
+echo "$DEVBOX_SDK_RUN_AS_ROOT"
 
 # inspect startup/entrypoint scripts
 ls -la /usr/start
