@@ -11,12 +11,32 @@ echo longrun >"$S6_DIR/$SDK_SERVER/type"
 cat >"$S6_DIR/$SDK_SERVER/run" <<'sdk-server'
 #!/command/with-contenv bash
 set -euo pipefail
-if [ -n "${DEVBOX_JWT_SECRET:-}" ] && [ "${DEVBOX_ENV:-}" != "production" ]; then
-    /usr/sbin/devbox-sdk-server --workspace-path=/home/devbox/project
-else
-	# custom exit code to indicate missing env var
-    exit 101
+if [ -z "${DEVBOX_JWT_SECRET:-}" ]; then
+	# custom exit code to indicate missing required env var
+	exit 101
 fi
+
+if [ "${DEVBOX_ENV:-}" = "production" ]; then
+	# custom exit code to indicate sdk-server is disabled in production
+	exit 102
+fi
+
+if [ -n "${DEVBOX_RUN_AS_ROOT:-}" ]; then
+	echo "DEVBOX_JWT_SECRET exists and is non-empty AND DEVBOX_ENV is not production"
+	echo "WARNING: The sdk server will be run as root, which is not recommended"
+	# start the longrun devbox sdk server service as root.
+	export HOME=/root
+	export USER=root
+	export LOGNAME=root
+	exec /usr/sbin/devbox-sdk-server --workspace-path=/home/devbox/project
+fi
+
+echo "DEVBOX_JWT_SECRET exists and is non-empty AND DEVBOX_ENV is not production"
+# start the longrun devbox sdk server service as devbox.
+export HOME=/home/devbox
+export USER=devbox
+export LOGNAME=devbox
+exec s6-setuidgid devbox /usr/sbin/devbox-sdk-server --workspace-path=/home/devbox/project
 sdk-server
 chmod 700 "$S6_DIR/$SDK_SERVER/run"
 
@@ -26,6 +46,10 @@ cat >"$S6_DIR/$SDK_SERVER/finish" <<'finish-sdk-server'
 EXIT_CODE=$1
 if [ "$EXIT_CODE" = "101" ]; then
 	echo "Devbox SDK Server stopped due to missing required environment variable DEVBOX_JWT_SECRET. Preventing s6 restart."
+	# s6 docs: Exiting finish script with 125 tells s6 to stop managing the service.
+	exit 125
+elif [ "$EXIT_CODE" = "102" ]; then
+	echo "Devbox SDK Server is disabled when DEVBOX_ENV=production. Preventing s6 restart."
 	# s6 docs: Exiting finish script with 125 tells s6 to stop managing the service.
 	exit 125
 else

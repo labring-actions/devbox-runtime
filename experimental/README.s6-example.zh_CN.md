@@ -52,6 +52,20 @@ ENTRYPOINT ["/init"]
 
 - `sdk-server` 在配置阶段会注册 s6 服务，但运行时还会判断：
   - 仅当 `DEVBOX_JWT_SECRET` 非空且 `DEVBOX_ENV != production` 才真正启动。
+  - 默认以 `devbox` 用户运行。
+  - 仅当同时满足以下条件时，才会改为以 `root` 用户运行：
+    - `DEVBOX_JWT_SECRET` 非空
+    - `DEVBOX_ENV != production`
+    - `DEVBOX_RUN_AS_ROOT` 非空
+  - `DEVBOX_RUN_AS_ROOT` 只用于显式切换 sdk-server 的运行用户；脚本当前按“是否非空”判断，不校验具体值，因此只要设置了非空值就会触发 root 运行。
+  - 生产环境下即使设置了 `DEVBOX_RUN_AS_ROOT`，`sdk-server` 也不会启动。
+  - 若缺少 `DEVBOX_JWT_SECRET`，服务会以退出码 `101` 退出，`finish` 脚本会阻止 s6 持续重启该服务。
+  - 若 `DEVBOX_ENV=production`，服务会以退出码 `102` 退出，`finish` 脚本同样会阻止 s6 持续重启该服务。
+
+建议：
+
+- 除非确有必须使用 root 权限的场景，否则不要设置 `DEVBOX_RUN_AS_ROOT`。
+- 若设置该变量，建议在 README 或运行时说明中明确标注其安全影响。
 
 ## 4. 项目约定（面向 runtime 使用者）
 
@@ -126,6 +140,8 @@ ls -la /etc/s6-overlay/s6-rc.d/user/contents.d
 
 # 查看环境
 echo "$DEVBOX_ENV"
+echo "$DEVBOX_JWT_SECRET"
+echo "$DEVBOX_RUN_AS_ROOT"
 
 # 查看 startup/entrypoint 脚本
 ls -la /usr/start
