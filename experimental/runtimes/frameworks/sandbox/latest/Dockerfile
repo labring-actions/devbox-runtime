@@ -14,6 +14,6 @@ LABEL org.opencontainers.image.authors="The Devbox Authors"
 COPY ./build.sh /build.sh
 RUN chmod +x /build.sh && \
     /build.sh && \
-    rm -f /build.sh && \
+    rm -f /build.sh
 # Set the working directory to the default devbox user's project directory
 WORKDIR /home/${DEFAULT_DEVBOX_USER}/workspace
