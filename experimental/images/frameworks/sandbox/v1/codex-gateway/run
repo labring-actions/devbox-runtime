@@ -73,11 +73,6 @@ if [ ! -x /usr/local/bin/codex-gateway ]; then
     exit 111
 fi
 
-if [ ! -d "${CODEX_GATEWAY_ROOT}/public" ]; then
-    echo "codex-gateway public assets not found at ${CODEX_GATEWAY_ROOT}/public" >&2
-    exit 111
-fi
-
 cd "$CODEX_GATEWAY_ROOT"
 exec 2>&1
 exec s6-setuidgid "$DEFAULT_DEVBOX_USER" /usr/local/bin/codex-gateway
