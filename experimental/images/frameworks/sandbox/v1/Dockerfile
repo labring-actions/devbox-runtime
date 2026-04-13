@@ -1,5 +1,6 @@
 # These ARGs can be overridden at build time to customize the image
 ARG REPO=labring-actions/devbox-base-expt
+ARG REPO_CODEX_GATEWAY=labring/codex-gateway
 ARG REGISTRY=ghcr.io
 ARG L10N_NORMALIZED=en-us
 
@@ -10,7 +11,7 @@ ARG CODEX_GATEWAY_IMAGE_TAG=latest
 # and release new versions as needed.
 ARG NODE_IMAGE_VERSION=v0.0.1-alpha.1-${L10N_NORMALIZED}
 
-FROM ${REGISTRY}/${REPO}/codex-gateway:${CODEX_GATEWAY_IMAGE_TAG} AS codex-gateway
+FROM ${REGISTRY}/${REPO_CODEX_GATEWAY}:${CODEX_GATEWAY_IMAGE_TAG} AS codex-gateway
 
 FROM ${REGISTRY}/${REPO}/node.js-22:${NODE_IMAGE_VERSION}
 LABEL org.opencontainers.image.authors="The Devbox Authors"
