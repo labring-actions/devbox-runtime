@@ -16,6 +16,8 @@ graph TD
     debian_ssh_12.6 --> runtimes_languages_go_1.23.0_Dockerfile
     runtimes_languages_net_8.0_Dockerfile["net-8.0"]
     debian_ssh_12.6 --> runtimes_languages_net_8.0_Dockerfile
+    runtimes_languages_net_10.0_Dockerfile["net-10.0"]
+    debian_ssh_12.6 --> runtimes_languages_net_10.0_Dockerfile
     runtimes_frameworks_express.js_4.21.0_Dockerfile["express.js-4.21.0"]
     node.js_20 --> runtimes_frameworks_express.js_4.21.0_Dockerfile
     runtimes_frameworks_gin_v1.10.0_Dockerfile["gin-v1.10.0"]
