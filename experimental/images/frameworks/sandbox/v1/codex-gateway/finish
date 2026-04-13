@@ -1,0 +1,11 @@
+#!/usr/bin/env bash
+
+EXIT_CODE=$1
+
+if [ "$EXIT_CODE" = "111" ]; then
+    echo "codex-gateway stopped because required files were not installed correctly. Preventing s6 restart."
+    exit 125
+fi
+
+echo "codex-gateway exited with code $EXIT_CODE, allowing s6 to restart it."
+exit 1
