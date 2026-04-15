@@ -1,0 +1,611 @@
+name: Build Expt images
+
+on:
+  workflow_dispatch:
+    inputs:
+      release_tag:
+        description: 'Release tag for published images'
+        required: true
+        type: string
+        default: 'latest'
+      target:
+        description: 'Build target: all | os/<path> | lang/<path> | fw/<path> | runtime/<path>'
+        required: true
+        type: string
+        default: 'all'
+      profile:
+        description: 'Build profile'
+        required: true
+        type: choice
+        options:
+          - quick
+          - full
+          - release
+        default: 'full'
+      l10n:
+        description: 'Localization setting (ignored when profile=release)'
+        required: false
+        type: choice
+        options:
+          - en_US
+          - zh_CN
+          - both
+        default: 'en_US'
+      arch:
+        description: 'Architecture setting (ignored when profile=release)'
+        required: false
+        type: choice
+        options:
+          - amd64
+          - arm64
+          - both
+        default: 'amd64'
+      aliyun_enabled:
+        description: 'Enable Aliyun ACR login, image push, and manifest publish'
+        required: false
+        type: boolean
+        default: false
+      overrides_json:
+        description: 'Optional JSON overrides: {"tools":"...","os":"...","framework":"...","node":"...","runtime":"..."}'
+        required: false
+        type: string
+        default: ''
+
+permissions:
+  contents: read
+  packages: write
+
+jobs:
+  resolve-inputs:
+    runs-on: ubuntu-latest
+    outputs:
+      tag: ${{ steps.resolve.outputs.tag }}
+      target_kind: ${{ steps.resolve.outputs.target_kind }}
+      target_name: ${{ steps.resolve.outputs.target_name }}
+      target_build_type: ${{ steps.resolve.outputs.target_build_type }}
+      include_prerequisites: ${{ steps.resolve.outputs.include_prerequisites }}
+      tools_version: ${{ steps.resolve.outputs.tools_version }}
+      os_version: ${{ steps.resolve.outputs.os_version }}
+      framework_image_version: ${{ steps.resolve.outputs.framework_image_version }}
+      node_image_version: ${{ steps.resolve.outputs.node_image_version }}
+      runtime_image_version: ${{ steps.resolve.outputs.runtime_image_version }}
+      l10n: ${{ steps.resolve.outputs.l10n }}
+      arch: ${{ steps.resolve.outputs.arch }}
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Resolve simplified dispatch
+        id: resolve
+        run: |
+          python3 .github/scripts/expt-build.py resolve-dispatch \
+            --release-tag "${{ inputs.release_tag }}" \
+            --target "${{ inputs.target }}" \
+            --profile "${{ inputs.profile }}" \
+            --l10n "${{ inputs.l10n }}" \
+            --arch "${{ inputs.arch }}" \
+            --overrides-json '${{ inputs.overrides_json }}'
+
+  plan-build:
+    needs: resolve-inputs
+    runs-on: ubuntu-latest
+    outputs:
+      image_packages: ${{ steps.plan.outputs.image_packages }}
+      os_image_packages: ${{ steps.plan.outputs.os_image_packages }}
+      language_image_packages: ${{ steps.plan.outputs.language_image_packages }}
+      framework_image_packages: ${{ steps.plan.outputs.framework_image_packages }}
+      runtime_packages: ${{ steps.plan.outputs.runtime_packages }}
+      build_tools: ${{ steps.plan.outputs.build_tools }}
+      has_images: ${{ steps.plan.outputs.has_images }}
+      has_os_images: ${{ steps.plan.outputs.has_os_images }}
+      has_language_images: ${{ steps.plan.outputs.has_language_images }}
+      has_framework_images: ${{ steps.plan.outputs.has_framework_images }}
+      has_runtimes: ${{ steps.plan.outputs.has_runtimes }}
+      l10n_matrix: ${{ steps.matrix.outputs.l10n_matrix }}
+      arch_matrix: ${{ steps.matrix.outputs.arch_matrix }}
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Resolve package plan
+        id: plan
+        run: |
+          python3 .github/scripts/expt-build.py plan-build \
+            --target-kind "${{ needs.resolve-inputs.outputs.target_kind }}" \
+            --target-name "${{ needs.resolve-inputs.outputs.target_name }}" \
+            --target-build-type "${{ needs.resolve-inputs.outputs.target_build_type }}" \
+            --include-prerequisites "${{ needs.resolve-inputs.outputs.include_prerequisites }}"
+      - name: Resolve l10n/arch matrix
+        id: matrix
+        shell: bash
+        run: |
+          set -euo pipefail
+          case "${{ needs.resolve-inputs.outputs.l10n }}" in
+            en_US) l10n='[{"display":"en_US","normalized":"en-us"}]' ;;
+            zh_CN) l10n='[{"display":"zh_CN","normalized":"zh-cn"}]' ;;
+            both) l10n='[{"display":"en_US","normalized":"en-us"},{"display":"zh_CN","normalized":"zh-cn"}]' ;;
+            *) echo "Unsupported l10n" >&2; exit 1 ;;
+          esac
+          case "${{ needs.resolve-inputs.outputs.arch }}" in
+            amd64) arch='["amd64"]' ;;
+            arm64) arch='["arm64"]' ;;
+            both) arch='["amd64","arm64"]' ;;
+            *) echo "Unsupported arch" >&2; exit 1 ;;
+          esac
+          echo "l10n_matrix=$l10n" >> "$GITHUB_OUTPUT"
+          echo "arch_matrix=$arch" >> "$GITHUB_OUTPUT"
+
+  build-tools:
+    needs: [resolve-inputs, plan-build]
+    if: ${{ needs.plan-build.outputs.build_tools == 'true' }}
+    runs-on: ${{ matrix.arch == 'arm64' && 'ubuntu-24.04-arm' || 'ubuntu-latest' }}
+    strategy:
+      fail-fast: false
+      matrix:
+        arch: ${{ fromJson(needs.plan-build.outputs.arch_matrix) }}
+    permissions:
+      contents: read
+      packages: write
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      - name: Login to GHCR
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+      - name: Build and push base-tools
+        uses: docker/build-push-action@v5
+        with:
+          context: ./experimental/base-tools
+          file: ./experimental/base-tools/Dockerfile
+          push: true
+          platforms: ${{ format('linux/{0}', matrix.arch) }}
+          tags: ghcr.io/${{ github.repository_owner }}/devbox-base-expt/base-tools:${{ needs.resolve-inputs.outputs.tools_version }}-${{ matrix.arch }}
+      - name: Login to Aliyun ACR
+        if: ${{ inputs.aliyun_enabled }}
+        uses: docker/login-action@v3
+        with:
+          registry: ${{ secrets.ALIYUN_REGISTRY }}
+          username: ${{ secrets.ALIYUN_USERNAME }}
+          password: ${{ secrets.ALIYUN_PASSWORD }}
+      - name: Mirror tools image to Aliyun
+        if: ${{ inputs.aliyun_enabled }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          src="ghcr.io/${{ github.repository_owner }}/devbox-base-expt/base-tools:${{ needs.resolve-inputs.outputs.tools_version }}-${{ matrix.arch }}"
+          dst="${{ secrets.ALIYUN_REGISTRY }}/${{ secrets.ALIYUN_NAMESPACE }}/devbox-base-expt/base-tools:${{ needs.resolve-inputs.outputs.tools_version }}-${{ matrix.arch }}"
+          docker buildx imagetools create -t "$dst" "$src"
+
+  manifest-tools:
+    needs: [resolve-inputs, plan-build, build-tools]
+    if: ${{ needs.plan-build.outputs.build_tools == 'true' && needs.build-tools.result == 'success' }}
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+    steps:
+      - name: Login to GHCR
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+      - name: Create GHCR tools manifest
+        shell: bash
+        run: |
+          set -euo pipefail
+          base="ghcr.io/${{ github.repository_owner }}/devbox-base-expt/base-tools:${{ needs.resolve-inputs.outputs.tools_version }}"
+          arches=$(echo '${{ needs.plan-build.outputs.arch_matrix }}' | jq -r '.[]')
+          imgs=()
+          for a in $arches; do imgs+=("${base}-${a}"); done
+          docker buildx imagetools create -t "$base" "${imgs[@]}"
+      - name: Login to Aliyun ACR
+        if: ${{ inputs.aliyun_enabled }}
+        uses: docker/login-action@v3
+        with:
+          registry: ${{ secrets.ALIYUN_REGISTRY }}
+          username: ${{ secrets.ALIYUN_USERNAME }}
+          password: ${{ secrets.ALIYUN_PASSWORD }}
+      - name: Create Aliyun tools manifest
+        if: ${{ inputs.aliyun_enabled }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          base="${{ secrets.ALIYUN_REGISTRY }}/${{ secrets.ALIYUN_NAMESPACE }}/devbox-base-expt/base-tools:${{ needs.resolve-inputs.outputs.tools_version }}"
+          arches=$(echo '${{ needs.plan-build.outputs.arch_matrix }}' | jq -r '.[]')
+          imgs=()
+          for a in $arches; do imgs+=("${base}-${a}"); done
+          docker buildx imagetools create -t "$base" "${imgs[@]}"
+
+  build-os-images:
+    needs: [resolve-inputs, plan-build, manifest-tools]
+    if: ${{ always() && needs.plan-build.outputs.has_os_images == 'true' && (needs.plan-build.outputs.build_tools != 'true' || needs.manifest-tools.result == 'success') }}
+    runs-on: ${{ matrix.arch == 'arm64' && 'ubuntu-24.04-arm' || 'ubuntu-latest' }}
+    strategy:
+      fail-fast: false
+      matrix:
+        packages: ${{ fromJson(needs.plan-build.outputs.os_image_packages) }}
+        l10n: ${{ fromJson(needs.plan-build.outputs.l10n_matrix) }}
+        arch: ${{ fromJson(needs.plan-build.outputs.arch_matrix) }}
+    permissions:
+      contents: read
+      packages: write
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      - name: Generate image names
+        id: names
+        uses: ./.github/actions/generate-image-names
+        with:
+          dockerfile: ${{ matrix.packages }}
+          tag: ${{ format('{0}-{1}-{2}', needs.resolve-inputs.outputs.tag, matrix.l10n.normalized, matrix.arch) }}
+          ghcr_credentials: ${{ format('{{"registry":"{0}","username":"{1}","password":"{2}"}}', 'ghcr.io', github.repository_owner, secrets.GITHUB_TOKEN) || '{}' }}
+          aliyun_credentials: ${{ inputs.aliyun_enabled && format('{{"registry":"{0}","username":"{1}","password":"{2}", "namespace":"{3}"}}', secrets.ALIYUN_REGISTRY, secrets.ALIYUN_USERNAME, secrets.ALIYUN_PASSWORD, secrets.ALIYUN_NAMESPACE) || '{}' }}
+          expt_image_naming: images
+      - name: Build and push image
+        uses: ./.github/actions/build-and-push
+        with:
+          platforms: ${{ format('linux/{0}', matrix.arch) }}
+          dockerfile: ${{ matrix.packages }}
+          build_args: |
+            REPO=${{ github.repository_owner }}/devbox-base-expt
+            L10N=${{ matrix.l10n.display }}
+            L10N_NORMALIZED=${{ matrix.l10n.normalized }}
+            BASE_TOOLS_VERSION=${{ needs.resolve-inputs.outputs.tools_version }}
+            OS_IMAGE_VERSION=${{ needs.resolve-inputs.outputs.os_version }}-${{ matrix.l10n.normalized }}
+            FRAMEWORK_IMAGE_VERSION=${{ needs.resolve-inputs.outputs.framework_image_version }}-${{ matrix.l10n.normalized }}
+            NODE_IMAGE_VERSION=${{ needs.resolve-inputs.outputs.node_image_version }}-${{ matrix.l10n.normalized }}
+            RUNTIME_IMAGE_VERSION=${{ needs.resolve-inputs.outputs.runtime_image_version }}-${{ matrix.l10n.normalized }}
+          ghcr_credentials: ${{ format('{{"registry":"{0}","username":"{1}","password":"{2}"}}', 'ghcr.io', github.repository_owner, secrets.GITHUB_TOKEN) || '{}' }}
+          ghcr_image_name: ${{ steps.names.outputs.ghcr_image_name }}
+          aliyun_credentials: ${{ inputs.aliyun_enabled && format('{{"registry":"{0}","username":"{1}","password":"{2}", "namespace":"{3}"}}', secrets.ALIYUN_REGISTRY, secrets.ALIYUN_USERNAME, secrets.ALIYUN_PASSWORD, secrets.ALIYUN_NAMESPACE) || '{}' }}
+          acr_image_name: ${{ steps.names.outputs.acr_image_name }}
+
+  manifest-os-images:
+    needs: [resolve-inputs, plan-build, build-os-images]
+    if: ${{ always() && needs.plan-build.outputs.has_os_images == 'true' && needs.build-os-images.result == 'success' }}
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        packages: ${{ fromJson(needs.plan-build.outputs.os_image_packages) }}
+        l10n: ${{ fromJson(needs.plan-build.outputs.l10n_matrix) }}
+    permissions:
+      contents: read
+      packages: write
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      - name: Login to GHCR
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+      - name: Login to Aliyun ACR
+        if: ${{ inputs.aliyun_enabled }}
+        uses: docker/login-action@v3
+        with:
+          registry: ${{ secrets.ALIYUN_REGISTRY }}
+          username: ${{ secrets.ALIYUN_USERNAME }}
+          password: ${{ secrets.ALIYUN_PASSWORD }}
+      - name: Generate base image names
+        id: base
+        uses: ./.github/actions/generate-image-names
+        with:
+          dockerfile: ${{ matrix.packages }}
+          tag: ${{ format('{0}-{1}', needs.resolve-inputs.outputs.tag, matrix.l10n.normalized) }}
+          ghcr_credentials: ${{ format('{{"registry":"{0}","username":"{1}","password":"{2}"}}', 'ghcr.io', github.repository_owner, secrets.GITHUB_TOKEN) || '{}' }}
+          aliyun_credentials: ${{ inputs.aliyun_enabled && format('{{"registry":"{0}","username":"{1}","password":"{2}", "namespace":"{3}"}}', secrets.ALIYUN_REGISTRY, secrets.ALIYUN_USERNAME, secrets.ALIYUN_PASSWORD, secrets.ALIYUN_NAMESPACE) || '{}' }}
+          expt_image_naming: images
+      - name: Create manifests
+        shell: bash
+        run: |
+          set -euo pipefail
+          arches=$(echo '${{ needs.plan-build.outputs.arch_matrix }}' | jq -r '.[]')
+          ghcr_base="${{ steps.base.outputs.ghcr_image_name }}"
+          ghcr_imgs=()
+          for a in $arches; do ghcr_imgs+=("${ghcr_base}-${a}"); done
+          docker buildx imagetools create -t "$ghcr_base" "${ghcr_imgs[@]}"
+          if [ -n "${{ steps.base.outputs.acr_image_name }}" ]; then
+            acr_base="${{ steps.base.outputs.acr_image_name }}"
+            acr_imgs=()
+            for a in $arches; do acr_imgs+=("${acr_base}-${a}"); done
+            docker buildx imagetools create -t "$acr_base" "${acr_imgs[@]}"
+          fi
+
+  build-language-images:
+    needs: [resolve-inputs, plan-build, manifest-os-images]
+    if: ${{ always() && needs.plan-build.outputs.has_language_images == 'true' && (needs.plan-build.outputs.has_os_images != 'true' || needs.manifest-os-images.result == 'success') }}
+    runs-on: ${{ matrix.arch == 'arm64' && 'ubuntu-24.04-arm' || 'ubuntu-latest' }}
+    strategy:
+      fail-fast: false
+      matrix:
+        packages: ${{ fromJson(needs.plan-build.outputs.language_image_packages) }}
+        l10n: ${{ fromJson(needs.plan-build.outputs.l10n_matrix) }}
+        arch: ${{ fromJson(needs.plan-build.outputs.arch_matrix) }}
+    permissions:
+      contents: read
+      packages: write
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      - name: Generate image names
+        id: names
+        uses: ./.github/actions/generate-image-names
+        with:
+          dockerfile: ${{ matrix.packages }}
+          tag: ${{ format('{0}-{1}-{2}', needs.resolve-inputs.outputs.tag, matrix.l10n.normalized, matrix.arch) }}
+          ghcr_credentials: ${{ format('{{"registry":"{0}","username":"{1}","password":"{2}"}}', 'ghcr.io', github.repository_owner, secrets.GITHUB_TOKEN) || '{}' }}
+          aliyun_credentials: ${{ inputs.aliyun_enabled && format('{{"registry":"{0}","username":"{1}","password":"{2}", "namespace":"{3}"}}', secrets.ALIYUN_REGISTRY, secrets.ALIYUN_USERNAME, secrets.ALIYUN_PASSWORD, secrets.ALIYUN_NAMESPACE) || '{}' }}
+          expt_image_naming: images
+      - name: Build and push image
+        uses: ./.github/actions/build-and-push
+        with:
+          platforms: ${{ format('linux/{0}', matrix.arch) }}
+          dockerfile: ${{ matrix.packages }}
+          build_args: |
+            REPO=${{ github.repository_owner }}/devbox-base-expt
+            L10N=${{ matrix.l10n.display }}
+            L10N_NORMALIZED=${{ matrix.l10n.normalized }}
+            BASE_TOOLS_VERSION=${{ needs.resolve-inputs.outputs.tools_version }}
+            OS_IMAGE_VERSION=${{ needs.resolve-inputs.outputs.os_version }}-${{ matrix.l10n.normalized }}
+            FRAMEWORK_IMAGE_VERSION=${{ needs.resolve-inputs.outputs.framework_image_version }}-${{ matrix.l10n.normalized }}
+            NODE_IMAGE_VERSION=${{ needs.resolve-inputs.outputs.node_image_version }}-${{ matrix.l10n.normalized }}
+            RUNTIME_IMAGE_VERSION=${{ needs.resolve-inputs.outputs.runtime_image_version }}-${{ matrix.l10n.normalized }}
+          ghcr_credentials: ${{ format('{{"registry":"{0}","username":"{1}","password":"{2}"}}', 'ghcr.io', github.repository_owner, secrets.GITHUB_TOKEN) || '{}' }}
+          ghcr_image_name: ${{ steps.names.outputs.ghcr_image_name }}
+          aliyun_credentials: ${{ inputs.aliyun_enabled && format('{{"registry":"{0}","username":"{1}","password":"{2}", "namespace":"{3}"}}', secrets.ALIYUN_REGISTRY, secrets.ALIYUN_USERNAME, secrets.ALIYUN_PASSWORD, secrets.ALIYUN_NAMESPACE) || '{}' }}
+          acr_image_name: ${{ steps.names.outputs.acr_image_name }}
+
+  manifest-language-images:
+    needs: [resolve-inputs, plan-build, build-language-images]
+    if: ${{ always() && needs.plan-build.outputs.has_language_images == 'true' && needs.build-language-images.result == 'success' }}
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        packages: ${{ fromJson(needs.plan-build.outputs.language_image_packages) }}
+        l10n: ${{ fromJson(needs.plan-build.outputs.l10n_matrix) }}
+    permissions:
+      contents: read
+      packages: write
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      - name: Login to GHCR
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+      - name: Login to Aliyun ACR
+        if: ${{ inputs.aliyun_enabled }}
+        uses: docker/login-action@v3
+        with:
+          registry: ${{ secrets.ALIYUN_REGISTRY }}
+          username: ${{ secrets.ALIYUN_USERNAME }}
+          password: ${{ secrets.ALIYUN_PASSWORD }}
+      - name: Generate base image names
+        id: base
+        uses: ./.github/actions/generate-image-names
+        with:
+          dockerfile: ${{ matrix.packages }}
+          tag: ${{ format('{0}-{1}', needs.resolve-inputs.outputs.tag, matrix.l10n.normalized) }}
+          ghcr_credentials: ${{ format('{{"registry":"{0}","username":"{1}","password":"{2}"}}', 'ghcr.io', github.repository_owner, secrets.GITHUB_TOKEN) || '{}' }}
+          aliyun_credentials: ${{ inputs.aliyun_enabled && format('{{"registry":"{0}","username":"{1}","password":"{2}", "namespace":"{3}"}}', secrets.ALIYUN_REGISTRY, secrets.ALIYUN_USERNAME, secrets.ALIYUN_PASSWORD, secrets.ALIYUN_NAMESPACE) || '{}' }}
+          expt_image_naming: images
+      - name: Create manifests
+        shell: bash
+        run: |
+          set -euo pipefail
+          arches=$(echo '${{ needs.plan-build.outputs.arch_matrix }}' | jq -r '.[]')
+          ghcr_base="${{ steps.base.outputs.ghcr_image_name }}"
+          ghcr_imgs=()
+          for a in $arches; do ghcr_imgs+=("${ghcr_base}-${a}"); done
+          docker buildx imagetools create -t "$ghcr_base" "${ghcr_imgs[@]}"
+          if [ -n "${{ steps.base.outputs.acr_image_name }}" ]; then
+            acr_base="${{ steps.base.outputs.acr_image_name }}"
+            acr_imgs=()
+            for a in $arches; do acr_imgs+=("${acr_base}-${a}"); done
+            docker buildx imagetools create -t "$acr_base" "${acr_imgs[@]}"
+          fi
+
+  build-framework-images:
+    needs: [resolve-inputs, plan-build, manifest-language-images]
+    if: ${{ always() && needs.plan-build.outputs.has_framework_images == 'true' && (needs.plan-build.outputs.has_language_images != 'true' || needs.manifest-language-images.result == 'success') }}
+    runs-on: ${{ matrix.arch == 'arm64' && 'ubuntu-24.04-arm' || 'ubuntu-latest' }}
+    strategy:
+      fail-fast: false
+      matrix:
+        packages: ${{ fromJson(needs.plan-build.outputs.framework_image_packages) }}
+        l10n: ${{ fromJson(needs.plan-build.outputs.l10n_matrix) }}
+        arch: ${{ fromJson(needs.plan-build.outputs.arch_matrix) }}
+    permissions:
+      contents: read
+      packages: write
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      - name: Generate image names
+        id: names
+        uses: ./.github/actions/generate-image-names
+        with:
+          dockerfile: ${{ matrix.packages }}
+          tag: ${{ format('{0}-{1}-{2}', needs.resolve-inputs.outputs.tag, matrix.l10n.normalized, matrix.arch) }}
+          ghcr_credentials: ${{ format('{{"registry":"{0}","username":"{1}","password":"{2}"}}', 'ghcr.io', github.repository_owner, secrets.GITHUB_TOKEN) || '{}' }}
+          aliyun_credentials: ${{ inputs.aliyun_enabled && format('{{"registry":"{0}","username":"{1}","password":"{2}", "namespace":"{3}"}}', secrets.ALIYUN_REGISTRY, secrets.ALIYUN_USERNAME, secrets.ALIYUN_PASSWORD, secrets.ALIYUN_NAMESPACE) || '{}' }}
+          expt_image_naming: images
+      - name: Build and push image
+        uses: ./.github/actions/build-and-push
+        with:
+          platforms: ${{ format('linux/{0}', matrix.arch) }}
+          dockerfile: ${{ matrix.packages }}
+          build_args: |
+            REPO=${{ github.repository_owner }}/devbox-base-expt
+            L10N=${{ matrix.l10n.display }}
+            L10N_NORMALIZED=${{ matrix.l10n.normalized }}
+            BASE_TOOLS_VERSION=${{ needs.resolve-inputs.outputs.tools_version }}
+            OS_IMAGE_VERSION=${{ needs.resolve-inputs.outputs.os_version }}-${{ matrix.l10n.normalized }}
+            FRAMEWORK_IMAGE_VERSION=${{ needs.resolve-inputs.outputs.framework_image_version }}-${{ matrix.l10n.normalized }}
+            NODE_IMAGE_VERSION=${{ needs.resolve-inputs.outputs.node_image_version }}-${{ matrix.l10n.normalized }}
+            RUNTIME_IMAGE_VERSION=${{ needs.resolve-inputs.outputs.runtime_image_version }}-${{ matrix.l10n.normalized }}
+          ghcr_credentials: ${{ format('{{"registry":"{0}","username":"{1}","password":"{2}"}}', 'ghcr.io', github.repository_owner, secrets.GITHUB_TOKEN) || '{}' }}
+          ghcr_image_name: ${{ steps.names.outputs.ghcr_image_name }}
+          aliyun_credentials: ${{ inputs.aliyun_enabled && format('{{"registry":"{0}","username":"{1}","password":"{2}", "namespace":"{3}"}}', secrets.ALIYUN_REGISTRY, secrets.ALIYUN_USERNAME, secrets.ALIYUN_PASSWORD, secrets.ALIYUN_NAMESPACE) || '{}' }}
+          acr_image_name: ${{ steps.names.outputs.acr_image_name }}
+
+  manifest-framework-images:
+    needs: [resolve-inputs, plan-build, build-framework-images]
+    if: ${{ always() && needs.plan-build.outputs.has_framework_images == 'true' && needs.build-framework-images.result == 'success' }}
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        packages: ${{ fromJson(needs.plan-build.outputs.framework_image_packages) }}
+        l10n: ${{ fromJson(needs.plan-build.outputs.l10n_matrix) }}
+    permissions:
+      contents: read
+      packages: write
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      - name: Login to GHCR
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+      - name: Login to Aliyun ACR
+        if: ${{ inputs.aliyun_enabled }}
+        uses: docker/login-action@v3
+        with:
+          registry: ${{ secrets.ALIYUN_REGISTRY }}
+          username: ${{ secrets.ALIYUN_USERNAME }}
+          password: ${{ secrets.ALIYUN_PASSWORD }}
+      - name: Generate base image names
+        id: base
+        uses: ./.github/actions/generate-image-names
+        with:
+          dockerfile: ${{ matrix.packages }}
+          tag: ${{ format('{0}-{1}', needs.resolve-inputs.outputs.tag, matrix.l10n.normalized) }}
+          ghcr_credentials: ${{ format('{{"registry":"{0}","username":"{1}","password":"{2}"}}', 'ghcr.io', github.repository_owner, secrets.GITHUB_TOKEN) || '{}' }}
+          aliyun_credentials: ${{ inputs.aliyun_enabled && format('{{"registry":"{0}","username":"{1}","password":"{2}", "namespace":"{3}"}}', secrets.ALIYUN_REGISTRY, secrets.ALIYUN_USERNAME, secrets.ALIYUN_PASSWORD, secrets.ALIYUN_NAMESPACE) || '{}' }}
+          expt_image_naming: images
+      - name: Create manifests
+        shell: bash
+        run: |
+          set -euo pipefail
+          arches=$(echo '${{ needs.plan-build.outputs.arch_matrix }}' | jq -r '.[]')
+          ghcr_base="${{ steps.base.outputs.ghcr_image_name }}"
+          ghcr_imgs=()
+          for a in $arches; do ghcr_imgs+=("${ghcr_base}-${a}"); done
+          docker buildx imagetools create -t "$ghcr_base" "${ghcr_imgs[@]}"
+          if [ -n "${{ steps.base.outputs.acr_image_name }}" ]; then
+            acr_base="${{ steps.base.outputs.acr_image_name }}"
+            acr_imgs=()
+            for a in $arches; do acr_imgs+=("${acr_base}-${a}"); done
+            docker buildx imagetools create -t "$acr_base" "${acr_imgs[@]}"
+          fi
+
+  build-runtimes:
+    needs: [resolve-inputs, plan-build, manifest-os-images, manifest-language-images, manifest-framework-images]
+    if: ${{ always() && needs.plan-build.outputs.has_runtimes == 'true' && (needs.plan-build.outputs.has_os_images != 'true' || needs.manifest-os-images.result == 'success') && (needs.plan-build.outputs.has_language_images != 'true' || needs.manifest-language-images.result == 'success') && (needs.plan-build.outputs.has_framework_images != 'true' || needs.manifest-framework-images.result == 'success') }}
+    runs-on: ${{ matrix.arch == 'arm64' && 'ubuntu-24.04-arm' || 'ubuntu-latest' }}
+    strategy:
+      fail-fast: false
+      matrix:
+        packages: ${{ fromJson(needs.plan-build.outputs.runtime_packages) }}
+        l10n: ${{ fromJson(needs.plan-build.outputs.l10n_matrix) }}
+        arch: ${{ fromJson(needs.plan-build.outputs.arch_matrix) }}
+    permissions:
+      contents: read
+      packages: write
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      - name: Generate runtime names
+        id: names
+        uses: ./.github/actions/generate-image-names
+        with:
+          dockerfile: ${{ matrix.packages }}
+          tag: ${{ format('{0}-{1}-{2}', needs.resolve-inputs.outputs.tag, matrix.l10n.normalized, matrix.arch) }}
+          ghcr_credentials: ${{ format('{{"registry":"{0}","username":"{1}","password":"{2}"}}', 'ghcr.io', github.repository_owner, secrets.GITHUB_TOKEN) || '{}' }}
+          aliyun_credentials: ${{ inputs.aliyun_enabled && format('{{"registry":"{0}","username":"{1}","password":"{2}", "namespace":"{3}"}}', secrets.ALIYUN_REGISTRY, secrets.ALIYUN_USERNAME, secrets.ALIYUN_PASSWORD, secrets.ALIYUN_NAMESPACE) || '{}' }}
+          expt_image_naming: runtimes
+      - name: Build and push runtime
+        uses: ./.github/actions/build-and-push
+        with:
+          platforms: ${{ format('linux/{0}', matrix.arch) }}
+          dockerfile: ${{ matrix.packages }}
+          build_args: |
+            REPO=${{ github.repository_owner }}/devbox-base-expt
+            L10N=${{ matrix.l10n.display }}
+            L10N_NORMALIZED=${{ matrix.l10n.normalized }}
+            BASE_TOOLS_VERSION=${{ needs.resolve-inputs.outputs.tools_version }}
+            OS_IMAGE_VERSION=${{ needs.resolve-inputs.outputs.os_version }}-${{ matrix.l10n.normalized }}
+            FRAMEWORK_IMAGE_VERSION=${{ needs.resolve-inputs.outputs.framework_image_version }}-${{ matrix.l10n.normalized }}
+            NODE_IMAGE_VERSION=${{ needs.resolve-inputs.outputs.node_image_version }}-${{ matrix.l10n.normalized }}
+            RUNTIME_IMAGE_VERSION=${{ needs.resolve-inputs.outputs.runtime_image_version }}-${{ matrix.l10n.normalized }}
+          ghcr_credentials: ${{ format('{{"registry":"{0}","username":"{1}","password":"{2}"}}', 'ghcr.io', github.repository_owner, secrets.GITHUB_TOKEN) || '{}' }}
+          ghcr_image_name: ${{ steps.names.outputs.ghcr_image_name }}
+          aliyun_credentials: ${{ inputs.aliyun_enabled && format('{{"registry":"{0}","username":"{1}","password":"{2}", "namespace":"{3}"}}', secrets.ALIYUN_REGISTRY, secrets.ALIYUN_USERNAME, secrets.ALIYUN_PASSWORD, secrets.ALIYUN_NAMESPACE) || '{}' }}
+          acr_image_name: ${{ steps.names.outputs.acr_image_name }}
+
+  manifest-runtimes:
+    needs: [resolve-inputs, plan-build, build-runtimes]
+    if: ${{ always() && needs.plan-build.outputs.has_runtimes == 'true' && needs.build-runtimes.result == 'success' }}
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        packages: ${{ fromJson(needs.plan-build.outputs.runtime_packages) }}
+        l10n: ${{ fromJson(needs.plan-build.outputs.l10n_matrix) }}
+    permissions:
+      contents: read
+      packages: write
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      - name: Login to GHCR
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+      - name: Login to Aliyun ACR
+        if: ${{ inputs.aliyun_enabled }}
+        uses: docker/login-action@v3
+        with:
+          registry: ${{ secrets.ALIYUN_REGISTRY }}
+          username: ${{ secrets.ALIYUN_USERNAME }}
+          password: ${{ secrets.ALIYUN_PASSWORD }}
+      - name: Generate base runtime names
+        id: base
+        uses: ./.github/actions/generate-image-names
+        with:
+          dockerfile: ${{ matrix.packages }}
+          tag: ${{ format('{0}-{1}', needs.resolve-inputs.outputs.tag, matrix.l10n.normalized) }}
+          ghcr_credentials: ${{ format('{{"registry":"{0}","username":"{1}","password":"{2}"}}', 'ghcr.io', github.repository_owner, secrets.GITHUB_TOKEN) || '{}' }}
+          aliyun_credentials: ${{ inputs.aliyun_enabled && format('{{"registry":"{0}","username":"{1}","password":"{2}", "namespace":"{3}"}}', secrets.ALIYUN_REGISTRY, secrets.ALIYUN_USERNAME, secrets.ALIYUN_PASSWORD, secrets.ALIYUN_NAMESPACE) || '{}' }}
+          expt_image_naming: runtimes
+      - name: Create manifests
+        shell: bash
+        run: |
+          set -euo pipefail
+          arches=$(echo '${{ needs.plan-build.outputs.arch_matrix }}' | jq -r '.[]')
+          ghcr_base="${{ steps.base.outputs.ghcr_image_name }}"
+          ghcr_imgs=()
+          for a in $arches; do ghcr_imgs+=("${ghcr_base}-${a}"); done
+          docker buildx imagetools create -t "$ghcr_base" "${ghcr_imgs[@]}"
+          if [ -n "${{ steps.base.outputs.acr_image_name }}" ]; then
+            acr_base="${{ steps.base.outputs.acr_image_name }}"
+            acr_imgs=()
+            for a in $arches; do acr_imgs+=("${acr_base}-${a}"); done
+            docker buildx imagetools create -t "$acr_base" "${acr_imgs[@]}"
+          fi
