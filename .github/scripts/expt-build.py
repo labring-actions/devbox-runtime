@@ -94,34 +94,24 @@ def parse_target(target: str) -> tuple[str, str, str]:
     if target == "all":
         return "all", "", "all"
 
-    prefix, sep, rest = target.partition("/")
-    if not sep or not rest.strip():
-        fail("target must be all|os/<path>|lang/<path>|fw/<path>|runtime/<path>")
-    name = rest.strip("/")
-    if not name:
-        fail("target path cannot be empty")
+    build_prefix, sep, rest = target.partition("/")
+    if build_prefix not in {"image", "runtime"} or not sep or not rest.strip():
+        fail(
+            "target must be one of: all|image/os/<path>|image/lang/<path>|image/fw/<path>|"
+            "runtime/os/<path>|runtime/lang/<path>|runtime/fw/<path>"
+        )
 
-    if prefix == "os":
-        return "operating-systems", name, "images"
-    if prefix == "lang":
-        return "languages", name, "images"
-    if prefix == "fw":
-        return "frameworks", name, "images"
-    if prefix == "runtime":
-        nested_prefix, nested_sep, nested_rest = name.partition("/")
-        if nested_sep and nested_prefix in {"os", "lang", "fw"}:
-            kind_map = {
-                "os": "operating-systems",
-                "lang": "languages",
-                "fw": "frameworks",
-            }
-            if not nested_rest.strip():
-                fail("runtime target path cannot be empty")
-            return kind_map[nested_prefix], nested_rest.strip("/"), "runtimes"
-        return "frameworks", name, "runtimes"
+    kind_prefix, kind_sep, name = rest.partition("/")
+    if kind_prefix not in {"os", "lang", "fw"} or not kind_sep or not name.strip():
+        fail("target must include kind and path, for example image/fw/sandbox/v1")
 
-    fail("target prefix must be one of: os, lang, fw, runtime")
-    return "", "", ""
+    kind_map = {
+        "os": "operating-systems",
+        "lang": "languages",
+        "fw": "frameworks",
+    }
+    build_type = "images" if build_prefix == "image" else "runtimes"
+    return kind_map[kind_prefix], name.strip("/"), build_type
 
 
 def parse_overrides(raw_json: str) -> dict[str, str]:

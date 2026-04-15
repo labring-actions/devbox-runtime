@@ -9,7 +9,7 @@ on:
         type: string
         default: 'latest'
       target:
-        description: 'Build target: all | os/<path> | lang/<path> | fw/<path> | runtime/<path>'
+        description: 'Build target: all | image/os/<path> | image/lang/<path> | image/fw/<path> | runtime/os/<path> | runtime/lang/<path> | runtime/fw/<path>'
         required: true
         type: string
         default: 'all'

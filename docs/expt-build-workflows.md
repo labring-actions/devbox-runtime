@@ -19,7 +19,7 @@
 核心输入（简化）：
 
 - `release_tag`: 本次发布版本
-- `target`: `all | os/<path> | lang/<path> | fw/<path> | runtime/<path>`
+- `target`: `all | image/os/<path> | image/lang/<path> | image/fw/<path> | runtime/os/<path> | runtime/lang/<path> | runtime/fw/<path>`
 - `profile`: `quick | full | release`
 - `overrides_json`: 可选版本覆盖（`tools/os/framework/node/runtime`）
 - `l10n`/`arch`/`aliyun_enabled`: 常用可选项
@@ -48,7 +48,7 @@
 
 ### 3. 只重跑单层，不补前置
 
-- `target=fw/sandbox/v1`（或 `runtime/fw/sandbox/v1`）
+- `target=image/fw/sandbox/v1`（或 `runtime/fw/sandbox/v1`）
 - `profile=quick`
 
 注意：这要求它依赖的 base image 已经存在于目标 registry 中，否则构建会在 `FROM` 阶段失败。
@@ -84,10 +84,9 @@
 统一目标字段，支持：
 
 - `all`
-- `os/<path>`（例：`os/debian/12.6`）
-- `lang/<path>`（例：`lang/node.js/22`）
-- `fw/<path>`（例：`fw/sandbox/v1`）
-- `runtime/<path>`（默认 framework runtime）
+- `image/os/<path>`（例：`image/os/debian/12.6`）
+- `image/lang/<path>`（例：`image/lang/node.js/22`）
+- `image/fw/<path>`（例：`image/fw/sandbox/v1`）
 - `runtime/os/<path>`、`runtime/lang/<path>`、`runtime/fw/<path>`
 
 ### `aliyun_enabled`
@@ -133,7 +132,7 @@
 
 ### 构建 `sandbox` 需要手动触发几次
 
-推荐用 `build-expt.yaml` + `target=fw/sandbox/v1`（或 `runtime/fw/sandbox/v1`）+ `profile=full`，只需要触发 **1 次**。
+推荐用 `build-expt.yaml` + `target=image/fw/sandbox/v1`（或 `runtime/fw/sandbox/v1`）+ `profile=full`，只需要触发 **1 次**。
 
 ### 为什么只开了阿里云开关，但没有推送成功
 
@@ -150,10 +149,10 @@
 
 填法统一为：
 
-- `fw/sandbox/v1`（只构建 framework image）
+- `image/fw/sandbox/v1`（只构建 framework image）
 - `runtime/fw/sandbox/v1`（构建 framework runtime）
-- `lang/node.js/22`、`runtime/lang/node.js/22`
-- `os/debian/12.6`、`runtime/os/debian/12.6`
+- `image/lang/node.js/22`、`runtime/lang/node.js/22`
+- `image/os/debian/12.6`、`runtime/os/debian/12.6`
 
 不要填 Dockerfile 全路径，例如：
 
@@ -168,6 +167,6 @@
 
 如果目标是“依赖都在，只重跑这一层”，推荐：
 
-- `target=fw/<framework>/<version>` 或 `target=runtime/fw/<framework>/<version>`
+- `target=image/fw/<framework>/<version>` 或 `target=runtime/fw/<framework>/<version>`
 - `profile=quick`
 
