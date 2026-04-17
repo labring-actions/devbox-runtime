@@ -1,5 +1,12 @@
 #!/bin/bash
 
+body="Hello, World!"
+
 while :; do
-    { echo -ne "HTTP/1.1 200 OK\r\nContent-Length: $(echo -n "Hello, World!")\r\n\r\nHello, World!"; } | nc -l -p 8080 -q 1
+    {
+        printf 'HTTP/1.1 200 OK\r\n'
+        printf 'Content-Length: %d\r\n' "${#body}"
+        printf '\r\n'
+        printf '%s' "$body"
+    } | nc -l -p 8080 -q 1
 done
