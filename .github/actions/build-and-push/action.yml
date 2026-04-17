@@ -63,7 +63,6 @@ runs:
       with:
         context: ${{ steps.get_docker_build_context.outputs.dockerfile_dir }}
         file: ${{ inputs.dockerfile }}
-        multiPlatform: true
         platforms: ${{ inputs.platforms }}
         build-args: |
           ${{ inputs.build_args }}
