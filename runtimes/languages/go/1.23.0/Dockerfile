@@ -3,15 +3,23 @@ FROM $BASE_IMAGE
 
 USER root
 ARG CN_PATCH_ENABLED=false
+ARG TARGETARCH
 RUN if [ "$CN_PATCH_ENABLED" = "true" ]; then \
         echo "export GOPROXY=https://goproxy.cn,direct" >> /home/devbox/.bashrc && \
         echo "export GOPROXY=https://goproxy.cn,direct" >> /root/.bashrc ; \
     fi
 
-RUN curl -O https://dl.google.com/go/go1.23.0.linux-amd64.tar.gz && \
-    tar -xvf go1.23.0.linux-amd64.tar.gz && \
+RUN set -eux; \
+    case "${TARGETARCH}" in \
+        amd64|x86_64) GO_ARCH=amd64 ;; \
+        arm64|aarch64) GO_ARCH=arm64 ;; \
+        *) echo "Unsupported TARGETARCH: ${TARGETARCH}" >&2; exit 1 ;; \
+    esac; \
+    GO_TARBALL="go1.23.0.linux-${GO_ARCH}.tar.gz"; \
+    curl -fsSLO "https://dl.google.com/go/${GO_TARBALL}" && \
+    tar -xvf "${GO_TARBALL}" && \
     mv go /usr/local && \
-    rm go1.23.0.linux-amd64.tar.gz && \
+    rm "${GO_TARBALL}" && \
     mkdir -p /go/bin && \
     echo 'export GOPATH=/go' >> /home/devbox/.bashrc && \
     echo 'export PATH=$PATH:/usr/local/go/bin:/go/bin' >> /home/devbox/.bashrc && \

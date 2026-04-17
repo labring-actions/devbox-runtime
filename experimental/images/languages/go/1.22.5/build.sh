@@ -5,8 +5,19 @@ L10N=${L10N:-en_US}
 DEFAULT_DEVBOX_USER=${DEFAULT_DEVBOX_USER:-devbox}
 
 # Install Go 1.22.5
-curl -O https://dl.google.com/go/go1.22.5.linux-amd64.tar.gz && \
-rm -rf /usr/local/go && tar -C /usr/local -xzf go1.22.5.linux-amd64.tar.gz
+RAW_ARCH="${TARGETARCH:-${ARCH:-$(dpkg --print-architecture)}}"
+case "${RAW_ARCH}" in
+    amd64|x86_64) GO_ARCH=amd64 ;;
+    arm64|aarch64) GO_ARCH=arm64 ;;
+    *)
+        echo "Unsupported architecture: ${RAW_ARCH}" >&2
+        exit 1
+        ;;
+esac
+GO_TARBALL="go1.22.5.linux-${GO_ARCH}.tar.gz"
+curl -fsSLO "https://dl.google.com/go/${GO_TARBALL}" && \
+rm -rf /usr/local/go && tar -C /usr/local -xzf "${GO_TARBALL}" && \
+rm -f "${GO_TARBALL}"
 
 
 # Set up Go for root
@@ -39,4 +50,3 @@ grep -qxF 'export GOPATH=$HOME/go' "$DEVBOX_HOME/.bashrc" 2>/dev/null || \
     echo 'export GOPATH=$HOME/go' >> "$DEVBOX_HOME/.bashrc"
 grep -qxF 'export PATH=$PATH:/usr/local/go/bin:$HOME/go/bin' "$DEVBOX_HOME/.bashrc" 2>/dev/null || \
     echo 'export PATH=$PATH:/usr/local/go/bin:$HOME/go/bin' >> "$DEVBOX_HOME/.bashrc"
-
