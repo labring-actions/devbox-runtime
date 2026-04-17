@@ -4,25 +4,19 @@ set -euo pipefail
 L10N=${L10N:-en_US}
 DEFAULT_DEVBOX_USER=${DEFAULT_DEVBOX_USER:-devbox}
 
-# Download and install OpenJDK 17
-# Note: wget and curl are already installed in images/debian-12.6 via install-base-pkg-deb.sh
-wget https://download.java.net/openjdk/jdk17/ri/openjdk-17+35_linux-x64_bin.tar.gz && \
-    mkdir -p /usr/lib/jvm && \
-    tar -xvf openjdk-17+35_linux-x64_bin.tar.gz -C /usr/lib/jvm && \
-    mv /usr/lib/jvm/jdk-17 /usr/lib/jvm/java-17-openjdk-amd64 && \
-    rm -f openjdk-17+35_linux-x64_bin.tar.gz
+# Install OpenJDK 17 and Maven from Debian packages (multi-arch).
+apt-get update && \
+    apt-get install -y --no-install-recommends openjdk-17-jdk maven && \
+    apt-get clean && \
+    rm -rf /var/lib/apt/lists/*
 
-# Download and install Maven 3.8.6
-curl -o /tmp/apache-maven-3.8.6-bin.tar.gz https://archive.apache.org/dist/maven/maven-3/3.8.6/binaries/apache-maven-3.8.6-bin.tar.gz && \
-    mkdir -p /opt/maven && \
-    tar -xzf /tmp/apache-maven-3.8.6-bin.tar.gz -C /opt/maven && \
-    ln -s /opt/maven/apache-maven-3.8.6 /opt/maven/latest && \
-    ln -s /opt/maven/latest/bin/mvn /usr/bin/mvn && \
-    rm -f /tmp/apache-maven-3.8.6-bin.tar.gz
+JAVA_ARCH="$(dpkg --print-architecture)"
+JAVA_HOME_REAL="/usr/lib/jvm/java-17-openjdk-${JAVA_ARCH}"
+ln -sfn "${JAVA_HOME_REAL}" /usr/lib/jvm/java-17-openjdk
 
 # Set up Java for root
 ROOT_HOME="${HOME:-/root}"
-JAVA_HOME="/usr/lib/jvm/java-17-openjdk-amd64"
+JAVA_HOME="/usr/lib/jvm/java-17-openjdk"
 grep -qxF "export JAVA_HOME=$JAVA_HOME" "$ROOT_HOME/.bashrc" || \
     echo "export JAVA_HOME=$JAVA_HOME" >> "$ROOT_HOME/.bashrc"
 grep -qxF 'export PATH=$PATH:$JAVA_HOME/bin' "$ROOT_HOME/.bashrc" || \
@@ -64,6 +58,5 @@ EOF
 fi
 
 # Set environment variables
-export JAVA_HOME=/usr/lib/jvm/java-17-openjdk-amd64
+export JAVA_HOME=/usr/lib/jvm/java-17-openjdk
 export PATH=$PATH:$JAVA_HOME/bin
-
