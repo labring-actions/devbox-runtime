@@ -24,6 +24,8 @@ RUN cd /home/devbox && \
     cd /home/devbox/project && \
     git init && \
     git submodule add https://github.com/theNewDynamic/gohugo-theme-ananke.git themes/ananke && \
+    # Pin a theme release compatible with Hugo v0.135.0.
+    git -C themes/ananke checkout v2.12.1 && \
     echo "theme = 'ananke'" >> hugo.toml && \
     hugo
 COPY --chown=devbox:devbox project /home/devbox/project
