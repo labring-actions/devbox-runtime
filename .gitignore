@@ -13,4 +13,5 @@ bin
 *.swp
 *.swo
 
+**/node_modules/
 migrated_repos/
