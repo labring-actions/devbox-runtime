@@ -33,6 +33,7 @@ esac
 
 apt-get update && \
     apt-get install -y wget build-essential libncursesw5-dev libssl-dev bubblewrap \
+        ripgrep \
         libsqlite3-dev tk-dev libgdbm-dev libc6-dev libbz2-dev libffi-dev zlib1g-dev && \
     apt-get clean && \
     rm -rf /var/lib/apt/lists/*
@@ -74,6 +75,7 @@ bun --version
 kubectl version --client
 helm version --short
 python3.14 --version
+rg --version
 
 rm -rf "$PROJECT_DIR"
 
