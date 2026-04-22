@@ -1,9 +1,9 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-FILES=$(find runtimes -type f -name Dockerfile -not -path "*/base-tools/*" -not -path "*/configure-tools/*" 2>/dev/null) || true
+FILES=$(find runtime-images -type f -name Dockerfile 2>/dev/null) || true
 if [ -z "$FILES" ]; then
-  echo "No runtime Dockerfiles found under runtimes/"
+  echo "No runtime Dockerfiles found under runtime-images/"
   exit 0
 fi
 

@@ -9,8 +9,8 @@ from pathlib import Path
 
 
 ROOT = Path.cwd()
-IMAGES_ROOT = ROOT / "images"
-RUNTIMES_ROOT = ROOT / "runtimes"
+BASE_IMAGES_ROOT = ROOT / "base-images"
+RUNTIME_IMAGES_ROOT = ROOT / "runtime-images"
 INTERNAL_FROM_RE = re.compile(r"^FROM \$\{REGISTRY\}/\$\{REPO\}/([^:\s]+):")
 
 
@@ -76,7 +76,7 @@ def image_name_from_dockerfile(dockerfile: str) -> str:
 
 def build_image_map() -> dict[str, str]:
     image_map: dict[str, str] = {}
-    for dockerfile in find_dockerfiles(IMAGES_ROOT):
+    for dockerfile in find_dockerfiles(BASE_IMAGES_ROOT):
         image_map[image_name_from_dockerfile(dockerfile)] = dockerfile
     return image_map
 
@@ -111,7 +111,7 @@ def parse_target(target: str) -> tuple[str, str, str]:
         "lang": "languages",
         "fw": "frameworks",
     }
-    build_type = "images" if build_prefix == "image" else "runtimes"
+    build_type = "base-images" if build_prefix == "image" else "runtime-images"
     return kind_map[kind_prefix], name.strip("/"), build_type
 
 
@@ -230,22 +230,22 @@ def handle_plan_build(args: argparse.Namespace) -> int:
     runtime_targets: list[str] = []
 
     if target_kind == "all":
-        if target_build_type in {"images", "all"}:
-            image_targets = find_dockerfiles(IMAGES_ROOT)
-        if target_build_type in {"runtimes", "all"}:
-            runtime_targets = find_dockerfiles(RUNTIMES_ROOT)
+        if target_build_type in {"base-images", "all"}:
+            image_targets = find_dockerfiles(BASE_IMAGES_ROOT)
+        if target_build_type in {"runtime-images", "all"}:
+            runtime_targets = find_dockerfiles(RUNTIME_IMAGES_ROOT)
     else:
-        if target_build_type in {"images", "all"}:
-            image_targets = select_dockerfiles("images", target_kind, target_name)
-        if target_build_type in {"runtimes", "all"}:
-            runtime_targets = select_dockerfiles("runtimes", target_kind, target_name)
+        if target_build_type in {"base-images", "all"}:
+            image_targets = select_dockerfiles("base-images", target_kind, target_name)
+        if target_build_type in {"runtime-images", "all"}:
+            runtime_targets = select_dockerfiles("runtime-images", target_kind, target_name)
 
     dep_seed_images: list[str] = list(image_targets)
     if include_prerequisites:
-        if target_kind == "all" and target_build_type in {"runtimes", "all"}:
-            dep_seed_images.extend(find_dockerfiles(IMAGES_ROOT))
+        if target_kind == "all" and target_build_type in {"runtime-images", "all"}:
+            dep_seed_images.extend(find_dockerfiles(BASE_IMAGES_ROOT))
         elif runtime_targets and target_kind != "all":
-            dep_seed_images.extend(select_dockerfiles("images", target_kind, target_name))
+            dep_seed_images.extend(select_dockerfiles("base-images", target_kind, target_name))
 
     planned_images: list[str]
     tools_required = False
@@ -254,9 +254,9 @@ def handle_plan_build(args: argparse.Namespace) -> int:
     else:
         planned_images = sorted(set(image_targets))
 
-    os_images = [pkg for pkg in planned_images if "images/operating-systems/" in pkg]
-    language_images = [pkg for pkg in planned_images if "images/languages/" in pkg]
-    framework_images = [pkg for pkg in planned_images if "images/frameworks/" in pkg]
+    os_images = [pkg for pkg in planned_images if "base-images/operating-systems/" in pkg]
+    language_images = [pkg for pkg in planned_images if "base-images/languages/" in pkg]
+    framework_images = [pkg for pkg in planned_images if "base-images/frameworks/" in pkg]
 
     write_outputs(
         {

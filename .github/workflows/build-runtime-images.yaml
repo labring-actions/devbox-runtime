@@ -160,8 +160,8 @@ jobs:
       - name: Build and push base-tools
         uses: docker/build-push-action@v5
         with:
-          context: ./base-tools
-          file: ./base-tools/Dockerfile
+          context: ./tooling
+          file: ./tooling/Dockerfile
           push: true
           platforms: ${{ format('linux/{0}', matrix.arch) }}
           tags: ghcr.io/${{ github.repository_owner }}/devbox-base/base-tools:${{ needs.resolve-inputs.outputs.tools_version }}-${{ matrix.arch }}

@@ -1,7 +1,7 @@
 # Runtime README 示例（基于 s6-overlay）
 
-> 该示例用于 `runtimes/*` 下的运行时模板文档。
-> 依据 `base-tools` 的构建与服务编排逻辑编写。
+> 该示例用于 `runtime-images/*` 下的运行时模板文档。
+> 依据 `tooling` 的构建与服务编排逻辑编写。
 
 ## 1. 运行模型
 
@@ -11,7 +11,7 @@
 ENTRYPOINT ["/init"]
 ```
 
-在基础 OS 镜像构建阶段，会通过 `base-tools` 执行：
+在基础 OS 镜像构建阶段，会通过共享 tooling 层（发布镜像名仍为 `base-tools`）执行：
 
 - `install-s6.sh`：安装 s6-overlay
 - `configure-svc.sh`：生成/配置 s6 服务定义
@@ -19,9 +19,9 @@ ENTRYPOINT ["/init"]
 
 对应文件：
 
-- `images/operating-systems/*/*/Dockerfile`
-- `images/operating-systems/*/*/build.sh`
-- `base-tools/scripts/configure-svc.sh`
+- `base-images/operating-systems/*/*/Dockerfile`
+- `base-images/operating-systems/*/*/build.sh`
+- `tooling/scripts/configure-svc.sh`
 
 ## 2. 启动顺序（关键）
 
@@ -39,7 +39,7 @@ ENTRYPOINT ["/init"]
 
 ## 3. 默认服务与环境差异
 
-`services.conf`（来自 `base-tools/scripts/svc/services.conf`）默认配置：
+`services.conf`（来自 `tooling/scripts/svc/services.conf`）默认配置：
 
 | 服务 | development | production | 说明 |
 |---|---:|---:|---|

@@ -4,9 +4,9 @@
 
 当前仓库的正式结构由四部分组成：
 
-- `base-tools/`: 基础工具层
-- `images/`: 基础镜像定义
-- `runtimes/`: 最终运行时定义
+- `tooling/`: `base-tools` 镜像的构建上下文
+- `base-images/`: 基础镜像定义
+- `runtime-images/`: 最终运行时定义
 - `tests/runtime-smoke/`: 运行时 smoke tests
 
 ## 文档索引

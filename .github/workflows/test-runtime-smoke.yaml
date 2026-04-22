@@ -55,9 +55,9 @@ jobs:
           kind="${{ inputs.kind }}"
           name="${{ inputs.name }}"
           if [ "$kind" = "all" ] || [ -z "$kind" ]; then
-            base_path="runtimes"
+            base_path="runtime-images"
           else
-            base_path="runtimes/$kind"
+            base_path="runtime-images/$kind"
           fi
 
           if [ -n "$name" ]; then
@@ -119,7 +119,7 @@ jobs:
           set -euo pipefail
           image="${{ steps.generate-runtime.outputs.ghcr_image_name }}"
           dockerfile="${{ matrix.packages }}"
-          rel_path="${dockerfile#runtimes/}"
+          rel_path="${dockerfile#runtime-images/}"
           rel_path="${rel_path%/Dockerfile}"
           test_dir="$GITHUB_WORKSPACE/tests/runtime-smoke/$rel_path"
           test_script="$test_dir/smoke.sh"

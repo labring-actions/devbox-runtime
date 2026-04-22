@@ -1,6 +1,6 @@
 # 镜像构建工作流
 
-本文档说明当前正式构建入口，以及 `base-tools/`、`images/`、`runtimes/`、`tests/runtime-smoke/` 之间的关系。
+本文档说明当前正式构建入口，以及 `tooling/`、`base-images/`、`runtime-images/`、`tests/runtime-smoke/` 之间的关系。
 
 ## 工作流入口
 
@@ -9,15 +9,15 @@
 
 其中：
 
-- `build-runtime-images.yaml` 负责发布 `base-tools`、基础镜像和运行时镜像
-- `test-runtime-smoke.yaml` 负责对 `runtimes/` 产物执行 smoke test
+- `build-runtime-images.yaml` 负责发布 `base-tools` 工具镜像、基础镜像和运行时镜像
+- `test-runtime-smoke.yaml` 负责对 `runtime-images/` 产物执行 smoke test
 
 ## 目录约定
 
-- `base-tools/`: 基础工具层，供 OS 基础镜像复用
-- `images/`: 基础镜像定义，按 `operating-systems / languages / frameworks` 分层
-- `runtimes/`: 最终运行时镜像定义
-- `tests/runtime-smoke/`: 与 `runtimes/` 对齐的 smoke test 脚本
+- `tooling/`: `base-tools` 镜像的构建上下文和公共脚本
+- `base-images/`: 基础镜像定义，按 `operating-systems / languages / frameworks` 分层
+- `runtime-images/`: 最终运行时镜像定义
+- `tests/runtime-smoke/`: 与 `runtime-images/` 对齐的 smoke test 脚本
 
 ## Build Runtime Images
 
@@ -68,8 +68,8 @@
 
 当前正式流程使用两套仓库：
 
-- `images` -> `ghcr.io/<owner>/devbox-base/...`
-- `runtimes` -> `ghcr.io/<owner>/devbox-runtime/...`
+- `base-images/` -> `ghcr.io/<owner>/devbox-base/...`
+- `runtime-images/` -> `ghcr.io/<owner>/devbox-runtime/...`
 
 阿里云 ACR 开启后沿用相同层级，只替换 registry 和 namespace。
 
@@ -89,7 +89,7 @@
 
 ## Test Runtime Smoke
 
-`test-runtime-smoke.yaml` 用于验证 `runtimes/` 中的产物是否可用。
+`test-runtime-smoke.yaml` 用于验证 `runtime-images/` 中的产物是否可用。
 
 核心输入：
 
@@ -99,7 +99,7 @@
 
 工作流会：
 
-- 从 `runtimes/` 生成测试矩阵
+- 从 `runtime-images/` 生成测试矩阵
 - 根据 `tests/runtime-smoke/` 下的相对路径定位测试脚本
 - 默认拉取 `en-us` 产物
 - 在 `amd64` 和 `arm64` 上分别执行 smoke test

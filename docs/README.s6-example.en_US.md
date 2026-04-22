@@ -1,7 +1,7 @@
 # Runtime README Example (s6-overlay Based)
 
-> This document is a reusable README example for templates under `runtimes/*`.
-> It is derived from the actual build and service wiring in `base-tools`.
+> This document is a reusable README example for templates under `runtime-images/*`.
+> It is derived from the actual build and service wiring in `tooling`.
 
 ## 1. Runtime Model
 
@@ -11,7 +11,7 @@ This runtime uses **s6-overlay v3** with container entrypoint:
 ENTRYPOINT ["/init"]
 ```
 
-During base OS image build, `base-tools` performs:
+During base OS image build, the shared tooling layer (published as `base-tools`) performs:
 
 - `install-s6.sh`: installs s6-overlay
 - `configure-svc.sh`: generates/configures s6 service definitions
@@ -19,9 +19,9 @@ During base OS image build, `base-tools` performs:
 
 Related files:
 
-- `images/operating-systems/*/*/Dockerfile`
-- `images/operating-systems/*/*/build.sh`
-- `base-tools/scripts/configure-svc.sh`
+- `base-images/operating-systems/*/*/Dockerfile`
+- `base-images/operating-systems/*/*/build.sh`
+- `tooling/scripts/configure-svc.sh`
 
 ## 2. Boot Sequence (Important)
 
@@ -39,7 +39,7 @@ Startup flow:
 
 ## 3. Default Services and Environment Matrix
 
-Default `services.conf` (from `base-tools/scripts/svc/services.conf`):
+Default `services.conf` (from `tooling/scripts/svc/services.conf`):
 
 | Service | development | production | Notes |
 |---|---:|---:|---|

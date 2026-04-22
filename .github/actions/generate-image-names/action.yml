@@ -38,7 +38,7 @@ runs:
 
         # Extract image name and version from the Dockerfile path.
         # Expected layout is <scope>/<kind>/<name>/<version>/Dockerfile,
-        # for example: runtimes/operating-systems/ubuntu/22.04/Dockerfile
+        # for example: runtime-images/operating-systems/ubuntu/22.04/Dockerfile
         # This should extract: ubuntu and 22.04
 
         dockerfile_path="${{ inputs.dockerfile }}"
