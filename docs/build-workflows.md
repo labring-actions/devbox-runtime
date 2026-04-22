@@ -9,12 +9,12 @@
 
 其中：
 
-- `build-runtime-images.yaml` 负责发布 `base-tools` 工具镜像、基础镜像和运行时镜像
+- `build-runtime-images.yaml` 负责发布 `tooling` 工具镜像、基础镜像和运行时镜像
 - `test-runtime-smoke.yaml` 负责对 `runtime-images/` 产物执行 smoke test
 
 ## 目录约定
 
-- `tooling/`: `base-tools` 镜像的构建上下文和公共脚本
+- `tooling/`: `tooling` 镜像的构建上下文和公共脚本
 - `base-images/`: 基础镜像定义，按 `operating-systems / languages / frameworks` 分层
 - `runtime-images/`: 最终运行时镜像定义
 - `tests/runtime-smoke/`: 与 `runtime-images/` 对齐的 smoke test 脚本
@@ -66,10 +66,11 @@
 
 ## 镜像命名约定
 
-当前正式流程使用两套仓库：
+当前正式流程使用三套仓库：
 
-- `base-images/` -> `ghcr.io/<owner>/devbox-base/...`
-- `runtime-images/` -> `ghcr.io/<owner>/devbox-runtime/...`
+- `tooling/` -> `ghcr.io/<owner>/devbox-tooling/tooling:<tag>`
+- `base-images/` -> `ghcr.io/<owner>/devbox-base-images/...`
+- `runtime-images/` -> `ghcr.io/<owner>/devbox-runtime-images/...`
 
 阿里云 ACR 开启后沿用相同层级，只替换 registry 和 namespace。
 

@@ -11,7 +11,7 @@ from pathlib import Path
 ROOT = Path.cwd()
 BASE_IMAGES_ROOT = ROOT / "base-images"
 RUNTIME_IMAGES_ROOT = ROOT / "runtime-images"
-INTERNAL_FROM_RE = re.compile(r"^FROM \$\{REGISTRY\}/\$\{REPO\}/([^:\s]+):")
+INTERNAL_FROM_RE = re.compile(r"^FROM \$\{REGISTRY\}/\$\{(?:REPO|TOOLING_REPO)\}/([^:\s]+):")
 
 
 def fail(message: str) -> None:
@@ -148,7 +148,7 @@ def resolve_images_with_dependencies(seed_images: list[str]) -> tuple[list[str],
             return
         selected.add(dockerfile)
         for dep in list_internal_dependencies(dockerfile):
-            if dep == "base-tools":
+            if dep in {"base-tools", "tooling"}:
                 tools_required = True
                 continue
             dep_dockerfile = image_map.get(dep)

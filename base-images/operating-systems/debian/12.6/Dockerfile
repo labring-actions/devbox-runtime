@@ -1,6 +1,6 @@
 # These ARGs can be overridden at build time to customize the image
 ARG REGISTRY=ghcr.io
-ARG REPO=labring-actions/devbox-base
+ARG TOOLING_REPO=labring-actions/devbox-tooling
 ARG L10N=en_US
 ARG ARCH=amd64
 ARG DEFAULT_DEVBOX_USER=devbox
@@ -10,7 +10,7 @@ ARG DEFAULT_DEVBOX_USER=devbox
 ARG BASE_TOOLS_VERSION=v0.0.1-alpha.1
 ARG BASE_IMAGE_VERSION=12.6-slim
 
-FROM ${REGISTRY}/${REPO}/base-tools:${BASE_TOOLS_VERSION} AS base-tools
+FROM ${REGISTRY}/${TOOLING_REPO}/tooling:${BASE_TOOLS_VERSION} AS tooling
 FROM debian:${BASE_IMAGE_VERSION}
 ARG L10N
 ARG ARCH=amd64
@@ -35,8 +35,8 @@ ENV S6_STAGE2_HOOK=/etc/s6-overlay-hook/pre-rc-init.d/pre-rc-init.sh
 ## S6_KILL_GRACETIME: Time to wait before forcefully killing all processes during shutdown
 ENV S6_KILL_GRACETIME=500
 
-# Copy base tools from the base-tools stage
-COPY --from=base-tools ${BASE_TOOLS_DIR} ${BASE_TOOLS_DIR}
+# Copy tooling assets from the tooling stage
+COPY --from=tooling ${BASE_TOOLS_DIR} ${BASE_TOOLS_DIR}
 # Add build script and execute it
 COPY build.sh /build.sh
 RUN chmod +x /build.sh && \

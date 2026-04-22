@@ -11,7 +11,7 @@
 ENTRYPOINT ["/init"]
 ```
 
-在基础 OS 镜像构建阶段，会通过共享 tooling 层（发布镜像名仍为 `base-tools`）执行：
+在基础 OS 镜像构建阶段，会通过共享 tooling 层（发布镜像名为 `tooling`）执行：
 
 - `install-s6.sh`：安装 s6-overlay
 - `configure-svc.sh`：生成/配置 s6 服务定义

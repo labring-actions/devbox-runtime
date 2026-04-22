@@ -18,7 +18,7 @@ inputs:
   image_repo_type:
     description: 'Select the repository family used for generated image names'
     required: false
-    # Allowed values: images, runtimes, none
+    # Allowed values: tooling, base-images, runtime-images, none
     default: 'none'
 outputs:
   ghcr_image_name:
@@ -58,12 +58,12 @@ runs:
         image_name="${runtime_name}-${runtime_version}"
 
         # Generate ghcr.io image name.
-        if [ "${{ inputs.image_repo_type }}" = "images" ]; then
-          # Dedicated base image repository.
-          ghcr_image_name="${{ fromJson(inputs.ghcr_credentials).registry }}/${{ fromJson(inputs.ghcr_credentials).username }}/devbox-base/${image_name}:${tag}"
-        elif [ "${{ inputs.image_repo_type }}" = "runtimes" ]; then
-          # Dedicated runtime image repository.
-          ghcr_image_name="${{ fromJson(inputs.ghcr_credentials).registry }}/${{ fromJson(inputs.ghcr_credentials).username }}/devbox-runtime/${image_name}:${tag}"
+        if [ "${{ inputs.image_repo_type }}" = "tooling" ]; then
+          ghcr_image_name="${{ fromJson(inputs.ghcr_credentials).registry }}/${{ fromJson(inputs.ghcr_credentials).username }}/devbox-tooling/${image_name}:${tag}"
+        elif [ "${{ inputs.image_repo_type }}" = "base-images" ]; then
+          ghcr_image_name="${{ fromJson(inputs.ghcr_credentials).registry }}/${{ fromJson(inputs.ghcr_credentials).username }}/devbox-base-images/${image_name}:${tag}"
+        elif [ "${{ inputs.image_repo_type }}" = "runtime-images" ]; then
+          ghcr_image_name="${{ fromJson(inputs.ghcr_credentials).registry }}/${{ fromJson(inputs.ghcr_credentials).username }}/devbox-runtime-images/${image_name}:${tag}"
         else
           # Legacy/default shared repository naming.
           ghcr_image_name="${{ fromJson(inputs.ghcr_credentials).registry }}/${{ fromJson(inputs.ghcr_credentials).username }}/devbox/${image_name}:${tag}"
@@ -74,10 +74,12 @@ runs:
           # Parse Aliyun credentials
           registry=$(echo "$aliyun_credentials" | jq -r '.registry')
           namespace=$(echo "$aliyun_credentials" | jq -r '.namespace')
-          if [ "${{ inputs.image_repo_type }}" = "images" ]; then
-            acr_image_name="${registry}/${namespace}/devbox-base/${image_name}:${tag}"
-          elif [ "${{ inputs.image_repo_type }}" = "runtimes" ]; then
-            acr_image_name="${registry}/${namespace}/devbox-runtime/${image_name}:${tag}"
+          if [ "${{ inputs.image_repo_type }}" = "tooling" ]; then
+            acr_image_name="${registry}/${namespace}/devbox-tooling/${image_name}:${tag}"
+          elif [ "${{ inputs.image_repo_type }}" = "base-images" ]; then
+            acr_image_name="${registry}/${namespace}/devbox-base-images/${image_name}:${tag}"
+          elif [ "${{ inputs.image_repo_type }}" = "runtime-images" ]; then
+            acr_image_name="${registry}/${namespace}/devbox-runtime-images/${image_name}:${tag}"
           else
             acr_image_name="${registry}/${namespace}/devbox/${image_name}:${tag}"
           fi

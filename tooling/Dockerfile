@@ -1,4 +1,4 @@
-FROM alpine:3.22 AS base-tools
+FROM alpine:3.22 AS tooling
 # Install standard tools or just copy scripts
 COPY scripts/ /opt/base-tools/scripts/
 COPY docs/ /opt/base-tools/docs/

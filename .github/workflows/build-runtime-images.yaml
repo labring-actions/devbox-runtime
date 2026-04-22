@@ -157,14 +157,14 @@ jobs:
           registry: ghcr.io
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
-      - name: Build and push base-tools
+      - name: Build and push tooling image
         uses: docker/build-push-action@v5
         with:
           context: ./tooling
           file: ./tooling/Dockerfile
           push: true
           platforms: ${{ format('linux/{0}', matrix.arch) }}
-          tags: ghcr.io/${{ github.repository_owner }}/devbox-base/base-tools:${{ needs.resolve-inputs.outputs.tools_version }}-${{ matrix.arch }}
+          tags: ghcr.io/${{ github.repository_owner }}/devbox-tooling/tooling:${{ needs.resolve-inputs.outputs.tools_version }}-${{ matrix.arch }}
       - name: Login to Aliyun ACR
         if: ${{ inputs.aliyun_enabled }}
         uses: docker/login-action@v3
@@ -172,13 +172,13 @@ jobs:
           registry: ${{ secrets.ALIYUN_REGISTRY }}
           username: ${{ secrets.ALIYUN_USERNAME }}
           password: ${{ secrets.ALIYUN_PASSWORD }}
-      - name: Mirror tools image to Aliyun
+      - name: Mirror tooling image to Aliyun
         if: ${{ inputs.aliyun_enabled }}
         shell: bash
         run: |
           set -euo pipefail
-          src="ghcr.io/${{ github.repository_owner }}/devbox-base/base-tools:${{ needs.resolve-inputs.outputs.tools_version }}-${{ matrix.arch }}"
-          dst="${{ secrets.ALIYUN_REGISTRY }}/${{ secrets.ALIYUN_NAMESPACE }}/devbox-base/base-tools:${{ needs.resolve-inputs.outputs.tools_version }}-${{ matrix.arch }}"
+          src="ghcr.io/${{ github.repository_owner }}/devbox-tooling/tooling:${{ needs.resolve-inputs.outputs.tools_version }}-${{ matrix.arch }}"
+          dst="${{ secrets.ALIYUN_REGISTRY }}/${{ secrets.ALIYUN_NAMESPACE }}/devbox-tooling/tooling:${{ needs.resolve-inputs.outputs.tools_version }}-${{ matrix.arch }}"
           docker buildx imagetools create -t "$dst" "$src"
 
   manifest-tools:
@@ -195,11 +195,11 @@ jobs:
           registry: ghcr.io
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
-      - name: Create GHCR tools manifest
+      - name: Create GHCR tooling manifest
         shell: bash
         run: |
           set -euo pipefail
-          base="ghcr.io/${{ github.repository_owner }}/devbox-base/base-tools:${{ needs.resolve-inputs.outputs.tools_version }}"
+          base="ghcr.io/${{ github.repository_owner }}/devbox-tooling/tooling:${{ needs.resolve-inputs.outputs.tools_version }}"
           arches=$(echo '${{ needs.plan-build.outputs.arch_matrix }}' | jq -r '.[]')
           imgs=()
           for a in $arches; do imgs+=("${base}-${a}"); done
@@ -211,12 +211,12 @@ jobs:
           registry: ${{ secrets.ALIYUN_REGISTRY }}
           username: ${{ secrets.ALIYUN_USERNAME }}
           password: ${{ secrets.ALIYUN_PASSWORD }}
-      - name: Create Aliyun tools manifest
+      - name: Create Aliyun tooling manifest
         if: ${{ inputs.aliyun_enabled }}
         shell: bash
         run: |
           set -euo pipefail
-          base="${{ secrets.ALIYUN_REGISTRY }}/${{ secrets.ALIYUN_NAMESPACE }}/devbox-base/base-tools:${{ needs.resolve-inputs.outputs.tools_version }}"
+          base="${{ secrets.ALIYUN_REGISTRY }}/${{ secrets.ALIYUN_NAMESPACE }}/devbox-tooling/tooling:${{ needs.resolve-inputs.outputs.tools_version }}"
           arches=$(echo '${{ needs.plan-build.outputs.arch_matrix }}' | jq -r '.[]')
           imgs=()
           for a in $arches; do imgs+=("${base}-${a}"); done
@@ -246,14 +246,15 @@ jobs:
           tag: ${{ format('{0}-{1}-{2}', needs.resolve-inputs.outputs.tag, matrix.l10n.normalized, matrix.arch) }}
           ghcr_credentials: ${{ format('{{"registry":"{0}","username":"{1}","password":"{2}"}}', 'ghcr.io', github.repository_owner, secrets.GITHUB_TOKEN) || '{}' }}
           aliyun_credentials: ${{ inputs.aliyun_enabled && format('{{"registry":"{0}","username":"{1}","password":"{2}", "namespace":"{3}"}}', secrets.ALIYUN_REGISTRY, secrets.ALIYUN_USERNAME, secrets.ALIYUN_PASSWORD, secrets.ALIYUN_NAMESPACE) || '{}' }}
-          image_repo_type: images
+          image_repo_type: base-images
       - name: Build and push image
         uses: ./.github/actions/build-and-push
         with:
           platforms: ${{ format('linux/{0}', matrix.arch) }}
           dockerfile: ${{ matrix.packages }}
           build_args: |
-            REPO=${{ github.repository_owner }}/devbox-base
+            REPO=${{ github.repository_owner }}/devbox-base-images
+            TOOLING_REPO=${{ github.repository_owner }}/devbox-tooling
             L10N=${{ matrix.l10n.display }}
             L10N_NORMALIZED=${{ matrix.l10n.normalized }}
             BASE_TOOLS_VERSION=${{ needs.resolve-inputs.outputs.tools_version }}
@@ -302,7 +303,7 @@ jobs:
           tag: ${{ format('{0}-{1}', needs.resolve-inputs.outputs.tag, matrix.l10n.normalized) }}
           ghcr_credentials: ${{ format('{{"registry":"{0}","username":"{1}","password":"{2}"}}', 'ghcr.io', github.repository_owner, secrets.GITHUB_TOKEN) || '{}' }}
           aliyun_credentials: ${{ inputs.aliyun_enabled && format('{{"registry":"{0}","username":"{1}","password":"{2}", "namespace":"{3}"}}', secrets.ALIYUN_REGISTRY, secrets.ALIYUN_USERNAME, secrets.ALIYUN_PASSWORD, secrets.ALIYUN_NAMESPACE) || '{}' }}
-          image_repo_type: images
+          image_repo_type: base-images
       - name: Create manifests
         shell: bash
         run: |
@@ -343,14 +344,15 @@ jobs:
           tag: ${{ format('{0}-{1}-{2}', needs.resolve-inputs.outputs.tag, matrix.l10n.normalized, matrix.arch) }}
           ghcr_credentials: ${{ format('{{"registry":"{0}","username":"{1}","password":"{2}"}}', 'ghcr.io', github.repository_owner, secrets.GITHUB_TOKEN) || '{}' }}
           aliyun_credentials: ${{ inputs.aliyun_enabled && format('{{"registry":"{0}","username":"{1}","password":"{2}", "namespace":"{3}"}}', secrets.ALIYUN_REGISTRY, secrets.ALIYUN_USERNAME, secrets.ALIYUN_PASSWORD, secrets.ALIYUN_NAMESPACE) || '{}' }}
-          image_repo_type: images
+          image_repo_type: base-images
       - name: Build and push image
         uses: ./.github/actions/build-and-push
         with:
           platforms: ${{ format('linux/{0}', matrix.arch) }}
           dockerfile: ${{ matrix.packages }}
           build_args: |
-            REPO=${{ github.repository_owner }}/devbox-base
+            REPO=${{ github.repository_owner }}/devbox-base-images
+            TOOLING_REPO=${{ github.repository_owner }}/devbox-tooling
             L10N=${{ matrix.l10n.display }}
             L10N_NORMALIZED=${{ matrix.l10n.normalized }}
             BASE_TOOLS_VERSION=${{ needs.resolve-inputs.outputs.tools_version }}
@@ -399,7 +401,7 @@ jobs:
           tag: ${{ format('{0}-{1}', needs.resolve-inputs.outputs.tag, matrix.l10n.normalized) }}
           ghcr_credentials: ${{ format('{{"registry":"{0}","username":"{1}","password":"{2}"}}', 'ghcr.io', github.repository_owner, secrets.GITHUB_TOKEN) || '{}' }}
           aliyun_credentials: ${{ inputs.aliyun_enabled && format('{{"registry":"{0}","username":"{1}","password":"{2}", "namespace":"{3}"}}', secrets.ALIYUN_REGISTRY, secrets.ALIYUN_USERNAME, secrets.ALIYUN_PASSWORD, secrets.ALIYUN_NAMESPACE) || '{}' }}
-          image_repo_type: images
+          image_repo_type: base-images
       - name: Create manifests
         shell: bash
         run: |
@@ -440,14 +442,15 @@ jobs:
           tag: ${{ format('{0}-{1}-{2}', needs.resolve-inputs.outputs.tag, matrix.l10n.normalized, matrix.arch) }}
           ghcr_credentials: ${{ format('{{"registry":"{0}","username":"{1}","password":"{2}"}}', 'ghcr.io', github.repository_owner, secrets.GITHUB_TOKEN) || '{}' }}
           aliyun_credentials: ${{ inputs.aliyun_enabled && format('{{"registry":"{0}","username":"{1}","password":"{2}", "namespace":"{3}"}}', secrets.ALIYUN_REGISTRY, secrets.ALIYUN_USERNAME, secrets.ALIYUN_PASSWORD, secrets.ALIYUN_NAMESPACE) || '{}' }}
-          image_repo_type: images
+          image_repo_type: base-images
       - name: Build and push image
         uses: ./.github/actions/build-and-push
         with:
           platforms: ${{ format('linux/{0}', matrix.arch) }}
           dockerfile: ${{ matrix.packages }}
           build_args: |
-            REPO=${{ github.repository_owner }}/devbox-base
+            REPO=${{ github.repository_owner }}/devbox-base-images
+            TOOLING_REPO=${{ github.repository_owner }}/devbox-tooling
             L10N=${{ matrix.l10n.display }}
             L10N_NORMALIZED=${{ matrix.l10n.normalized }}
             BASE_TOOLS_VERSION=${{ needs.resolve-inputs.outputs.tools_version }}
@@ -496,7 +499,7 @@ jobs:
           tag: ${{ format('{0}-{1}', needs.resolve-inputs.outputs.tag, matrix.l10n.normalized) }}
           ghcr_credentials: ${{ format('{{"registry":"{0}","username":"{1}","password":"{2}"}}', 'ghcr.io', github.repository_owner, secrets.GITHUB_TOKEN) || '{}' }}
           aliyun_credentials: ${{ inputs.aliyun_enabled && format('{{"registry":"{0}","username":"{1}","password":"{2}", "namespace":"{3}"}}', secrets.ALIYUN_REGISTRY, secrets.ALIYUN_USERNAME, secrets.ALIYUN_PASSWORD, secrets.ALIYUN_NAMESPACE) || '{}' }}
-          image_repo_type: images
+          image_repo_type: base-images
       - name: Create manifests
         shell: bash
         run: |
@@ -537,14 +540,15 @@ jobs:
           tag: ${{ format('{0}-{1}-{2}', needs.resolve-inputs.outputs.tag, matrix.l10n.normalized, matrix.arch) }}
           ghcr_credentials: ${{ format('{{"registry":"{0}","username":"{1}","password":"{2}"}}', 'ghcr.io', github.repository_owner, secrets.GITHUB_TOKEN) || '{}' }}
           aliyun_credentials: ${{ inputs.aliyun_enabled && format('{{"registry":"{0}","username":"{1}","password":"{2}", "namespace":"{3}"}}', secrets.ALIYUN_REGISTRY, secrets.ALIYUN_USERNAME, secrets.ALIYUN_PASSWORD, secrets.ALIYUN_NAMESPACE) || '{}' }}
-          image_repo_type: runtimes
+          image_repo_type: runtime-images
       - name: Build and push runtime
         uses: ./.github/actions/build-and-push
         with:
           platforms: ${{ format('linux/{0}', matrix.arch) }}
           dockerfile: ${{ matrix.packages }}
           build_args: |
-            REPO=${{ github.repository_owner }}/devbox-base
+            REPO=${{ github.repository_owner }}/devbox-base-images
+            TOOLING_REPO=${{ github.repository_owner }}/devbox-tooling
             L10N=${{ matrix.l10n.display }}
             L10N_NORMALIZED=${{ matrix.l10n.normalized }}
             BASE_TOOLS_VERSION=${{ needs.resolve-inputs.outputs.tools_version }}
@@ -593,7 +597,7 @@ jobs:
           tag: ${{ format('{0}-{1}', needs.resolve-inputs.outputs.tag, matrix.l10n.normalized) }}
           ghcr_credentials: ${{ format('{{"registry":"{0}","username":"{1}","password":"{2}"}}', 'ghcr.io', github.repository_owner, secrets.GITHUB_TOKEN) || '{}' }}
           aliyun_credentials: ${{ inputs.aliyun_enabled && format('{{"registry":"{0}","username":"{1}","password":"{2}", "namespace":"{3}"}}', secrets.ALIYUN_REGISTRY, secrets.ALIYUN_USERNAME, secrets.ALIYUN_PASSWORD, secrets.ALIYUN_NAMESPACE) || '{}' }}
-          image_repo_type: runtimes
+          image_repo_type: runtime-images
       - name: Create manifests
         shell: bash
         run: |

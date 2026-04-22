@@ -11,7 +11,7 @@ This runtime uses **s6-overlay v3** with container entrypoint:
 ENTRYPOINT ["/init"]
 ```
 
-During base OS image build, the shared tooling layer (published as `base-tools`) performs:
+During base OS image build, the shared tooling layer (published as `tooling`) performs:
 
 - `install-s6.sh`: installs s6-overlay
 - `configure-svc.sh`: generates/configures s6 service definitions

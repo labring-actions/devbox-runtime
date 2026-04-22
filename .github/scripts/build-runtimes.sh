@@ -20,7 +20,7 @@ for f in $FILES; do
   PLATFORMS="${PLATFORMS:-}"
   ADD_LATEST="${ADD_LATEST:-false}"
   REPO_OWNER="${REPO_OWNER:-${GITHUB_REPOSITORY_OWNER}}"
-  REPO_NAME="${REPO_NAME:-devbox-runtime}"
+  REPO_NAME="${REPO_NAME:-devbox-runtime-images}"
 
   BUILD_ARGS="--build-arg REPO_OWNER=${REPO_OWNER} --build-arg REPO_NAME=${REPO_NAME}"
 
