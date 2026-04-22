@@ -1,5 +1,5 @@
 # These ARGs can be overridden at build time to customize the image
-ARG REPO=labring-actions/devbox-base-expt
+ARG REPO=labring-actions/devbox-base
 ARG REPO_CODEX_GATEWAY=labring/codex-gateway
 ARG REGISTRY=ghcr.io
 ARG L10N_NORMALIZED=en-us

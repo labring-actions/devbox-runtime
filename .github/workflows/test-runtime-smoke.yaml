@@ -1,4 +1,4 @@
-name: Test Expt Runtime Smoke
+name: Test Runtime Smoke
 
 on:
   workflow_dispatch:
@@ -55,9 +55,9 @@ jobs:
           kind="${{ inputs.kind }}"
           name="${{ inputs.name }}"
           if [ "$kind" = "all" ] || [ -z "$kind" ]; then
-            base_path="experimental/runtimes"
+            base_path="runtimes"
           else
-            base_path="experimental/runtimes/$kind"
+            base_path="runtimes/$kind"
           fi
 
           if [ -n "$name" ]; then
@@ -104,14 +104,14 @@ jobs:
           username: ${{ github.repository_owner }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Generate image names (expt runtimes)
+      - name: Generate runtime image names
         id: generate-runtime
         uses: ./.github/actions/generate-image-names
         with:
           dockerfile: ${{ matrix.packages }}
           tag: ${{ format('{0}-{1}', needs.define-matrix.outputs.tag, 'en-us') }}
           ghcr_credentials: ${{ format('{{"registry":"{0}","username":"{1}","password":"{2}"}}', 'ghcr.io', github.repository_owner, secrets.GITHUB_TOKEN) || '{}' }}
-          expt_image_naming: runtimes
+          image_repo_type: runtimes
 
       - name: Run smoke test (en_US, amd64 + arm64)
         shell: bash
@@ -119,9 +119,9 @@ jobs:
           set -euo pipefail
           image="${{ steps.generate-runtime.outputs.ghcr_image_name }}"
           dockerfile="${{ matrix.packages }}"
-          rel_path="${dockerfile#experimental/runtimes/}"
+          rel_path="${dockerfile#runtimes/}"
           rel_path="${rel_path%/Dockerfile}"
-          test_dir="$GITHUB_WORKSPACE/experimental/tests/runtime-smoke/$rel_path"
+          test_dir="$GITHUB_WORKSPACE/tests/runtime-smoke/$rel_path"
           test_script="$test_dir/smoke.sh"
           if [ ! -f "$test_script" ]; then
             echo "Smoke script not found: $test_script" >&2

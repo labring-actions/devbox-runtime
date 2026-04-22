@@ -1,7 +1,7 @@
 # Runtime README 示例（基于 s6-overlay）
 
-> 该示例用于 `experimental/runtimes/*` 下的运行时模板文档。
-> 依据 `experimental/base-tools` 的构建与服务编排逻辑编写。
+> 该示例用于 `runtimes/*` 下的运行时模板文档。
+> 依据 `base-tools` 的构建与服务编排逻辑编写。
 
 ## 1. 运行模型
 
@@ -19,9 +19,9 @@ ENTRYPOINT ["/init"]
 
 对应文件：
 
-- `experimental/images/operating-systems/*/*/Dockerfile`
-- `experimental/images/operating-systems/*/*/build.sh`
-- `experimental/base-tools/scripts/configure-svc.sh`
+- `images/operating-systems/*/*/Dockerfile`
+- `images/operating-systems/*/*/build.sh`
+- `base-tools/scripts/configure-svc.sh`
 
 ## 2. 启动顺序（关键）
 
@@ -39,7 +39,7 @@ ENTRYPOINT ["/init"]
 
 ## 3. 默认服务与环境差异
 
-`services.conf`（来自 `experimental/base-tools/scripts/svc/services.conf`）默认配置：
+`services.conf`（来自 `base-tools/scripts/svc/services.conf`）默认配置：
 
 | 服务 | development | production | 说明 |
 |---|---:|---:|---|

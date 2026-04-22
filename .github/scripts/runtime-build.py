@@ -9,7 +9,8 @@ from pathlib import Path
 
 
 ROOT = Path.cwd()
-EXPERIMENTAL_ROOT = ROOT / "experimental"
+IMAGES_ROOT = ROOT / "images"
+RUNTIMES_ROOT = ROOT / "runtimes"
 INTERNAL_FROM_RE = re.compile(r"^FROM \$\{REGISTRY\}/\$\{REPO\}/([^:\s]+):")
 
 
@@ -38,7 +39,7 @@ def find_dockerfiles(root: Path) -> list[str]:
 
 
 def select_dockerfiles(build_root: str, kind: str, name: str) -> list[str]:
-    target_root = EXPERIMENTAL_ROOT / build_root / kind
+    target_root = ROOT / build_root / kind
     if name:
         target_root = target_root / name
     if not target_root.exists():
@@ -75,7 +76,7 @@ def image_name_from_dockerfile(dockerfile: str) -> str:
 
 def build_image_map() -> dict[str, str]:
     image_map: dict[str, str] = {}
-    for dockerfile in find_dockerfiles(EXPERIMENTAL_ROOT / "images"):
+    for dockerfile in find_dockerfiles(IMAGES_ROOT):
         image_map[image_name_from_dockerfile(dockerfile)] = dockerfile
     return image_map
 
@@ -230,9 +231,9 @@ def handle_plan_build(args: argparse.Namespace) -> int:
 
     if target_kind == "all":
         if target_build_type in {"images", "all"}:
-            image_targets = find_dockerfiles(EXPERIMENTAL_ROOT / "images")
+            image_targets = find_dockerfiles(IMAGES_ROOT)
         if target_build_type in {"runtimes", "all"}:
-            runtime_targets = find_dockerfiles(EXPERIMENTAL_ROOT / "runtimes")
+            runtime_targets = find_dockerfiles(RUNTIMES_ROOT)
     else:
         if target_build_type in {"images", "all"}:
             image_targets = select_dockerfiles("images", target_kind, target_name)
@@ -242,7 +243,7 @@ def handle_plan_build(args: argparse.Namespace) -> int:
     dep_seed_images: list[str] = list(image_targets)
     if include_prerequisites:
         if target_kind == "all" and target_build_type in {"runtimes", "all"}:
-            dep_seed_images.extend(find_dockerfiles(EXPERIMENTAL_ROOT / "images"))
+            dep_seed_images.extend(find_dockerfiles(IMAGES_ROOT))
         elif runtime_targets and target_kind != "all":
             dep_seed_images.extend(select_dockerfiles("images", target_kind, target_name))
 
@@ -253,9 +254,9 @@ def handle_plan_build(args: argparse.Namespace) -> int:
     else:
         planned_images = sorted(set(image_targets))
 
-    os_images = [pkg for pkg in planned_images if "/images/operating-systems/" in pkg]
-    language_images = [pkg for pkg in planned_images if "/images/languages/" in pkg]
-    framework_images = [pkg for pkg in planned_images if "/images/frameworks/" in pkg]
+    os_images = [pkg for pkg in planned_images if "images/operating-systems/" in pkg]
+    language_images = [pkg for pkg in planned_images if "images/languages/" in pkg]
+    framework_images = [pkg for pkg in planned_images if "images/frameworks/" in pkg]
 
     write_outputs(
         {
@@ -288,7 +289,7 @@ def handle_plan_build(args: argparse.Namespace) -> int:
 
 
 def build_parser() -> argparse.ArgumentParser:
-    parser = argparse.ArgumentParser(description="Helpers for simplified expt build workflow.")
+    parser = argparse.ArgumentParser(description="Helpers for the runtime image build workflow.")
     subparsers = parser.add_subparsers(dest="command", required=True)
 
     resolve_dispatch = subparsers.add_parser("resolve-dispatch", help="Resolve simplified dispatch inputs.")

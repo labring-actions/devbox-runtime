@@ -1,7 +1,7 @@
 # Runtime README Example (s6-overlay Based)
 
-> This document is a reusable README example for templates under `experimental/runtimes/*`.
-> It is derived from the actual build and service wiring in `experimental/base-tools`.
+> This document is a reusable README example for templates under `runtimes/*`.
+> It is derived from the actual build and service wiring in `base-tools`.
 
 ## 1. Runtime Model
 
@@ -19,9 +19,9 @@ During base OS image build, `base-tools` performs:
 
 Related files:
 
-- `experimental/images/operating-systems/*/*/Dockerfile`
-- `experimental/images/operating-systems/*/*/build.sh`
-- `experimental/base-tools/scripts/configure-svc.sh`
+- `images/operating-systems/*/*/Dockerfile`
+- `images/operating-systems/*/*/build.sh`
+- `base-tools/scripts/configure-svc.sh`
 
 ## 2. Boot Sequence (Important)
 
@@ -39,7 +39,7 @@ Startup flow:
 
 ## 3. Default Services and Environment Matrix
 
-Default `services.conf` (from `experimental/base-tools/scripts/svc/services.conf`):
+Default `services.conf` (from `base-tools/scripts/svc/services.conf`):
 
 | Service | development | production | Notes |
 |---|---:|---:|---|

@@ -1,6 +1,6 @@
 # These ARGs can be overridden at build time to customize the image
 ARG REGISTRY=ghcr.io
-ARG REPO=labring-actions/devbox-base-expt
+ARG REPO=labring-actions/devbox-base
 ARG L10N=en_US
 ARG ARCH=amd64
 ARG DEFAULT_DEVBOX_USER=devbox

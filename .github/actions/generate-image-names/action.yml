@@ -15,8 +15,8 @@ inputs:
     description: 'JSON object containing Aliyun ACR credentials { "registry": string, "username": string, "password": string }'
     required: false
     default: '{}'
-  expt_image_naming:
-    description: 'Enable experimental base image naming conventions'
+  image_repo_type:
+    description: 'Select the repository family used for generated image names'
     required: false
     # Allowed values: images, runtimes, none
     default: 'none'
@@ -38,7 +38,7 @@ runs:
 
         # Extract image name and version from the Dockerfile path.
         # Expected layout is <scope>/<kind>/<name>/<version>/Dockerfile,
-        # for example: experimental/runtimes/operating-systems/ubuntu/22.04/Dockerfile
+        # for example: runtimes/operating-systems/ubuntu/22.04/Dockerfile
         # This should extract: ubuntu and 22.04
 
         dockerfile_path="${{ inputs.dockerfile }}"
@@ -57,15 +57,15 @@ runs:
         # Create the image name components
         image_name="${runtime_name}-${runtime_version}"
 
-        # Generate ghcr.io image name
-        if [ "${{ inputs.expt_image_naming }}" = "images" ]; then
-          # Experimental naming convention
-          ghcr_image_name="${{ fromJson(inputs.ghcr_credentials).registry }}/${{ fromJson(inputs.ghcr_credentials).username }}/devbox-base-expt/${image_name}:${tag}"
-        elif [ "${{ inputs.expt_image_naming }}" = "runtimes" ]; then
-          # Experimental naming convention
-          ghcr_image_name="${{ fromJson(inputs.ghcr_credentials).registry }}/${{ fromJson(inputs.ghcr_credentials).username }}/devbox-runtime-expt/${image_name}:${tag}"
+        # Generate ghcr.io image name.
+        if [ "${{ inputs.image_repo_type }}" = "images" ]; then
+          # Dedicated base image repository.
+          ghcr_image_name="${{ fromJson(inputs.ghcr_credentials).registry }}/${{ fromJson(inputs.ghcr_credentials).username }}/devbox-base/${image_name}:${tag}"
+        elif [ "${{ inputs.image_repo_type }}" = "runtimes" ]; then
+          # Dedicated runtime image repository.
+          ghcr_image_name="${{ fromJson(inputs.ghcr_credentials).registry }}/${{ fromJson(inputs.ghcr_credentials).username }}/devbox-runtime/${image_name}:${tag}"
         else
-          # Standard naming convention
+          # Legacy/default shared repository naming.
           ghcr_image_name="${{ fromJson(inputs.ghcr_credentials).registry }}/${{ fromJson(inputs.ghcr_credentials).username }}/devbox/${image_name}:${tag}"
         fi
         # Generate Aliyun ACR image name (if credentials provided)
@@ -74,14 +74,11 @@ runs:
           # Parse Aliyun credentials
           registry=$(echo "$aliyun_credentials" | jq -r '.registry')
           namespace=$(echo "$aliyun_credentials" | jq -r '.namespace')
-          if [ "${{ inputs.expt_image_naming }}" = "images" ]; then
-            # Experimental naming convention
-            acr_image_name="${registry}/${namespace}/devbox-base-expt/${image_name}:${tag}"
-          elif [ "${{ inputs.expt_image_naming }}" = "runtimes" ]; then
-            # Experimental naming convention
-            acr_image_name="${registry}/${namespace}/devbox-runtime-expt/${image_name}:${tag}"
+          if [ "${{ inputs.image_repo_type }}" = "images" ]; then
+            acr_image_name="${registry}/${namespace}/devbox-base/${image_name}:${tag}"
+          elif [ "${{ inputs.image_repo_type }}" = "runtimes" ]; then
+            acr_image_name="${registry}/${namespace}/devbox-runtime/${image_name}:${tag}"
           else
-            # Standard naming convention
             acr_image_name="${registry}/${namespace}/devbox/${image_name}:${tag}"
           fi
         else

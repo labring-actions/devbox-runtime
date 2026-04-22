@@ -1,9 +1,9 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-FILES=$(find experimental/runtimes -type f -name Dockerfile -not -path "*/base-tools/*" -not -path "*/configure-tools/*" 2>/dev/null) || true
+FILES=$(find runtimes -type f -name Dockerfile -not -path "*/base-tools/*" -not -path "*/configure-tools/*" 2>/dev/null) || true
 if [ -z "$FILES" ]; then
-  echo "No runtime Dockerfiles found"
+  echo "No runtime Dockerfiles found under runtimes/"
   exit 0
 fi
 
@@ -20,7 +20,7 @@ for f in $FILES; do
   PLATFORMS="${PLATFORMS:-}"
   ADD_LATEST="${ADD_LATEST:-false}"
   REPO_OWNER="${REPO_OWNER:-${GITHUB_REPOSITORY_OWNER}}"
-  REPO_NAME="${REPO_NAME:-devbox-expt-runtime}"
+  REPO_NAME="${REPO_NAME:-devbox-runtime}"
 
   BUILD_ARGS="--build-arg REPO_OWNER=${REPO_OWNER} --build-arg REPO_NAME=${REPO_NAME}"
 
