@@ -1,0 +1,6 @@
+FROM alpine:3.22 AS tooling
+# Install standard tools or just copy scripts
+COPY scripts/ /opt/base-tools/scripts/
+COPY docs/ /opt/base-tools/docs/
+# Make them executable
+RUN chmod -R +x /opt/base-tools/scripts/*
