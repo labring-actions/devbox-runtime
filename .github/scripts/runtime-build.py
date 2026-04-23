@@ -69,9 +69,67 @@ def append_summary(text: str) -> None:
         print(text)
 
 
+def parse_json_list(raw_json: str, label: str) -> list[object]:
+    if not raw_json or not raw_json.strip():
+        return []
+    try:
+        parsed = json.loads(raw_json)
+    except json.JSONDecodeError as exc:
+        fail(f"invalid {label}: {exc}")
+    if not isinstance(parsed, list):
+        fail(f"{label} must be a JSON array")
+    return parsed
+
+
+def parse_string_list(raw_json: str, label: str) -> list[str]:
+    items = parse_json_list(raw_json, label)
+    values: list[str] = []
+    for index, item in enumerate(items):
+        if not isinstance(item, str):
+            fail(f"{label}[{index}] must be a string")
+        values.append(item)
+    return values
+
+
+def parse_l10n_matrix(raw_json: str) -> list[dict[str, str]]:
+    items = parse_json_list(raw_json, "l10n_matrix")
+    values: list[dict[str, str]] = []
+    for index, item in enumerate(items):
+        if not isinstance(item, dict):
+            fail(f"l10n_matrix[{index}] must be an object")
+        display = str(item.get("display", "")).strip()
+        normalized = str(item.get("normalized", "")).strip()
+        if not display or not normalized:
+            fail(f"l10n_matrix[{index}] must include non-empty display and normalized")
+        values.append({"display": display, "normalized": normalized})
+    return values
+
+
+def markdown_code(value: str) -> str:
+    return f"`{value}`"
+
+
+def build_markdown_table(headers: list[str], rows: list[list[str]]) -> str:
+    lines = [
+        "| " + " | ".join(headers) + " |",
+        "| " + " | ".join(["---"] * len(headers)) + " |",
+    ]
+    for row in rows:
+        lines.append("| " + " | ".join(row) + " |")
+    return "\n".join(lines)
+
+
 def image_name_from_dockerfile(dockerfile: str) -> str:
     dockerfile_path = Path(dockerfile)
     return f"{dockerfile_path.parent.parent.name}-{dockerfile_path.parent.name}"
+
+
+def image_kind_from_dockerfile(dockerfile: str) -> str:
+    dockerfile_path = Path(dockerfile)
+    parts = dockerfile_path.parts
+    if len(parts) < 4:
+        fail(f"unsupported dockerfile path '{dockerfile}'")
+    return parts[1]
 
 
 def build_image_map() -> dict[str, str]:
@@ -203,20 +261,6 @@ def handle_resolve_dispatch(args: argparse.Namespace) -> int:
         }
     )
 
-    append_summary(
-        "\n".join(
-            [
-                "## Resolved Inputs",
-                f"- target: `{args.target}`",
-                f"- profile: `{profile}`",
-                f"- include_prerequisites: `{'true' if include_prerequisites else 'false'}`",
-                f"- tag: `{release_tag}`",
-                f"- l10n: `{l10n}`",
-                f"- arch: `{arch}`",
-            ]
-        )
-        + "\n"
-    )
     return 0
 
 
@@ -274,17 +318,250 @@ def handle_plan_build(args: argparse.Namespace) -> int:
         }
     )
 
-    append_summary(
-        "\n".join(
-            [
-                "## Build Plan",
-                f"- build_tools: `{'true' if tools_required else 'false'}`",
-                f"- image_packages: `{len(planned_images)}`",
-                f"- runtime_packages: `{len(runtime_targets)}`",
-            ]
-        )
-        + "\n"
+    return 0
+
+
+def image_repository(owner: str, repo_type: str, dockerfile: str = "") -> str:
+    if repo_type == "tooling":
+        return f"ghcr.io/{owner}/devbox-tooling/tooling"
+    if not dockerfile:
+        fail(f"dockerfile is required for repo_type '{repo_type}'")
+
+    image_name = image_name_from_dockerfile(dockerfile)
+    if repo_type == "base-images":
+        return f"ghcr.io/{owner}/devbox-base-images/{image_name}"
+    if repo_type == "runtime-images":
+        return f"ghcr.io/{owner}/devbox-runtime-images/{image_name}"
+    fail(f"unsupported repo_type '{repo_type}'")
+
+
+def render_arch_images(base_ref: str, tag: str, arch_matrix: list[str]) -> str:
+    return "<br>".join(markdown_code(f"{base_ref}:{tag}-{arch}") for arch in arch_matrix)
+
+
+def render_package_section(
+    title: str,
+    packages: list[str],
+    repo_type: str,
+    owner: str,
+    tag: str,
+    l10n_matrix: list[dict[str, str]],
+    arch_matrix: list[str],
+) -> str:
+    if not packages:
+        return ""
+
+    rows: list[list[str]] = []
+    for dockerfile in packages:
+        image_ref = image_repository(owner, repo_type, dockerfile)
+        image_name = image_name_from_dockerfile(dockerfile)
+        for l10n in l10n_matrix:
+            manifest_tag = f"{tag}-{l10n['normalized']}"
+            rows.append(
+                [
+                    markdown_code(image_name),
+                    markdown_code(dockerfile),
+                    markdown_code(l10n["display"]),
+                    markdown_code(f"{image_ref}:{manifest_tag}"),
+                    render_arch_images(image_ref, manifest_tag, arch_matrix),
+                ]
+            )
+
+    header = f"### {title} ({len(rows)} manifest tags)"
+    table = build_markdown_table(
+        ["Image", "Dockerfile", "L10N", "Manifest", "Per-Arch Images"],
+        rows,
     )
+    return "\n".join([header, table, ""])
+
+
+def render_tooling_section(owner: str, tools_version: str, arch_matrix: list[str]) -> str:
+    base_ref = image_repository(owner, "tooling")
+    rows = [
+        [
+            markdown_code("tooling"),
+            markdown_code("tooling/Dockerfile"),
+            markdown_code(f"{base_ref}:{tools_version}"),
+            render_arch_images(base_ref, tools_version, arch_matrix),
+        ]
+    ]
+    header = "### Tooling (1 manifest tag)"
+    table = build_markdown_table(
+        ["Image", "Dockerfile", "Manifest", "Per-Arch Images"],
+        rows,
+    )
+    return "\n".join([header, table, ""])
+
+
+def split_packages_by_kind(packages: list[str]) -> dict[str, list[str]]:
+    grouped = {
+        "operating-systems": [],
+        "languages": [],
+        "frameworks": [],
+    }
+    for dockerfile in packages:
+        kind = image_kind_from_dockerfile(dockerfile)
+        if kind not in grouped:
+            fail(f"unsupported image kind '{kind}' in '{dockerfile}'")
+        grouped[kind].append(dockerfile)
+    return grouped
+
+
+def render_resolved_inputs(
+    target: str,
+    profile: str,
+    include_prerequisites: bool,
+    tag: str,
+    l10n: str,
+    arch: str,
+) -> str:
+    return "\n".join(
+        [
+            "## Resolved Inputs",
+            f"- target: `{target}`",
+            f"- profile: `{profile}`",
+            f"- include_prerequisites: `{'true' if include_prerequisites else 'false'}`",
+            f"- tag: `{tag}`",
+            f"- l10n: `{l10n}`",
+            f"- arch: `{arch}`",
+            "",
+        ]
+    )
+
+
+def render_build_plan(build_tools: bool, planned_image_count: int, runtime_count: int) -> str:
+    return "\n".join(
+        [
+            "## Build Plan",
+            f"- build_tools: `{'true' if build_tools else 'false'}`",
+            f"- image_packages: `{planned_image_count}`",
+            f"- runtime_packages: `{runtime_count}`",
+            "",
+        ]
+    )
+
+
+def handle_append_workflow_summary(args: argparse.Namespace) -> int:
+    owner = args.ghcr_owner.strip()
+    target = args.target.strip()
+    profile = args.profile.strip()
+    tag = args.tag.strip()
+    l10n = args.l10n.strip()
+    arch = args.arch.strip()
+    tools_version = args.tools_version.strip()
+    if not owner:
+        fail("ghcr_owner cannot be empty")
+    if not target:
+        fail("target cannot be empty")
+    if not profile:
+        fail("profile cannot be empty")
+    if not tag:
+        fail("tag cannot be empty")
+    if not l10n:
+        fail("l10n cannot be empty")
+    if not arch:
+        fail("arch cannot be empty")
+
+    build_tools = normalize_bool(args.build_tools)
+    include_prerequisites = normalize_bool(args.include_prerequisites)
+    aliyun_enabled = normalize_bool(args.aliyun_enabled)
+    l10n_matrix = parse_l10n_matrix(args.l10n_matrix)
+    arch_matrix = parse_string_list(args.arch_matrix, "arch_matrix")
+    os_image_packages = parse_string_list(args.os_image_packages, "os_image_packages")
+    language_image_packages = parse_string_list(args.language_image_packages, "language_image_packages")
+    framework_image_packages = parse_string_list(args.framework_image_packages, "framework_image_packages")
+    runtime_packages = parse_string_list(args.runtime_packages, "runtime_packages")
+
+    if build_tools and not tools_version:
+        fail("tools_version cannot be empty when build_tools=true")
+    if not arch_matrix:
+        fail("arch_matrix cannot be empty")
+    if (os_image_packages or language_image_packages or framework_image_packages or runtime_packages) and not l10n_matrix:
+        fail("l10n_matrix cannot be empty when packages are planned")
+
+    runtime_groups = split_packages_by_kind(runtime_packages)
+    planned_image_count = len(os_image_packages) + len(language_image_packages) + len(framework_image_packages)
+
+    sections = [
+        render_resolved_inputs(target, profile, include_prerequisites, tag, l10n, arch),
+        render_build_plan(build_tools, planned_image_count, len(runtime_packages)),
+        "## Planned Image List",
+        "GHCR image references are listed below.",
+        f"Aliyun mirror enabled: `{'true' if aliyun_enabled else 'false'}`",
+        "",
+    ]
+
+    if build_tools:
+        sections.append(render_tooling_section(owner, tools_version, arch_matrix))
+    sections.append(
+        render_package_section(
+            "Base Operating System Images",
+            os_image_packages,
+            "base-images",
+            owner,
+            tag,
+            l10n_matrix,
+            arch_matrix,
+        )
+    )
+    sections.append(
+        render_package_section(
+            "Base Language Images",
+            language_image_packages,
+            "base-images",
+            owner,
+            tag,
+            l10n_matrix,
+            arch_matrix,
+        )
+    )
+    sections.append(
+        render_package_section(
+            "Base Framework Images",
+            framework_image_packages,
+            "base-images",
+            owner,
+            tag,
+            l10n_matrix,
+            arch_matrix,
+        )
+    )
+    sections.append(
+        render_package_section(
+            "Runtime Operating System Images",
+            runtime_groups["operating-systems"],
+            "runtime-images",
+            owner,
+            tag,
+            l10n_matrix,
+            arch_matrix,
+        )
+    )
+    sections.append(
+        render_package_section(
+            "Runtime Language Images",
+            runtime_groups["languages"],
+            "runtime-images",
+            owner,
+            tag,
+            l10n_matrix,
+            arch_matrix,
+        )
+    )
+    sections.append(
+        render_package_section(
+            "Runtime Framework Images",
+            runtime_groups["frameworks"],
+            "runtime-images",
+            owner,
+            tag,
+            l10n_matrix,
+            arch_matrix,
+        )
+    )
+
+    rendered = "\n".join(section for section in sections if section)
+    append_summary(rendered + "\n")
     return 0
 
 
@@ -307,6 +584,25 @@ def build_parser() -> argparse.ArgumentParser:
     plan_build.add_argument("--target-build-type", required=True)
     plan_build.add_argument("--include-prerequisites", default="true")
     plan_build.set_defaults(handler=handle_plan_build)
+
+    append_workflow_summary = subparsers.add_parser("append-workflow-summary", help="Append the workflow summary to the current job summary.")
+    append_workflow_summary.add_argument("--ghcr-owner", required=True)
+    append_workflow_summary.add_argument("--target", required=True)
+    append_workflow_summary.add_argument("--profile", required=True)
+    append_workflow_summary.add_argument("--include-prerequisites", default="false")
+    append_workflow_summary.add_argument("--tag", required=True)
+    append_workflow_summary.add_argument("--l10n", required=True)
+    append_workflow_summary.add_argument("--arch", required=True)
+    append_workflow_summary.add_argument("--tools-version", default="")
+    append_workflow_summary.add_argument("--build-tools", default="false")
+    append_workflow_summary.add_argument("--aliyun-enabled", default="false")
+    append_workflow_summary.add_argument("--os-image-packages", default="[]")
+    append_workflow_summary.add_argument("--language-image-packages", default="[]")
+    append_workflow_summary.add_argument("--framework-image-packages", default="[]")
+    append_workflow_summary.add_argument("--runtime-packages", default="[]")
+    append_workflow_summary.add_argument("--l10n-matrix", default="[]")
+    append_workflow_summary.add_argument("--arch-matrix", default="[]")
+    append_workflow_summary.set_defaults(handler=handle_append_workflow_summary)
     return parser
 
 
