@@ -1,0 +1,7 @@
+interface:
+  display_name: "Runtime Authoring"
+  short_description: "Create DevBox runtimes and versions"
+  default_prompt: "Use $runtime-authoring to add a new runtime or scaffold a new version such as Go 1.24 from the closest existing version."
+
+policy:
+  allow_implicit_invocation: true
