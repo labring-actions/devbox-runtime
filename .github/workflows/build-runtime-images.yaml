@@ -91,13 +91,11 @@ jobs:
     needs: resolve-inputs
     runs-on: ubuntu-latest
     outputs:
-      image_packages: ${{ steps.plan.outputs.image_packages }}
       os_image_packages: ${{ steps.plan.outputs.os_image_packages }}
       language_image_packages: ${{ steps.plan.outputs.language_image_packages }}
       framework_image_packages: ${{ steps.plan.outputs.framework_image_packages }}
       runtime_packages: ${{ steps.plan.outputs.runtime_packages }}
       build_tools: ${{ steps.plan.outputs.build_tools }}
-      has_images: ${{ steps.plan.outputs.has_images }}
       has_os_images: ${{ steps.plan.outputs.has_os_images }}
       has_language_images: ${{ steps.plan.outputs.has_language_images }}
       has_framework_images: ${{ steps.plan.outputs.has_framework_images }}
@@ -136,6 +134,25 @@ jobs:
           esac
           echo "l10n_matrix=$l10n" >> "$GITHUB_OUTPUT"
           echo "arch_matrix=$arch" >> "$GITHUB_OUTPUT"
+      - name: Append workflow summary
+        run: |
+          python3 .github/scripts/runtime-build.py append-workflow-summary \
+            --ghcr-owner "${{ github.repository_owner }}" \
+            --target "${{ inputs.target }}" \
+            --profile "${{ inputs.profile }}" \
+            --include-prerequisites "${{ needs.resolve-inputs.outputs.include_prerequisites }}" \
+            --tag "${{ needs.resolve-inputs.outputs.tag }}" \
+            --l10n "${{ needs.resolve-inputs.outputs.l10n }}" \
+            --arch "${{ needs.resolve-inputs.outputs.arch }}" \
+            --tools-version "${{ needs.resolve-inputs.outputs.tools_version }}" \
+            --build-tools "${{ steps.plan.outputs.build_tools }}" \
+            --aliyun-enabled "${{ inputs.aliyun_enabled }}" \
+            --os-image-packages '${{ steps.plan.outputs.os_image_packages }}' \
+            --language-image-packages '${{ steps.plan.outputs.language_image_packages }}' \
+            --framework-image-packages '${{ steps.plan.outputs.framework_image_packages }}' \
+            --runtime-packages '${{ steps.plan.outputs.runtime_packages }}' \
+            --l10n-matrix '${{ steps.matrix.outputs.l10n_matrix }}' \
+            --arch-matrix '${{ steps.matrix.outputs.arch_matrix }}'
 
   build-tools:
     needs: [resolve-inputs, plan-build]

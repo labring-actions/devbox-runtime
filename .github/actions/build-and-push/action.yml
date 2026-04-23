@@ -13,16 +13,11 @@ inputs:
     default: ''
   ghcr_credentials:
     description: 'JSON object containing ghcr.io credentials { "registry": string, "username": string, "password": string }'
-    required: false
-    default: '{}'
+    required: true
   aliyun_credentials:
-    description: 'JSON object containing Aliyun ACR credentials { "registry": string, "username": string, "password": string }'
+    description: 'JSON object containing Aliyun ACR credentials { "registry": string, "username": string, "password": string, "namespace": string }'
     required: false
     default: '{}'
-  build_base_image:
-    description: 'Build base image'
-    required: false
-    default: ''
   build_args:
     description: 'Build arguments'
     required: false
@@ -66,7 +61,6 @@ runs:
         platforms: ${{ inputs.platforms }}
         build-args: |
           ${{ inputs.build_args }}
-          ${{ inputs.build_base_image != '' && format('BASE_IMAGE={0}', inputs.build_base_image) || '' }}
         push: true
         tags: |
           ${{ inputs.ghcr_image_name }}
