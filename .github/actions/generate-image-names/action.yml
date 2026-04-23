@@ -18,7 +18,7 @@ inputs:
   image_repo_type:
     description: 'Select the repository family used for generated image names'
     required: false
-    # Allowed values: tooling, base-images, runtime-images, none
+    # Allowed values: base-images, runtime-images, none
     default: 'none'
 outputs:
   ghcr_image_name:
@@ -34,6 +34,7 @@ runs:
       id: generate
       shell: bash
       run: |
+        set -euo pipefail
         echo "Generating image names for ${{ inputs.dockerfile }} with tag ${{ inputs.tag }}"
 
         # Extract image name and version from the Dockerfile path.
@@ -56,17 +57,19 @@ runs:
 
         # Create the image name components
         image_name="${runtime_name}-${runtime_version}"
+        repo_type="${{ inputs.image_repo_type }}"
 
         # Generate ghcr.io image name.
-        if [ "${{ inputs.image_repo_type }}" = "tooling" ]; then
-          ghcr_image_name="${{ fromJson(inputs.ghcr_credentials).registry }}/${{ fromJson(inputs.ghcr_credentials).username }}/devbox-tooling/${image_name}:${tag}"
-        elif [ "${{ inputs.image_repo_type }}" = "base-images" ]; then
+        if [ "$repo_type" = "base-images" ]; then
           ghcr_image_name="${{ fromJson(inputs.ghcr_credentials).registry }}/${{ fromJson(inputs.ghcr_credentials).username }}/devbox-base-images/${image_name}:${tag}"
-        elif [ "${{ inputs.image_repo_type }}" = "runtime-images" ]; then
+        elif [ "$repo_type" = "runtime-images" ]; then
           ghcr_image_name="${{ fromJson(inputs.ghcr_credentials).registry }}/${{ fromJson(inputs.ghcr_credentials).username }}/devbox-runtime-images/${image_name}:${tag}"
-        else
+        elif [ "$repo_type" = "none" ]; then
           # Legacy/default shared repository naming.
           ghcr_image_name="${{ fromJson(inputs.ghcr_credentials).registry }}/${{ fromJson(inputs.ghcr_credentials).username }}/devbox/${image_name}:${tag}"
+        else
+          echo "Unsupported image_repo_type: $repo_type" >&2
+          exit 1
         fi
         # Generate Aliyun ACR image name (if credentials provided)
         aliyun_credentials='${{ inputs.aliyun_credentials }}'
@@ -74,11 +77,9 @@ runs:
           # Parse Aliyun credentials
           registry=$(echo "$aliyun_credentials" | jq -r '.registry')
           namespace=$(echo "$aliyun_credentials" | jq -r '.namespace')
-          if [ "${{ inputs.image_repo_type }}" = "tooling" ]; then
-            acr_image_name="${registry}/${namespace}/devbox-tooling/${image_name}:${tag}"
-          elif [ "${{ inputs.image_repo_type }}" = "base-images" ]; then
+          if [ "$repo_type" = "base-images" ]; then
             acr_image_name="${registry}/${namespace}/devbox-base-images/${image_name}:${tag}"
-          elif [ "${{ inputs.image_repo_type }}" = "runtime-images" ]; then
+          elif [ "$repo_type" = "runtime-images" ]; then
             acr_image_name="${registry}/${namespace}/devbox-runtime-images/${image_name}:${tag}"
           else
             acr_image_name="${registry}/${namespace}/devbox/${image_name}:${tag}"

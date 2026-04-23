@@ -42,12 +42,7 @@ jobs:
       - name: Set up tag
         id: set_tag
         run: |
-          if [ -n "${{ inputs.tag }}" ]; then
-            tag=${{ inputs.tag }}
-          else
-            tag=$(echo "${{ github.sha }}" | cut -c1-7)
-          fi
-          echo "tag=$tag" >> $GITHUB_OUTPUT
+          echo "tag=${{ inputs.tag }}" >> $GITHUB_OUTPUT
 
       - name: Get packages
         id: get_packages

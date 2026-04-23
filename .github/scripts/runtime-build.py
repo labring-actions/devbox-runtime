@@ -304,13 +304,11 @@ def handle_plan_build(args: argparse.Namespace) -> int:
 
     write_outputs(
         {
-            "image_packages": json.dumps(planned_images, separators=(",", ":")),
             "os_image_packages": json.dumps(os_images, separators=(",", ":")),
             "language_image_packages": json.dumps(language_images, separators=(",", ":")),
             "framework_image_packages": json.dumps(framework_images, separators=(",", ":")),
             "runtime_packages": json.dumps(sorted(set(runtime_targets)), separators=(",", ":")),
             "build_tools": "true" if tools_required else "false",
-            "has_images": "true" if planned_images else "false",
             "has_os_images": "true" if os_images else "false",
             "has_language_images": "true" if language_images else "false",
             "has_framework_images": "true" if framework_images else "false",

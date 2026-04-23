@@ -91,13 +91,11 @@ jobs:
     needs: resolve-inputs
     runs-on: ubuntu-latest
     outputs:
-      image_packages: ${{ steps.plan.outputs.image_packages }}
       os_image_packages: ${{ steps.plan.outputs.os_image_packages }}
       language_image_packages: ${{ steps.plan.outputs.language_image_packages }}
       framework_image_packages: ${{ steps.plan.outputs.framework_image_packages }}
       runtime_packages: ${{ steps.plan.outputs.runtime_packages }}
       build_tools: ${{ steps.plan.outputs.build_tools }}
-      has_images: ${{ steps.plan.outputs.has_images }}
       has_os_images: ${{ steps.plan.outputs.has_os_images }}
       has_language_images: ${{ steps.plan.outputs.has_language_images }}
       has_framework_images: ${{ steps.plan.outputs.has_framework_images }}
