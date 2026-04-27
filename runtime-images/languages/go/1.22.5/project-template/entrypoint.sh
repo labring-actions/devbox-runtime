@@ -3,6 +3,9 @@ app_env=${1:-development}
 
 # Define build target
 build_target="hello_world"
+export PATH="/usr/local/go/bin:$HOME/go/bin:$PATH"
+export GOCACHE="${GOCACHE:-$HOME/go/cache/go-build}"
+mkdir -p "$GOCACHE"
 
 # Development environment commands
 dev_commands() {

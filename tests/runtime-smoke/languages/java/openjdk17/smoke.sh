@@ -39,6 +39,7 @@ cd "$project_dir"
 
 javac --version | grep -q 'javac 17'
 java -version 2>&1 | grep -q '17'
+java -XshowSettings:properties -version 2>&1 | grep -q 'file.encoding = UTF-8'
 
 if [ ! -f "$project_dir/HelloWorld.java" ]; then
   echo "Missing HelloWorld.java in $project_dir" >&2

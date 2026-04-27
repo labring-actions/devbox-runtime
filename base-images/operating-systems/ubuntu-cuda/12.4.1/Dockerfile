@@ -43,4 +43,7 @@ RUN chmod +x /build.sh && \
     /build.sh && \
     rm -f /build.sh && \
     rm -rf ${BASE_TOOLS_DIR}
+## Locale: generated during build, but also export at runtime so non-login processes use UTF-8
+ENV LANG=en_US.UTF-8
+ENV LC_ALL=en_US.UTF-8
 ENTRYPOINT [ "/init" ]
