@@ -26,6 +26,10 @@ inputs:
     description: 'Target platforms for buildx (comma-separated)'
     required: false
     default: 'linux/amd64,linux/arm64'
+  image_outputs:
+    description: 'Buildx image exporter output configuration'
+    required: false
+    default: 'type=registry'
 runs:
   using: 'composite'
   steps:
@@ -61,7 +65,7 @@ runs:
         platforms: ${{ inputs.platforms }}
         build-args: |
           ${{ inputs.build_args }}
-        push: true
+        outputs: ${{ inputs.image_outputs }}
         tags: |
           ${{ inputs.ghcr_image_name }}
           ${{ inputs.aliyun_credentials != '{}' && inputs.aliyun_credentials != '' && inputs.aliyun_credentials != 'null' && inputs.acr_image_name != '' && inputs.acr_image_name || '' }}
