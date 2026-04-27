@@ -30,7 +30,7 @@
 核心输入：
 
 - `release_tag`: 本次发布版本
-- `target`: `all | image/os/<path> | image/lang/<path> | image/fw/<path> | runtime/os/<path> | runtime/lang/<path> | runtime/fw/<path>`
+- `target`: 选择构建范围。常用示例：`all`、`runtime/lang/node.js/22`、`base/lang/node.js/22`
 - `profile`: `quick | full | release`
 - `overrides_json`: 可选版本覆盖，支持 `tools / os / framework / node / runtime`
 - `l10n`、`arch`、`aliyun_enabled`: 常用可选项
@@ -59,7 +59,7 @@
 
 ### 3. 只重跑某一层
 
-- `target=image/fw/sandbox/v1` 或 `target=runtime/fw/sandbox/v1`
+- `target=base/fw/sandbox/v1` 或 `target=runtime/fw/sandbox/v1`
 - `profile=quick`
 
 注意：`quick` 依赖目标所需的上游镜像已经存在于目标 registry，否则会在 `FROM` 阶段失败。
@@ -73,6 +73,10 @@
 - `runtime-images/` -> `ghcr.io/<owner>/devbox-runtime-images/...`
 
 阿里云 ACR 开启后沿用相同层级，只替换 registry 和 namespace。
+
+`runtime-images/` 的 CI 发布产物使用 BuildKit registry exporter，并启用
+`oci-mediatypes=true,compression=estargz,force-compression=true`，以便支持
+containerd stargz snapshotter 等运行时的 lazy pull。
 
 ## 阿里云所需 Secrets
 
@@ -111,12 +115,18 @@
 
 示例：
 
-- `image/fw/sandbox/v1`
 - `runtime/fw/sandbox/v1`
-- `image/lang/node.js/22`
 - `runtime/lang/node.js/22`
-- `image/os/debian/12.6`
 - `runtime/os/debian/12.6`
+- `base/fw/sandbox/v1`
+- `base/lang/node.js/22`
+- `base/os/debian/12.6`
+
+其中：
+
+- `runtime/...`: 构建 `runtime-images/` 下最终提供给 DevBox 使用的运行时镜像
+- `base/...`: 构建 `base-images/` 下的上游基础镜像
+- `os`、`lang`、`fw`: 分别对应 `operating-systems`、`languages`、`frameworks`
 
 不要填写 Dockerfile 绝对路径。
 

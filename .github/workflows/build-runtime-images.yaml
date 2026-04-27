@@ -9,7 +9,7 @@ on:
         type: string
         default: 'latest'
       target:
-        description: 'Build target: all | image/os/<path> | image/lang/<path> | image/fw/<path> | runtime/os/<path> | runtime/lang/<path> | runtime/fw/<path>'
+        description: 'What to build. Examples: all, runtime/lang/node.js/22, base/lang/node.js/22. Kinds: os, lang, fw.'
         required: true
         type: string
         default: 'all'
@@ -577,6 +577,7 @@ jobs:
           ghcr_image_name: ${{ steps.names.outputs.ghcr_image_name }}
           aliyun_credentials: ${{ inputs.aliyun_enabled && format('{{"registry":"{0}","username":"{1}","password":"{2}", "namespace":"{3}"}}', secrets.ALIYUN_REGISTRY, secrets.ALIYUN_USERNAME, secrets.ALIYUN_PASSWORD, secrets.ALIYUN_NAMESPACE) || '{}' }}
           acr_image_name: ${{ steps.names.outputs.acr_image_name }}
+          image_outputs: type=registry,oci-mediatypes=true,compression=estargz,force-compression=true
 
   manifest-runtimes:
     needs: [resolve-inputs, plan-build, build-runtimes]

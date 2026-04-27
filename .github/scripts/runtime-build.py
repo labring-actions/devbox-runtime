@@ -154,22 +154,22 @@ def parse_target(target: str) -> tuple[str, str, str]:
         return "all", "", "all"
 
     build_prefix, sep, rest = target.partition("/")
-    if build_prefix not in {"image", "runtime"} or not sep or not rest.strip():
+    if build_prefix not in {"base", "runtime"} or not sep or not rest.strip():
         fail(
-            "target must be one of: all|image/os/<path>|image/lang/<path>|image/fw/<path>|"
-            "runtime/os/<path>|runtime/lang/<path>|runtime/fw/<path>"
+            "target must be one of: all, base/os/<path>, base/lang/<path>, base/fw/<path>, "
+            "runtime/os/<path>, runtime/lang/<path>, runtime/fw/<path>."
         )
 
     kind_prefix, kind_sep, name = rest.partition("/")
     if kind_prefix not in {"os", "lang", "fw"} or not kind_sep or not name.strip():
-        fail("target must include kind and path, for example image/fw/sandbox/v1")
+        fail("target must include kind and path, for example runtime/fw/sandbox/v1 or base/fw/sandbox/v1")
 
     kind_map = {
         "os": "operating-systems",
         "lang": "languages",
         "fw": "frameworks",
     }
-    build_type = "base-images" if build_prefix == "image" else "runtime-images"
+    build_type = "base-images" if build_prefix == "base" else "runtime-images"
     return kind_map[kind_prefix], name.strip("/"), build_type
 
 
