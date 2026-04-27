@@ -19,6 +19,8 @@ fi
 [ -f /home/devbox/.bashrc ] && . /home/devbox/.bashrc || true
 set -u
 
+export PATH="/usr/local/go/bin:$HOME/go/bin:$PATH"
+
 
 if [ "${SMOKE_DEBUG:-}" = "1" ]; then
   echo "SMOKE_DEBUG=1"
@@ -48,6 +50,21 @@ if [ ! -f "$project_dir/README.md" ]; then
   echo "Missing README.md in $project_dir" >&2
   exit 1
 fi
+
+# Simulate a root-created ~/.cache; the template should keep working.
+sudo install -d -m 0755 /home/devbox/.cache
+sudo chown root:root /home/devbox/.cache
+( cd "$project_dir" && go run main.go ) >/tmp/manual-go-run.log 2>&1 &
+manual_pid=$!
+sleep 3
+if ! kill -0 "$manual_pid" >/dev/null 2>&1; then
+  echo "manual go run exited early" >&2
+  echo "---- manual go run log ----" >&2
+  cat /tmp/manual-go-run.log >&2 || true
+  exit 1
+fi
+kill "$manual_pid" >/dev/null 2>&1 || true
+wait "$manual_pid" >/dev/null 2>&1 || true
 
 
 # entrypoint smoke

@@ -19,6 +19,13 @@ curl -fsSLO "https://dl.google.com/go/${GO_TARBALL}" && \
 rm -rf /usr/local/go && tar -C /usr/local -xzf "${GO_TARBALL}" && \
 rm -f "${GO_TARBALL}"
 
+cat > /etc/profile.d/go-env.sh <<'EOF'
+export GOPATH=$HOME/go
+export GOCACHE=$HOME/go/cache/go-build
+export PATH=$PATH:/usr/local/go/bin:$HOME/go/bin
+EOF
+chmod 644 /etc/profile.d/go-env.sh
+
 
 # Set up Go for root
 ROOT_HOME="${HOME:-/root}"
@@ -26,9 +33,11 @@ if [ "$L10N" = "zh_CN" ]; then
     grep -qxF 'export GOPROXY=https://goproxy.cn,direct' "$ROOT_HOME/.bashrc" || \
         echo 'export GOPROXY=https://goproxy.cn,direct' >> "$ROOT_HOME/.bashrc"
 fi
-mkdir -p "$ROOT_HOME/go/bin"
+mkdir -p "$ROOT_HOME/go/bin" "$ROOT_HOME/go/cache/go-build"
 grep -qxF 'export GOPATH=$HOME/go' "$ROOT_HOME/.bashrc" || \
     echo 'export GOPATH=$HOME/go' >> "$ROOT_HOME/.bashrc"
+grep -qxF 'export GOCACHE=$HOME/go/cache/go-build' "$ROOT_HOME/.bashrc" || \
+    echo 'export GOCACHE=$HOME/go/cache/go-build' >> "$ROOT_HOME/.bashrc"
 grep -qxF 'export PATH=$PATH:/usr/local/go/bin:$HOME/go/bin' "$ROOT_HOME/.bashrc" || \
     echo 'export PATH=$PATH:/usr/local/go/bin:$HOME/go/bin' >> "$ROOT_HOME/.bashrc"
 
@@ -43,10 +52,12 @@ if [ "$L10N" = "zh_CN" ]; then
     grep -qxF 'export GOPROXY=https://goproxy.cn,direct' "$DEVBOX_HOME/.bashrc" 2>/dev/null || \
         echo 'export GOPROXY=https://goproxy.cn,direct' >> "$DEVBOX_HOME/.bashrc"
 fi
-mkdir -p "$DEVBOX_HOME/go/bin"
+mkdir -p "$DEVBOX_HOME/go/bin" "$DEVBOX_HOME/go/cache/go-build"
 chown -R "${DEVBOX_USER}:${DEVBOX_USER}" "$DEVBOX_HOME/go" || true
 
 grep -qxF 'export GOPATH=$HOME/go' "$DEVBOX_HOME/.bashrc" 2>/dev/null || \
     echo 'export GOPATH=$HOME/go' >> "$DEVBOX_HOME/.bashrc"
+grep -qxF 'export GOCACHE=$HOME/go/cache/go-build' "$DEVBOX_HOME/.bashrc" 2>/dev/null || \
+    echo 'export GOCACHE=$HOME/go/cache/go-build' >> "$DEVBOX_HOME/.bashrc"
 grep -qxF 'export PATH=$PATH:/usr/local/go/bin:$HOME/go/bin' "$DEVBOX_HOME/.bashrc" 2>/dev/null || \
     echo 'export PATH=$PATH:/usr/local/go/bin:$HOME/go/bin' >> "$DEVBOX_HOME/.bashrc"
