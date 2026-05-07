@@ -37,8 +37,15 @@ fi
 
 cd "$project_dir"
 
-nginx -v 2>&1 | grep -q '1.22.1'
-nginx -t >/dev/null 2>&1
+mkdir -p \
+  /tmp/nginx-devbox/client-body \
+  /tmp/nginx-devbox/proxy \
+  /tmp/nginx-devbox/fastcgi \
+  /tmp/nginx-devbox/uwsgi \
+  /tmp/nginx-devbox/scgi
+
+/usr/sbin/nginx -v 2>&1 | grep -q '1.22.1'
+/usr/sbin/nginx -t -c /etc/nginx/nginx.conf >/dev/null 2>&1
 
 if [ ! -x "$project_dir/entrypoint.sh" ]; then
   echo "Missing entrypoint.sh in $project_dir" >&2

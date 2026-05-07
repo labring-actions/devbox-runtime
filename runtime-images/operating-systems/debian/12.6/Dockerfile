@@ -1,6 +1,7 @@
 # These ARGs can be overridden at build time to customize the image
 ARG REPO=labring-actions/devbox-base-images
 ARG REGISTRY=ghcr.io
+ARG L10N=en_US
 ARG L10N_NORMALIZED=en-us
 ARG DEFAULT_DEVBOX_USER=devbox
 
@@ -10,7 +11,9 @@ ARG DEFAULT_DEVBOX_USER=devbox
 ARG OS_IMAGE_VERSION=v0.0.1-alpha.1-${L10N_NORMALIZED}
 
 FROM ${REGISTRY}/${REPO}/debian-12.6:${OS_IMAGE_VERSION}
+ARG L10N
 ARG DEFAULT_DEVBOX_USER
+ENV L10N=${L10N}
 ENV PROJECT_TEMPLATE_DIR=/project-template
 COPY ./project-template ${PROJECT_TEMPLATE_DIR}
 COPY ./build.sh /build.sh

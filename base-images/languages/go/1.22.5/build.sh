@@ -30,6 +30,9 @@ chmod 644 /etc/profile.d/go-env.sh
 # Set up Go for root
 ROOT_HOME="${HOME:-/root}"
 if [ "$L10N" = "zh_CN" ]; then
+    export GOPROXY=https://goproxy.cn,direct
+    echo 'export GOPROXY=https://goproxy.cn,direct' >> /etc/profile.d/go-env.sh
+    HOME="$ROOT_HOME" /usr/local/go/bin/go env -w GOPROXY=https://goproxy.cn,direct
     grep -qxF 'export GOPROXY=https://goproxy.cn,direct' "$ROOT_HOME/.bashrc" || \
         echo 'export GOPROXY=https://goproxy.cn,direct' >> "$ROOT_HOME/.bashrc"
 fi
@@ -49,11 +52,15 @@ if [ -z "$DEVBOX_HOME" ]; then
 fi
 
 if [ "$L10N" = "zh_CN" ]; then
+    HOME="$DEVBOX_HOME" /usr/local/go/bin/go env -w GOPROXY=https://goproxy.cn,direct
     grep -qxF 'export GOPROXY=https://goproxy.cn,direct' "$DEVBOX_HOME/.bashrc" 2>/dev/null || \
         echo 'export GOPROXY=https://goproxy.cn,direct' >> "$DEVBOX_HOME/.bashrc"
 fi
 mkdir -p "$DEVBOX_HOME/go/bin" "$DEVBOX_HOME/go/cache/go-build"
 chown -R "${DEVBOX_USER}:${DEVBOX_USER}" "$DEVBOX_HOME/go" || true
+if [ -d "$DEVBOX_HOME/.config" ]; then
+    chown -R "${DEVBOX_USER}:${DEVBOX_USER}" "$DEVBOX_HOME/.config" || true
+fi
 
 grep -qxF 'export GOPATH=$HOME/go' "$DEVBOX_HOME/.bashrc" 2>/dev/null || \
     echo 'export GOPATH=$HOME/go' >> "$DEVBOX_HOME/.bashrc"

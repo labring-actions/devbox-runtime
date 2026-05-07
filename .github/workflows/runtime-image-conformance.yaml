@@ -1,0 +1,156 @@
+name: Runtime Image Conformance
+
+on:
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: 'Runtime image tag without l10n suffix, for example v0.0.1-alpha.1'
+        required: true
+        default: 'latest'
+      kind:
+        description: 'Runtime kind to test'
+        required: false
+        type: choice
+        options:
+          - all
+          - operating-systems
+          - languages
+          - frameworks
+        default: 'all'
+      name:
+        description: 'Specific package path under kind, for example node.js/22; leave empty for all'
+        required: false
+        type: string
+        default: ''
+      l10n:
+        description: 'Localization matrix'
+        required: false
+        type: choice
+        options:
+          - both
+          - en_US
+          - zh_CN
+        default: 'both'
+      arch:
+        description: 'Architecture matrix'
+        required: false
+        type: choice
+        options:
+          - amd64
+          - arm64
+          - both
+        default: 'both'
+      max_parallel:
+        description: 'Maximum concurrent conformance jobs'
+        required: false
+        type: string
+        default: '16'
+
+permissions:
+  contents: read
+  packages: read
+
+jobs:
+  define-matrix:
+    runs-on: ubuntu-latest
+    outputs:
+      matrix: ${{ steps.plan.outputs.matrix }}
+      runtime_count: ${{ steps.plan.outputs.runtime_count }}
+      job_count: ${{ steps.plan.outputs.job_count }}
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Plan runtime conformance matrix
+        id: plan
+        shell: bash
+        env:
+          DISPATCH_TAG: ${{ inputs.tag }}
+          DISPATCH_KIND: ${{ inputs.kind }}
+          DISPATCH_NAME: ${{ inputs.name }}
+          DISPATCH_L10N: ${{ inputs.l10n }}
+          DISPATCH_ARCH: ${{ inputs.arch }}
+        run: |
+          set -euo pipefail
+          python3 .github/scripts/runtime-conformance.py plan \
+            --tag "$DISPATCH_TAG" \
+            --kind "$DISPATCH_KIND" \
+            --name "$DISPATCH_NAME" \
+            --l10n "$DISPATCH_L10N" \
+            --arch "$DISPATCH_ARCH"
+
+  conformance-test:
+    runs-on: ubuntu-latest
+    needs: define-matrix
+    timeout-minutes: 75
+    strategy:
+      fail-fast: false
+      max-parallel: ${{ fromJSON(inputs.max_parallel) }}
+      matrix:
+        include: ${{ fromJson(needs.define-matrix.outputs.matrix) }}
+    name: ${{ matrix.runtime_path }} / ${{ matrix.l10n }} / ${{ matrix.arch }}
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Set up QEMU
+        if: ${{ matrix.arch == 'arm64' }}
+        uses: docker/setup-qemu-action@v3
+
+      - name: Login to GitHub Container Registry
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.repository_owner }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Generate runtime image name
+        id: generate-runtime
+        uses: ./.github/actions/generate-image-names
+        with:
+          dockerfile: ${{ matrix.dockerfile }}
+          tag: ${{ format('{0}-{1}', inputs.tag, matrix.l10n_normalized) }}
+          ghcr_credentials: ${{ format('{{"registry":"{0}","username":"{1}","password":"{2}"}}', 'ghcr.io', github.repository_owner, secrets.GITHUB_TOKEN) || '{}' }}
+          image_repo_type: runtime-images
+
+      - name: Run runtime conformance
+        shell: bash
+        env:
+          IMAGE: ${{ steps.generate-runtime.outputs.ghcr_image_name }}
+          RUNTIME_PATH: ${{ matrix.runtime_path }}
+          RUNTIME_DOCKERFILE: ${{ matrix.dockerfile }}
+          L10N: ${{ matrix.l10n }}
+          ARCH: ${{ matrix.arch }}
+          CONFORMANCE_DEBUG: '1'
+        run: |
+          set -euo pipefail
+          echo "Runtime: $RUNTIME_PATH"
+          echo "Dockerfile: $RUNTIME_DOCKERFILE"
+          echo "Image: $IMAGE"
+          echo "L10N: $L10N"
+          echo "Arch: $ARCH"
+
+          docker pull --platform "linux/$ARCH" "$IMAGE"
+          docker run --rm \
+            --platform "linux/$ARCH" \
+            --entrypoint /bin/bash \
+            -e L10N="$L10N" \
+            -e RUNTIME_PATH="$RUNTIME_PATH" \
+            -e RUNTIME_DOCKERFILE="$RUNTIME_DOCKERFILE" \
+            -e RUNTIME_IMAGE="$IMAGE" \
+            -e CONFORMANCE_DEBUG="$CONFORMANCE_DEBUG" \
+            -v "$GITHUB_WORKSPACE:/repo:ro" \
+            "$IMAGE" \
+            -lc "bash /repo/tests/runtime-conformance/run.sh"
+
+          {
+            echo "### Runtime conformance passed"
+            echo "- runtime: \`$RUNTIME_PATH\`"
+            echo "- image: \`$IMAGE\`"
+            echo "- l10n: \`$L10N\`"
+            echo "- arch: \`$ARCH\`"
+          } >> "$GITHUB_STEP_SUMMARY"

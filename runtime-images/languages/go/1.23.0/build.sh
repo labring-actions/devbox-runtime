@@ -40,5 +40,9 @@ if [ -f "$TARGET_DIR/entrypoint.sh" ]; then
   chmod +x "$TARGET_DIR/entrypoint.sh"
 fi
 
+if command -v go >/dev/null 2>&1 && [ -f "$TARGET_DIR/main.go" ]; then
+  (cd "$TARGET_DIR" && go build -o hello_world main.go) || true
+fi
+
 # Set ownership to default devbox user
 chown -R "$DEFAULT_DEVBOX_USER:$DEFAULT_DEVBOX_USER" "$TARGET_DIR"

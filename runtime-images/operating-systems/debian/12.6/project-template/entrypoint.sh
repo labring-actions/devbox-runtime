@@ -1,6 +1,12 @@
 #!/bin/bash
 set -euo pipefail
 
+if [ "$(id -u)" -eq 0 ] && [ "${DEVBOX_ENTRYPOINT_AS_DEVBOX:-1}" = "1" ] && id devbox >/dev/null 2>&1; then
+    export DEVBOX_ENTRYPOINT_AS_DEVBOX=0
+    SCRIPT_PATH=$(readlink -f "$0")
+    exec runuser -u devbox -- bash "$SCRIPT_PATH" "$@"
+fi
+
 # Use busybox httpd to serve a simple "Hello, World!" page
 PORT=${PORT:-8080}
 PROJECT_DIR=${PROJECT_DIR:-/home/devbox/project}
