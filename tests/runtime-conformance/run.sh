@@ -326,6 +326,16 @@ require_zh_composer_mirror() {
   as_devbox "composer config -g repo.packagist | grep -q 'mirrors.aliyun.com/composer'"
 }
 
+require_zh_cargo_mirror() {
+  [ "$L10N" = "zh_CN" ] || return 0
+  log "check zh_CN Cargo mirror"
+  for config_file in /root/.cargo/config.toml /home/devbox/.cargo/config.toml; do
+    assert_file "$config_file"
+    grep -q 'replace-with = "rsproxy-sparse"' "$config_file" || fail "missing crates.io replacement in $config_file"
+    grep -q 'sparse+https://rsproxy.cn/index/' "$config_file" || fail "missing rsproxy sparse registry in $config_file"
+  done
+}
+
 check_os_runtime() {
   local expected="$1"
   grep -qi "$expected" /etc/os-release || fail "expected $expected in /etc/os-release"
@@ -424,6 +434,7 @@ check_rust_runtime() {
   cargo --version | grep -q '1.81.0' || fail "cargo is not 1.81.0"
   assert_file "$PROJECT_DIR/Cargo.toml"
   assert_file "$PROJECT_DIR/src/main.rs"
+  require_zh_cargo_mirror
 }
 
 check_nginx_runtime() {
