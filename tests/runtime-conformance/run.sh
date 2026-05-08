@@ -199,7 +199,7 @@ http_port_for_runtime() {
     frameworks/nest.js/v11)
       printf '3000'
       ;;
-    frameworks/openclaw/latest | frameworks/sandbox/v1)
+    frameworks/openclaw/latest | frameworks/sandbox/*)
       printf ''
       ;;
     *)
@@ -263,7 +263,11 @@ stop_entrypoint() {
 }
 
 check_root_entrypoint_order() {
-  [ "$RUNTIME_PATH" != "frameworks/sandbox/v1" ] || return 0
+  case "$RUNTIME_PATH" in
+    frameworks/sandbox/*)
+      return 0
+      ;;
+  esac
 
   log "run entrypoint once as root"
   local entrypoint="$PROJECT_DIR/entrypoint.sh"
@@ -544,6 +548,11 @@ check_sandbox_runtime() {
   assert_command rg
   assert_command bwrap
   assert_file /etc/s6-overlay/s6-rc.d/codex-gateway/run
+  if [ "$RUNTIME_PATH" = "frameworks/sandbox/fastgpt" ]; then
+    assert_command code-server
+    assert_file /etc/s6-overlay/s6-rc.d/code-server/run
+    assert_file /etc/s6-overlay/s6-rc.d/code-server/finish
+  fi
   require_zh_npm_mirror
   require_zh_pip_mirror
 }
@@ -621,7 +630,7 @@ check_runtime_specifics() {
     frameworks/openclaw/latest)
       check_openclaw_runtime
       ;;
-    frameworks/sandbox/v1)
+    frameworks/sandbox/v1 | frameworks/sandbox/fastgpt)
       check_sandbox_runtime
       ;;
     *)
@@ -634,11 +643,13 @@ main() {
   source_root_profiles
   print_runtime_context
 
-  if [ "$RUNTIME_PATH" = "frameworks/sandbox/v1" ]; then
-    check_runtime_specifics
-    log "conformance ok"
-    return 0
-  fi
+  case "$RUNTIME_PATH" in
+    frameworks/sandbox/*)
+      check_runtime_specifics
+      log "conformance ok"
+      return 0
+      ;;
+  esac
 
   check_image_arch_contract
   check_devbox_user
