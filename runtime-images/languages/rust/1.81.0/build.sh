@@ -40,5 +40,19 @@ if [ -f "$TARGET_DIR/entrypoint.sh" ]; then
   chmod +x "$TARGET_DIR/entrypoint.sh"
 fi
 
+if [ -f "$TARGET_DIR/Cargo.toml" ]; then
+  chown -R "$DEFAULT_DEVBOX_USER:$DEFAULT_DEVBOX_USER" "$TARGET_DIR"
+  quoted_target_dir="$(printf '%q' "$TARGET_DIR")"
+  runuser -u "$DEFAULT_DEVBOX_USER" -- \
+    env \
+      HOME="/home/$DEFAULT_DEVBOX_USER" \
+      USER="$DEFAULT_DEVBOX_USER" \
+      LOGNAME="$DEFAULT_DEVBOX_USER" \
+      CARGO_HOME="/home/$DEFAULT_DEVBOX_USER/.cargo" \
+      RUSTUP_HOME="/home/$DEFAULT_DEVBOX_USER/.rustup" \
+      PATH="/home/$DEFAULT_DEVBOX_USER/.cargo/bin:$PATH" \
+      bash -lc "cd $quoted_target_dir && cargo build --release --locked --bin hello_world"
+fi
+
 # Set ownership to default devbox user
 chown -R "$DEFAULT_DEVBOX_USER:$DEFAULT_DEVBOX_USER" "$TARGET_DIR"

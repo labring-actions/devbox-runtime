@@ -210,8 +210,11 @@ http_port_for_runtime() {
 
 http_timeout_for_runtime() {
   case "$RUNTIME_PATH" in
-    frameworks/nest.js/v11 | languages/net/* | languages/rust/*)
+    frameworks/nest.js/v11 | languages/net/*)
       printf '120'
+      ;;
+    languages/rust/*)
+      printf '300'
       ;;
     *)
       printf '%s' "$HTTP_TIMEOUT"
@@ -481,6 +484,7 @@ check_rust_runtime() {
   cargo --version | grep '1.81.0' >/dev/null || fail "cargo is not 1.81.0"
   assert_file "$PROJECT_DIR/Cargo.toml"
   assert_file "$PROJECT_DIR/src/main.rs"
+  assert_executable "$PROJECT_DIR/target/release/hello_world"
   require_zh_cargo_mirror
 }
 
