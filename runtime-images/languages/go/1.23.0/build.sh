@@ -40,8 +40,21 @@ if [ -f "$TARGET_DIR/entrypoint.sh" ]; then
   chmod +x "$TARGET_DIR/entrypoint.sh"
 fi
 
-if command -v go >/dev/null 2>&1 && [ -f "$TARGET_DIR/main.go" ]; then
-  (cd "$TARGET_DIR" && go build -o hello_world main.go) || true
+GO_BIN="${GO_BIN:-/usr/local/go/bin/go}"
+if [ ! -x "$GO_BIN" ] && command -v go >/dev/null 2>&1; then
+  GO_BIN="$(command -v go)"
+fi
+
+if [ -f "$TARGET_DIR/main.go" ] && [ ! -x "$GO_BIN" ]; then
+  echo "Go compiler not found at $GO_BIN" >&2
+  exit 1
+fi
+
+if [ -x "$GO_BIN" ] && [ -f "$TARGET_DIR/main.go" ]; then
+  export PATH="/usr/local/go/bin:$PATH"
+  export GOCACHE="${GOCACHE:-/tmp/go-build-cache}"
+  mkdir -p "$GOCACHE"
+  (cd "$TARGET_DIR" && "$GO_BIN" build -o hello_world main.go)
 fi
 
 # Set ownership to default devbox user

@@ -4,6 +4,19 @@ set -euo pipefail
 L10N=${L10N:-en_US}
 DEFAULT_DEVBOX_USER=${DEFAULT_DEVBOX_USER:-devbox}
 
+configure_pip_mirror() {
+    local pip_cmd="$1"
+    local user_home="$2"
+    local owner="${3:-}"
+
+    mkdir -p "$user_home"
+    HOME="$user_home" "$pip_cmd" config set global.index-url https://mirrors.tuna.tsinghua.edu.cn/pypi/web/simple
+
+    if [ -n "$owner" ]; then
+        chown -R "$owner:$owner" "$user_home/.config" 2>/dev/null || true
+    fi
+}
+
 # Install build dependencies
 # Note: wget and make are already installed in the Debian base image layer via install-base-pkg-deb.sh
 apt-get update && \
@@ -17,7 +30,7 @@ wget https://www.python.org/ftp/python/3.11.11/Python-3.11.11.tgz && \
     tar xzf Python-3.11.11.tgz && \
     cd Python-3.11.11 && \
     ./configure --enable-optimizations && \
-    make -j $(nproc) && \
+    make -j "$(nproc)" && \
     make altinstall && \
     cd .. && \
     rm -rf Python-3.11.11 Python-3.11.11.tgz && \
@@ -27,8 +40,12 @@ wget https://www.python.org/ftp/python/3.11.11/Python-3.11.11.tgz && \
     ln -s /usr/local/bin/pip3.11 /usr/bin/pip && \
     ln -s /usr/local/bin/pip3.11 /usr/bin/pip3
 
-# Configure pip for Chinese users (if L10N is zh_CN)
 if [ "$L10N" = "zh_CN" ]; then
-    pip3.11 config set global.index-url https://mirrors.tuna.tsinghua.edu.cn/pypi/web/simple || true
-fi
+    configure_pip_mirror pip3.11 /root
 
+    DEVBOX_HOME="$(getent passwd "$DEFAULT_DEVBOX_USER" | cut -d: -f6 || true)"
+    if [ -z "$DEVBOX_HOME" ]; then
+        DEVBOX_HOME="/home/${DEFAULT_DEVBOX_USER}"
+    fi
+    configure_pip_mirror pip3.11 "$DEVBOX_HOME" "$DEFAULT_DEVBOX_USER"
+fi

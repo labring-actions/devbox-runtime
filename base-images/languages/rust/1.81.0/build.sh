@@ -37,11 +37,6 @@ apt-get update && \
 
 # Set up Rust for root
 ROOT_HOME="${HOME:-/root}"
-# shellcheck disable=SC2016
-grep -qxF 'export PATH=/home/devbox/.cargo/bin:$PATH' "$ROOT_HOME/.bashrc" || \
-    echo 'export PATH=/home/devbox/.cargo/bin:$PATH' >> "$ROOT_HOME/.bashrc"
-grep -qxF '. /home/devbox/.cargo/env' "$ROOT_HOME/.bashrc" || \
-    echo '. /home/devbox/.cargo/env' >> "$ROOT_HOME/.bashrc"
 
 # Set up Rust for devbox user
 DEVBOX_USER="${DEFAULT_DEVBOX_USER}"
@@ -68,7 +63,24 @@ grep -qxF '. /home/devbox/.cargo/env' "$DEVBOX_HOME/.bashrc" 2>/dev/null || \
     echo '. /home/devbox/.cargo/env' >> "$DEVBOX_HOME/.bashrc" 2>/dev/null || true
 
 # Ensure cargo is in PATH for root as well
-export PATH="/home/devbox/.cargo/bin:${PATH}"
+cat > /etc/profile.d/rust-env.sh <<EOF
+export CARGO_HOME=$DEVBOX_HOME/.cargo
+export RUSTUP_HOME=$DEVBOX_HOME/.rustup
+export PATH=$DEVBOX_HOME/.cargo/bin:\$PATH
+EOF
+chmod 0644 /etc/profile.d/rust-env.sh
+
+grep -qxF "export CARGO_HOME=$DEVBOX_HOME/.cargo" "$ROOT_HOME/.bashrc" || \
+    echo "export CARGO_HOME=$DEVBOX_HOME/.cargo" >> "$ROOT_HOME/.bashrc"
+grep -qxF "export RUSTUP_HOME=$DEVBOX_HOME/.rustup" "$ROOT_HOME/.bashrc" || \
+    echo "export RUSTUP_HOME=$DEVBOX_HOME/.rustup" >> "$ROOT_HOME/.bashrc"
+# shellcheck disable=SC2016
+grep -qxF "export PATH=$DEVBOX_HOME/.cargo/bin:\$PATH" "$ROOT_HOME/.bashrc" || \
+    echo "export PATH=$DEVBOX_HOME/.cargo/bin:\$PATH" >> "$ROOT_HOME/.bashrc"
+
+export CARGO_HOME="$DEVBOX_HOME/.cargo"
+export RUSTUP_HOME="$DEVBOX_HOME/.rustup"
+export PATH="$DEVBOX_HOME/.cargo/bin:${PATH}"
 
 if [ "$L10N" = "zh_CN" ]; then
     configure_cargo_mirror /root/.cargo

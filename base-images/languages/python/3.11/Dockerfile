@@ -1,6 +1,7 @@
 # These ARGs can be overridden at build time to customize the image
 ARG REPO=labring-actions/devbox-base-images
 ARG REGISTRY=ghcr.io
+ARG L10N=en_US
 ARG L10N_NORMALIZED=en-us
 
 # These ARGs are not recommended to be overridden at build time.
@@ -9,10 +10,11 @@ ARG L10N_NORMALIZED=en-us
 ARG OS_IMAGE_VERSION=v0.0.1-alpha.1-${L10N_NORMALIZED}
 
 FROM ${REGISTRY}/${REPO}/debian-12.6:${OS_IMAGE_VERSION}
+ARG L10N
 LABEL org.opencontainers.image.authors="The Devbox Authors"
+ENV L10N=${L10N}
 # Add build script and execute it
 COPY build.sh /build.sh
 RUN chmod +x /build.sh && \
     /build.sh && \
     rm -f /build.sh
-

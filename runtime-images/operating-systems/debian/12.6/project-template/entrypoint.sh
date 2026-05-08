@@ -20,10 +20,7 @@ HTML
 echo "Starting HTTP server on port $PORT (serving $ROOT_DIR)"
 
 if command -v busybox >/dev/null 2>&1; then
-    # Common busybox httpd usage: -p <port> -h <directory>
-    busybox httpd -p "$PORT" -h "$ROOT_DIR"
-    rc=$?
-    exit $rc
+    exec busybox httpd -f -p "$PORT" -h "$ROOT_DIR"
 fi
 
 echo "No supported HTTP server found (busybox httpd)." >&2

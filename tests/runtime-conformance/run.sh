@@ -278,24 +278,24 @@ require_zh_npm_mirror() {
   [ "$L10N" = "zh_CN" ] || return 0
   log "check zh_CN npm mirror"
   assert_command npm
-  npm config get registry | grep -q 'registry.npmmirror.com' || fail "root npm registry is not npmmirror"
-  as_devbox "npm config get registry | grep -q 'registry.npmmirror.com'"
+  npm config get registry | grep 'registry.npmmirror.com' >/dev/null || fail "root npm registry is not npmmirror"
+  as_devbox "npm config get registry | grep 'registry.npmmirror.com' >/dev/null" || fail "devbox npm registry is not npmmirror"
 }
 
 require_zh_go_mirror() {
   [ "$L10N" = "zh_CN" ] || return 0
   log "check zh_CN Go proxy"
   assert_command go
-  go env GOPROXY | grep -q '^https://goproxy.cn,direct$' || fail "root GOPROXY is not goproxy.cn,direct"
-  as_devbox "go env GOPROXY | grep -q '^https://goproxy.cn,direct$'"
+  go env GOPROXY | grep '^https://goproxy.cn,direct$' >/dev/null || fail "root GOPROXY is not goproxy.cn,direct"
+  as_devbox "go env GOPROXY | grep '^https://goproxy.cn,direct$' >/dev/null" || fail "devbox GOPROXY is not goproxy.cn,direct"
 }
 
 require_zh_pip_mirror() {
   [ "$L10N" = "zh_CN" ] || return 0
   log "check zh_CN pip mirror"
   assert_command pip3
-  pip3 config list 2>/dev/null | grep -q 'mirrors.tuna.tsinghua.edu.cn/pypi/web/simple' || fail "root pip mirror is not Tsinghua"
-  as_devbox "pip3 config list 2>/dev/null | grep -q 'mirrors.tuna.tsinghua.edu.cn/pypi/web/simple'"
+  pip3 config list 2>/dev/null | grep 'mirrors.tuna.tsinghua.edu.cn/pypi/web/simple' >/dev/null || fail "root pip mirror is not Tsinghua"
+  as_devbox "pip3 config list 2>/dev/null | grep 'mirrors.tuna.tsinghua.edu.cn/pypi/web/simple' >/dev/null" || fail "devbox pip mirror is not Tsinghua"
 }
 
 require_zh_maven_mirror() {
@@ -310,8 +310,10 @@ require_zh_nuget_mirror() {
   log "check zh_CN NuGet mirrors"
   for config_file in /root/.nuget/NuGet/NuGet.Config /home/devbox/.nuget/NuGet/NuGet.Config; do
     assert_file "$config_file"
-    grep -q 'nuget.cdn.azure.cn/v3/index.json' "$config_file" || fail "missing Azure China NuGet source in $config_file"
     grep -q 'mirrors.cloud.tencent.com/nuget' "$config_file" || fail "missing Tencent NuGet source in $config_file"
+    if grep -q 'nuget.cdn.azure.cn' "$config_file"; then
+      fail "unreachable Azure China NuGet source should not be configured in $config_file"
+    fi
     if grep -q 'nuget.org' "$config_file"; then
       fail "nuget.org should be removed from $config_file for zh_CN"
     fi
@@ -322,8 +324,8 @@ require_zh_composer_mirror() {
   [ "$L10N" = "zh_CN" ] || return 0
   log "check zh_CN Composer mirror"
   assert_command composer
-  HOME=/root composer config -g repo.packagist | grep -q 'mirrors.aliyun.com/composer' || fail "root Composer mirror is not Aliyun"
-  as_devbox "composer config -g repo.packagist | grep -q 'mirrors.aliyun.com/composer'"
+  HOME=/root composer config -g --list | grep 'mirrors.aliyun.com/composer' >/dev/null || fail "root Composer mirror is not Aliyun"
+  as_devbox "composer config -g --list | grep 'mirrors.aliyun.com/composer' >/dev/null" || fail "devbox Composer mirror is not Aliyun"
 }
 
 require_zh_cargo_mirror() {
@@ -345,7 +347,7 @@ check_os_runtime() {
 check_cuda_runtime() {
   log "check CUDA runtime"
   if command -v nvcc >/dev/null 2>&1; then
-    nvcc --version | grep -q 'release 12.4' || fail "nvcc is not CUDA 12.4"
+    nvcc --version | grep 'release 12.4' >/dev/null || fail "nvcc is not CUDA 12.4"
     return
   fi
   if [ -d /usr/local/cuda ]; then
@@ -367,7 +369,7 @@ check_node_runtime() {
 check_go_runtime() {
   local version="$1"
   assert_command go
-  go version | grep -q "go$version" || fail "Go version is not $version"
+  go version | grep "go$version" >/dev/null || fail "Go version is not $version"
   assert_file "$PROJECT_DIR/main.go"
   assert_executable "$PROJECT_DIR/hello_world"
   require_zh_go_mirror
@@ -377,7 +379,7 @@ check_go_runtime() {
 check_dotnet_runtime() {
   local major="$1"
   assert_command dotnet
-  dotnet --version | grep -q "^$major\\." || fail ".NET version does not start with $major"
+  dotnet --version | grep "^$major\\." >/dev/null || fail ".NET version does not start with $major"
   assert_file "$PROJECT_DIR/hello_world.csproj"
   assert_file "$PROJECT_DIR/Program.cs"
   require_zh_nuget_mirror
@@ -390,8 +392,8 @@ check_php_runtime() {
   assert_command composer
   php -r "exit((PHP_MAJOR_VERSION==$major && PHP_MINOR_VERSION==$minor) ? 0 : 1);"
   assert_file "$PROJECT_DIR/hello_world.php"
-  php -m | grep -qi '^redis$' || fail "PHP redis extension not loaded"
-  php -m | grep -qi '^mongodb$' || fail "PHP mongodb extension not loaded"
+  php -m | grep -i '^redis$' >/dev/null || fail "PHP redis extension not loaded"
+  php -m | grep -i '^mongodb$' >/dev/null || fail "PHP mongodb extension not loaded"
   require_zh_composer_mirror
 }
 
@@ -408,30 +410,30 @@ check_python_runtime() {
 check_java_runtime() {
   assert_command java
   assert_command javac
-  javac --version | grep -q 'javac 17' || fail "javac is not 17"
-  java -version 2>&1 | grep -q '17' || fail "java is not 17"
-  java -XshowSettings:properties -version 2>&1 | grep -q 'file.encoding = UTF-8' || fail "Java file.encoding is not UTF-8"
+  javac --version | grep 'javac 17' >/dev/null || fail "javac is not 17"
+  java -version 2>&1 | grep '17' >/dev/null || fail "java is not 17"
+  java -XshowSettings:properties -version 2>&1 | grep 'file.encoding = UTF-8' >/dev/null || fail "Java file.encoding is not UTF-8"
   assert_file "$PROJECT_DIR/HelloWorld.java"
   require_zh_maven_mirror
 }
 
 check_c_runtime() {
   assert_command gcc
-  gcc --version | grep -q '12.2.0' || fail "gcc is not 12.2.0"
+  gcc --version | grep '12.2.0' >/dev/null || fail "gcc is not 12.2.0"
   assert_file "$PROJECT_DIR/hello_world.c"
 }
 
 check_cpp_runtime() {
   assert_command g++
-  g++ --version | grep -q '12.2.0' || fail "g++ is not 12.2.0"
+  g++ --version | grep '12.2.0' >/dev/null || fail "g++ is not 12.2.0"
   assert_file "$PROJECT_DIR/hello_world.cpp"
 }
 
 check_rust_runtime() {
   assert_command rustc
   assert_command cargo
-  rustc --version | grep -q '1.81.0' || fail "rustc is not 1.81.0"
-  cargo --version | grep -q '1.81.0' || fail "cargo is not 1.81.0"
+  rustc --version | grep '1.81.0' >/dev/null || fail "rustc is not 1.81.0"
+  cargo --version | grep '1.81.0' >/dev/null || fail "cargo is not 1.81.0"
   assert_file "$PROJECT_DIR/Cargo.toml"
   assert_file "$PROJECT_DIR/src/main.rs"
   require_zh_cargo_mirror
@@ -439,8 +441,16 @@ check_rust_runtime() {
 
 check_nginx_runtime() {
   assert_command nginx
-  /usr/sbin/nginx -v 2>&1 | grep -q '1.22.1' || fail "nginx is not 1.22.1"
+  /usr/sbin/nginx -v 2>&1 | grep '1.22.1' >/dev/null || fail "nginx is not 1.22.1"
+  mkdir -p \
+    /tmp/nginx-devbox/client-body \
+    /tmp/nginx-devbox/proxy \
+    /tmp/nginx-devbox/fastcgi \
+    /tmp/nginx-devbox/uwsgi \
+    /tmp/nginx-devbox/scgi
+  rm -f /tmp/nginx-devbox.pid /tmp/nginx-devbox-error.log /tmp/nginx-devbox-access.log
   /usr/sbin/nginx -t -c /etc/nginx/nginx.conf >/dev/null 2>&1 || fail "nginx config test failed"
+  rm -f /tmp/nginx-devbox.pid /tmp/nginx-devbox-error.log /tmp/nginx-devbox-access.log
   grep -q '/tmp/nginx-devbox' /etc/nginx/nginx.conf || fail "nginx runtime paths should use /tmp/nginx-devbox"
   if grep -q 'include /etc/nginx/conf.d' /etc/nginx/nginx.conf || grep -q 'include /etc/nginx/sites-enabled' /etc/nginx/nginx.conf; then
     fail "nginx config should not include distro default sites"

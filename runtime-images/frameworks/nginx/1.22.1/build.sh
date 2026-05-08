@@ -40,6 +40,13 @@ if [ -f "$TARGET_DIR/entrypoint.sh" ]; then
   chmod +x "$TARGET_DIR/entrypoint.sh"
 fi
 
+mkdir -p \
+  /tmp/nginx-devbox/client-body \
+  /tmp/nginx-devbox/proxy \
+  /tmp/nginx-devbox/fastcgi \
+  /tmp/nginx-devbox/uwsgi \
+  /tmp/nginx-devbox/scgi
+chmod -R 1777 /tmp/nginx-devbox
+
 # Set ownership to default devbox user
 chown -R "$DEFAULT_DEVBOX_USER:$DEFAULT_DEVBOX_USER" "$TARGET_DIR"
-

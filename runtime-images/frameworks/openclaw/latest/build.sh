@@ -49,7 +49,6 @@ fi
 # If we wrote a localized README.md, remove the localized variants to keep the
 # project dir clean (optional; safe if they don't exist).
 rm -f "$TARGET_DIR/README.en_US.md" "$TARGET_DIR/README.zh_CN.md" || true
-rm -r "$TARGET_DIR/openclaw.json" || true
 
 # Ensure entrypoint is executable if present.
 if [ -f "$TARGET_DIR/entrypoint.sh" ]; then

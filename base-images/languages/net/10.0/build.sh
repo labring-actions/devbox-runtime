@@ -16,7 +16,6 @@ configure_nuget_source() {
 <configuration>
   <packageSources>
     <clear />
-    <add key="nuget-azure-cn" value="https://nuget.cdn.azure.cn/v3/index.json" />
     <add key="tencent-nuget" value="https://mirrors.cloud.tencent.com/nuget/" />
   </packageSources>
 </configuration>
