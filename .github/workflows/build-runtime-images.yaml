@@ -272,6 +272,7 @@ jobs:
           build_args: |
             REPO=${{ github.repository_owner }}/devbox-base-images
             TOOLING_REPO=${{ github.repository_owner }}/devbox-tooling
+            ARCH=${{ matrix.arch }}
             L10N=${{ matrix.l10n.display }}
             L10N_NORMALIZED=${{ matrix.l10n.normalized }}
             BASE_TOOLS_VERSION=${{ needs.resolve-inputs.outputs.tools_version }}
@@ -370,6 +371,7 @@ jobs:
           build_args: |
             REPO=${{ github.repository_owner }}/devbox-base-images
             TOOLING_REPO=${{ github.repository_owner }}/devbox-tooling
+            ARCH=${{ matrix.arch }}
             L10N=${{ matrix.l10n.display }}
             L10N_NORMALIZED=${{ matrix.l10n.normalized }}
             BASE_TOOLS_VERSION=${{ needs.resolve-inputs.outputs.tools_version }}
@@ -468,6 +470,7 @@ jobs:
           build_args: |
             REPO=${{ github.repository_owner }}/devbox-base-images
             TOOLING_REPO=${{ github.repository_owner }}/devbox-tooling
+            ARCH=${{ matrix.arch }}
             L10N=${{ matrix.l10n.display }}
             L10N_NORMALIZED=${{ matrix.l10n.normalized }}
             BASE_TOOLS_VERSION=${{ needs.resolve-inputs.outputs.tools_version }}
@@ -566,6 +569,7 @@ jobs:
           build_args: |
             REPO=${{ github.repository_owner }}/devbox-base-images
             TOOLING_REPO=${{ github.repository_owner }}/devbox-tooling
+            ARCH=${{ matrix.arch }}
             L10N=${{ matrix.l10n.display }}
             L10N_NORMALIZED=${{ matrix.l10n.normalized }}
             BASE_TOOLS_VERSION=${{ needs.resolve-inputs.outputs.tools_version }}

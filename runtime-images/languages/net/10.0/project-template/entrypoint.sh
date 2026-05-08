@@ -1,6 +1,17 @@
 #!/bin/bash
+set -euo pipefail
+
+if [ "$(id -u)" -eq 0 ] && [ "${DEVBOX_ENTRYPOINT_AS_DEVBOX:-1}" = "1" ] && id devbox >/dev/null 2>&1; then
+    export DEVBOX_ENTRYPOINT_AS_DEVBOX=0
+    SCRIPT_PATH=$(readlink -f "$0")
+    exec runuser -u devbox -- bash "$SCRIPT_PATH" "$@"
+fi
 
 app_env=${1:-development}
+export HOME=${HOME:-/home/devbox}
+export DOTNET_CLI_HOME=${DOTNET_CLI_HOME:-$HOME}
+export NUGET_PACKAGES=${NUGET_PACKAGES:-$HOME/.nuget/packages}
+mkdir -p "$DOTNET_CLI_HOME" "$NUGET_PACKAGES"
 
 # Development environment commands
 dev_commands() {
