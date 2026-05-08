@@ -54,3 +54,4 @@ Runtime-specific checks:
 | `frameworks/nginx/1.22.1` | Nginx 1.22.1, config test, `/tmp/nginx-devbox` runtime paths, no distro default include pollution, root/devbox entrypoint order |
 | `frameworks/openclaw/latest` | Node 22, OpenClaw, Clawhub, Bun, npm mirror for `zh_CN`, safe `.env.example`, root/devbox entrypoint order |
 | `frameworks/sandbox/v1` | workspace ownership, codex-gateway, Codex CLI, Node/npm, Python/pip, kubectl, helm, bun, ripgrep, bubblewrap, npm/pip mirrors for `zh_CN` |
+| `frameworks/sandbox/fastgpt` | `v1` checks plus code-server binary and s6 service registration |

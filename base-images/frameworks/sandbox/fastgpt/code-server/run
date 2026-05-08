@@ -1,0 +1,45 @@
+#!/command/with-contenv bash
+set -euo pipefail
+
+DEFAULT_DEVBOX_USER=${DEFAULT_DEVBOX_USER:-devbox}
+CODE_SERVER_ENABLED_VALUE=${ENABLE_CODE_SERVER:-${CODE_SERVER_ENABLED:-false}}
+CODE_SERVER_BIND_ADDR=${CODE_SERVER_BIND_ADDR:-0.0.0.0:8080}
+
+case "$(printf '%s' "$CODE_SERVER_ENABLED_VALUE" | tr '[:upper:]' '[:lower:]')" in
+    1 | true | yes | on | enabled)
+        ;;
+    *)
+        echo "code-server is disabled; set CODE_SERVER_ENABLED=true to start it."
+        exit 101
+        ;;
+esac
+
+DEVBOX_HOME="$(getent passwd "$DEFAULT_DEVBOX_USER" | cut -d: -f6 || true)"
+if [ -z "$DEVBOX_HOME" ]; then
+    DEVBOX_HOME="/home/${DEFAULT_DEVBOX_USER}"
+fi
+
+WORKSPACE_DIR=${CODE_SERVER_WORKSPACE:-${CODEX_GATEWAY_CWD:-${DEVBOX_HOME}/workspace}}
+
+export HOME="$DEVBOX_HOME"
+export USER="$DEFAULT_DEVBOX_USER"
+export LOGNAME="$DEFAULT_DEVBOX_USER"
+
+mkdir -p "$WORKSPACE_DIR"
+chown "$DEFAULT_DEVBOX_USER:$DEFAULT_DEVBOX_USER" "$WORKSPACE_DIR" || true
+
+if ! command -v code-server >/dev/null 2>&1; then
+    echo "code-server binary not found in PATH" >&2
+    exit 111
+fi
+
+cd "$WORKSPACE_DIR"
+exec 2>&1
+exec s6-setuidgid "$DEFAULT_DEVBOX_USER" code-server \
+       --disable-telemetry \
+       --disable-update-check \
+       --disable-workspace-trust \
+       --disable-getting-started-override \
+       --app-name "Skills" \
+       --bind-addr "$CODE_SERVER_BIND_ADDR" \
+       "$WORKSPACE_DIR"
