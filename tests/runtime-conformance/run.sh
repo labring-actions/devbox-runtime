@@ -5,6 +5,7 @@ RUNTIME_PATH=${RUNTIME_PATH:?RUNTIME_PATH is required}
 RUNTIME_DOCKERFILE=${RUNTIME_DOCKERFILE:-}
 RUNTIME_IMAGE=${RUNTIME_IMAGE:-}
 L10N=${L10N:-en_US}
+CONFORMANCE_ARCH=${CONFORMANCE_ARCH:-}
 REPO_ROOT=${REPO_ROOT:-/repo}
 PROJECT_DIR=${PROJECT_DIR:-/home/devbox/project}
 WORKSPACE_DIR=${WORKSPACE_DIR:-/home/devbox/workspace}
@@ -52,11 +53,49 @@ print_runtime_context() {
   printf 'runtime_dockerfile=%s\n' "$RUNTIME_DOCKERFILE"
   printf 'runtime_image=%s\n' "$RUNTIME_IMAGE"
   printf 'l10n=%s\n' "$L10N"
+  printf 'conformance_arch=%s\n' "$CONFORMANCE_ARCH"
   printf 'user=%s uid=%s gid=%s\n' "$(id -un)" "$(id -u)" "$(id -g)"
   printf 'home=%s\n' "${HOME:-}"
   printf 'path=%s\n' "$PATH"
   if [ -f /etc/os-release ]; then
     sed -n '1,8p' /etc/os-release
+  fi
+}
+
+normalize_arch() {
+  case "$1" in
+    amd64 | x86_64)
+      printf 'amd64'
+      ;;
+    arm64 | aarch64)
+      printf 'arm64'
+      ;;
+    *)
+      printf '%s' "$1"
+      ;;
+  esac
+}
+
+check_image_arch_contract() {
+  [ -n "$CONFORMANCE_ARCH" ] || return 0
+
+  log "check image architecture"
+  local expected_arch
+  expected_arch="$(normalize_arch "$CONFORMANCE_ARCH")"
+
+  local system_arch
+  if command -v dpkg >/dev/null 2>&1; then
+    system_arch="$(dpkg --print-architecture 2>/dev/null || true)"
+  else
+    system_arch="$(uname -m 2>/dev/null || true)"
+  fi
+  system_arch="$(normalize_arch "$system_arch")"
+  [ "$system_arch" = "$expected_arch" ] || fail "system architecture is $system_arch, expected $expected_arch"
+
+  if [ -n "${ARCH:-}" ]; then
+    local image_arch
+    image_arch="$(normalize_arch "$ARCH")"
+    [ "$image_arch" = "$expected_arch" ] || fail "ARCH env is $ARCH, expected $expected_arch"
   fi
 }
 
@@ -370,6 +409,12 @@ check_go_runtime() {
   local version="$1"
   assert_command go
   go version | grep "go$version" >/dev/null || fail "Go version is not $version"
+  if [ -n "$CONFORMANCE_ARCH" ]; then
+    local expected_arch go_arch
+    expected_arch="$(normalize_arch "$CONFORMANCE_ARCH")"
+    go_arch="$(normalize_arch "$(go env GOARCH)")"
+    [ "$go_arch" = "$expected_arch" ] || fail "Go GOARCH is $go_arch, expected $expected_arch"
+  fi
   assert_file "$PROJECT_DIR/main.go"
   assert_executable "$PROJECT_DIR/hello_world"
   require_zh_go_mirror
@@ -591,6 +636,7 @@ main() {
     return 0
   fi
 
+  check_image_arch_contract
   check_devbox_user
   check_common_project_runtime
   check_runtime_specifics

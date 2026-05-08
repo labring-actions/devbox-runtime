@@ -24,6 +24,7 @@ All non-sandbox runtimes share these checks:
 - `README.s6-user-guide.md` matches the localized tooling doc when present.
 - localized README source files are not left in the final project directory.
 - `entrypoint.sh` exists.
+- image architecture (`dpkg`/`uname` and `ARCH` env when present) matches the matrix architecture.
 - the entrypoint is started once as root, then the legacy smoke script is run as `devbox` to catch root-created output and permission pollution.
 
 Runtime-specific checks:
@@ -35,8 +36,8 @@ Runtime-specific checks:
 | `operating-systems/ubuntu-cuda/12.4.1` | Ubuntu identity, CUDA compiler/runtime presence, busybox, localized README, root/devbox entrypoint order |
 | `languages/c/gcc-12.2.0` | GCC version, C template, compile/server smoke, root/devbox entrypoint order |
 | `languages/cpp/gcc-12.2.0` | G++ version, C++ template, compile/server smoke, root/devbox entrypoint order |
-| `languages/go/1.22.5` | exact Go version, prebuilt binary, `GOPROXY` for `zh_CN`, writable Go cache, root/devbox entrypoint order |
-| `languages/go/1.23.0` | exact Go version, prebuilt binary, `GOPROXY` for `zh_CN`, writable Go cache, root/devbox entrypoint order |
+| `languages/go/1.22.5` | exact Go version, matching `GOARCH`, prebuilt binary, `GOPROXY` for `zh_CN`, writable Go cache, root/devbox entrypoint order |
+| `languages/go/1.23.0` | exact Go version, matching `GOARCH`, prebuilt binary, `GOPROXY` for `zh_CN`, writable Go cache, root/devbox entrypoint order |
 | `languages/java/openjdk17` | Java/Javac 17, UTF-8, Maven mirror for `zh_CN`, root/devbox entrypoint order |
 | `languages/net/8.0` | .NET 8 prefix, Tencent NuGet mirror for `zh_CN`, no `nuget.org` or unreachable Azure China source for `zh_CN`, root/devbox entrypoint order |
 | `languages/net/10.0` | .NET 10 prefix, Tencent NuGet mirror for `zh_CN`, no `nuget.org` or unreachable Azure China source for `zh_CN`, root/devbox entrypoint order |

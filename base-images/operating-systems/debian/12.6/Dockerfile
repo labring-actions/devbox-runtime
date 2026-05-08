@@ -2,7 +2,8 @@
 ARG REGISTRY=ghcr.io
 ARG TOOLING_REPO=labring-actions/devbox-tooling
 ARG L10N=en_US
-ARG ARCH=amd64
+ARG TARGETARCH
+ARG ARCH=${TARGETARCH:-amd64}
 ARG DEFAULT_DEVBOX_USER=devbox
 # These ARGs are not recommended to be overridden at build time.
 # Instead, update the Dockerfile directly for consistent builds,
@@ -13,7 +14,8 @@ ARG BASE_IMAGE_VERSION=12.6-slim
 FROM ${REGISTRY}/${TOOLING_REPO}/tooling:${BASE_TOOLS_VERSION} AS tooling
 FROM debian:${BASE_IMAGE_VERSION}
 ARG L10N
-ARG ARCH=amd64
+ARG TARGETARCH
+ARG ARCH=${TARGETARCH:-amd64}
 ARG DEFAULT_DEVBOX_USER
 LABEL org.opencontainers.image.authors="The Devbox Authors"
 # Define some environment variables

@@ -142,6 +142,7 @@ jobs:
             -e RUNTIME_PATH="$RUNTIME_PATH" \
             -e RUNTIME_DOCKERFILE="$RUNTIME_DOCKERFILE" \
             -e RUNTIME_IMAGE="$IMAGE" \
+            -e CONFORMANCE_ARCH="$ARCH" \
             -e CONFORMANCE_DEBUG="$CONFORMANCE_DEBUG" \
             -v "$GITHUB_WORKSPACE:/repo:ro" \
             "$IMAGE" \

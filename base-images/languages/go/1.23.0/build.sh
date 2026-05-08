@@ -5,7 +5,13 @@ L10N=${L10N:-en_US}
 DEFAULT_DEVBOX_USER=${DEFAULT_DEVBOX_USER:-devbox}
 
 # Install Go 1.23.0
-RAW_ARCH="${TARGETARCH:-${ARCH:-$(dpkg --print-architecture)}}"
+RAW_ARCH="${TARGETARCH:-}"
+if [ -z "$RAW_ARCH" ]; then
+    RAW_ARCH="$(dpkg --print-architecture 2>/dev/null || true)"
+fi
+if [ -z "$RAW_ARCH" ]; then
+    RAW_ARCH="${ARCH:-}"
+fi
 case "${RAW_ARCH}" in
     amd64|x86_64) GO_ARCH=amd64 ;;
     arm64|aarch64) GO_ARCH=arm64 ;;
@@ -14,6 +20,7 @@ case "${RAW_ARCH}" in
         exit 1
         ;;
 esac
+echo "Installing Go 1.23.0 for ${GO_ARCH} (raw arch: ${RAW_ARCH})"
 GO_TARBALL="go1.23.0.linux-${GO_ARCH}.tar.gz"
 curl -fsSLO "https://dl.google.com/go/${GO_TARBALL}" && \
 rm -rf /usr/local/go && tar -C /usr/local -xzf "${GO_TARBALL}" && \

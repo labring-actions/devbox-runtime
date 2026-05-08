@@ -11,10 +11,11 @@ ARG OS_IMAGE_VERSION=v0.0.1-alpha.1-${L10N_NORMALIZED}
 
 FROM ${REGISTRY}/${REPO}/debian-12.6:${OS_IMAGE_VERSION}
 ARG L10N
+ARG TARGETARCH
 LABEL org.opencontainers.image.authors="The Devbox Authors"
 ENV L10N=${L10N}
 # Add build script and execute it
 COPY build.sh /build.sh
 RUN chmod +x /build.sh && \
-    /build.sh && \
+    TARGETARCH="${TARGETARCH}" /build.sh && \
     rm -f /build.sh
