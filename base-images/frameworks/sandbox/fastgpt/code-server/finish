@@ -7,6 +7,11 @@ if [ "$EXIT_CODE" = "101" ]; then
     exit 125
 fi
 
+if [ "$EXIT_CODE" = "102" ]; then
+    echo "code-server stopped because DEVBOX_JWT_SECRET is missing. Preventing s6 restart."
+    exit 125
+fi
+
 if [ "$EXIT_CODE" = "111" ]; then
     echo "code-server stopped because required files were not installed correctly. Preventing s6 restart."
     exit 125

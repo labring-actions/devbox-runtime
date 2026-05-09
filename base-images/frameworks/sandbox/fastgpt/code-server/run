@@ -3,7 +3,8 @@ set -euo pipefail
 
 DEFAULT_DEVBOX_USER=${DEFAULT_DEVBOX_USER:-devbox}
 CODE_SERVER_ENABLED_VALUE=${ENABLE_CODE_SERVER:-${CODE_SERVER_ENABLED:-false}}
-CODE_SERVER_BIND_ADDR=${CODE_SERVER_BIND_ADDR:-0.0.0.0:8080}
+CODE_SERVER_BIND_ADDR=${CODE_SERVER_BIND_ADDR:-0.0.0.0:1318}
+CODE_SERVER_PASSWORD=${DEVBOX_JWT_SECRET:-}
 
 case "$(printf '%s' "$CODE_SERVER_ENABLED_VALUE" | tr '[:upper:]' '[:lower:]')" in
     1 | true | yes | on | enabled)
@@ -13,6 +14,11 @@ case "$(printf '%s' "$CODE_SERVER_ENABLED_VALUE" | tr '[:upper:]' '[:lower:]')" 
         exit 101
         ;;
 esac
+
+if [ -z "$CODE_SERVER_PASSWORD" ]; then
+    echo "code-server requires DEVBOX_JWT_SECRET to be set as its password." >&2
+    exit 102
+fi
 
 DEVBOX_HOME="$(getent passwd "$DEFAULT_DEVBOX_USER" | cut -d: -f6 || true)"
 if [ -z "$DEVBOX_HOME" ]; then
@@ -24,6 +30,7 @@ WORKSPACE_DIR=${CODE_SERVER_WORKSPACE:-${CODEX_GATEWAY_CWD:-${DEVBOX_HOME}/works
 export HOME="$DEVBOX_HOME"
 export USER="$DEFAULT_DEVBOX_USER"
 export LOGNAME="$DEFAULT_DEVBOX_USER"
+export PASSWORD="$CODE_SERVER_PASSWORD"
 
 mkdir -p "$WORKSPACE_DIR"
 chown "$DEFAULT_DEVBOX_USER:$DEFAULT_DEVBOX_USER" "$WORKSPACE_DIR" || true
@@ -41,5 +48,6 @@ exec s6-setuidgid "$DEFAULT_DEVBOX_USER" code-server \
        --disable-workspace-trust \
        --disable-getting-started-override \
        --app-name "Skills" \
+       --auth password \
        --bind-addr "$CODE_SERVER_BIND_ADDR" \
        "$WORKSPACE_DIR"
