@@ -374,6 +374,13 @@ require_zh_composer_mirror() {
   as_devbox "composer config -g --list | grep 'mirrors.aliyun.com/composer' >/dev/null" || fail "devbox Composer mirror is not Aliyun"
 }
 
+require_zh_php_apt_mirror() {
+  [ "$L10N" = "zh_CN" ] || return 0
+  log "check zh_CN PHP APT mirror"
+  assert_file /etc/apt/sources.list.d/php.list
+  grep -q 'mirrors.ustc.edu.cn/sury/php' /etc/apt/sources.list.d/php.list || fail "PHP APT source is not USTC"
+}
+
 require_zh_cargo_mirror() {
   [ "$L10N" = "zh_CN" ] || return 0
   log "check zh_CN Cargo mirror"
@@ -446,6 +453,7 @@ check_php_runtime() {
   assert_file "$PROJECT_DIR/hello_world.php"
   php -m | grep -i '^redis$' >/dev/null || fail "PHP redis extension not loaded"
   php -m | grep -i '^mongodb$' >/dev/null || fail "PHP mongodb extension not loaded"
+  require_zh_php_apt_mirror
   require_zh_composer_mirror
 }
 
