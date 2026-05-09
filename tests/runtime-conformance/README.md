@@ -44,8 +44,8 @@ Runtime-specific checks:
 | `languages/node.js/18` | Node 18, npm/yarn/pnpm, npm mirror for `zh_CN`, root/devbox entrypoint order |
 | `languages/node.js/20` | Node 20, npm/yarn/pnpm, npm mirror for `zh_CN`, root/devbox entrypoint order |
 | `languages/node.js/22` | Node 22, npm/yarn/pnpm, npm mirror for `zh_CN`, root/devbox entrypoint order |
-| `languages/php/7.4` | PHP 7.4, Composer, PHP Redis/MongoDB extensions, Composer mirror for `zh_CN`, root/devbox entrypoint order |
-| `languages/php/8.2` | PHP 8.2, Composer, PHP Redis/MongoDB extensions, Composer mirror for `zh_CN`, root/devbox entrypoint order |
+| `languages/php/7.4` | PHP 7.4, Composer, PHP Redis/MongoDB extensions, PHP APT and Composer mirrors for `zh_CN`, root/devbox entrypoint order |
+| `languages/php/8.2` | PHP 8.2, Composer, PHP Redis/MongoDB extensions, PHP APT and Composer mirrors for `zh_CN`, root/devbox entrypoint order |
 | `languages/python/3.10` | Python 3.10, pip, pip mirror for `zh_CN`, root/devbox entrypoint order |
 | `languages/python/3.11` | Python 3.11, pip, pip mirror for `zh_CN`, root/devbox entrypoint order |
 | `languages/python/3.12` | Python 3.12, pip, pip mirror for `zh_CN`, root/devbox entrypoint order |
