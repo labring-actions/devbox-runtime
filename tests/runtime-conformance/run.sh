@@ -553,6 +553,9 @@ check_sandbox_runtime() {
     [ "${CODE_SERVER_BIND_ADDR:-}" = "0.0.0.0:1318" ] || fail "CODE_SERVER_BIND_ADDR default should be 0.0.0.0:1318"
     assert_file /etc/s6-overlay/s6-rc.d/code-server/run
     assert_file /etc/s6-overlay/s6-rc.d/code-server/finish
+    grep -Fq 'CODE_SERVER_PASSWORD=${DEVBOX_JWT_SECRET:-}' /etc/s6-overlay/s6-rc.d/code-server/run || fail "code-server password should come from DEVBOX_JWT_SECRET"
+    grep -Fq 'export PASSWORD="$CODE_SERVER_PASSWORD"' /etc/s6-overlay/s6-rc.d/code-server/run || fail "code-server should export PASSWORD"
+    grep -q -- '--auth password' /etc/s6-overlay/s6-rc.d/code-server/run || fail "code-server should require password auth"
   fi
   require_zh_npm_mirror
   require_zh_pip_mirror
