@@ -29,7 +29,7 @@ ENV CODEX_GATEWAY_MAX_SESSIONS=12
 ENV CODEX_GATEWAY_SESSION_TTL_MS=1800000
 ENV CODEX_GATEWAY_SESSION_SWEEP_INTERVAL_MS=60000
 ENV CODE_SERVER_ENABLED=false
-ENV CODE_SERVER_BIND_ADDR=0.0.0.0:8080
+ENV CODE_SERVER_BIND_ADDR=0.0.0.0:1318
 
 COPY --from=codex-gateway /usr/local/bin/codex-gateway /usr/local/bin/codex-gateway
 
@@ -46,4 +46,4 @@ RUN chmod +x /build.sh \
     rm -f /build.sh && \
     rm -rf /tmp/codex-gateway-service /tmp/code-server-service
 
-EXPOSE 1317 8080
+EXPOSE 1317 1318

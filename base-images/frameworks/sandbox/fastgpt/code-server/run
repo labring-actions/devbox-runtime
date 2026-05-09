@@ -3,7 +3,7 @@ set -euo pipefail
 
 DEFAULT_DEVBOX_USER=${DEFAULT_DEVBOX_USER:-devbox}
 CODE_SERVER_ENABLED_VALUE=${ENABLE_CODE_SERVER:-${CODE_SERVER_ENABLED:-false}}
-CODE_SERVER_BIND_ADDR=${CODE_SERVER_BIND_ADDR:-0.0.0.0:8080}
+CODE_SERVER_BIND_ADDR=${CODE_SERVER_BIND_ADDR:-0.0.0.0:1318}
 
 case "$(printf '%s' "$CODE_SERVER_ENABLED_VALUE" | tr '[:upper:]' '[:lower:]')" in
     1 | true | yes | on | enabled)

@@ -550,6 +550,7 @@ check_sandbox_runtime() {
   assert_file /etc/s6-overlay/s6-rc.d/codex-gateway/run
   if [ "$RUNTIME_PATH" = "frameworks/sandbox/fastgpt" ]; then
     assert_command code-server
+    [ "${CODE_SERVER_BIND_ADDR:-}" = "0.0.0.0:1318" ] || fail "CODE_SERVER_BIND_ADDR default should be 0.0.0.0:1318"
     assert_file /etc/s6-overlay/s6-rc.d/code-server/run
     assert_file /etc/s6-overlay/s6-rc.d/code-server/finish
   fi
