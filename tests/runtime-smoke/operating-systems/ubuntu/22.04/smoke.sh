@@ -55,15 +55,12 @@ if [ ! -f "$project_dir/entrypoint.sh" ]; then
   exit 1
 fi
 
-if ! command -v busybox >/dev/null 2>&1; then
-  echo "busybox not found" >&2
-  exit 1
-fi
-
-if ! command -v unzip >/dev/null 2>&1; then
-  echo "unzip not found" >&2
-  exit 1
-fi
+for cmd in busybox file ip jq less lsof ping ps rsync unzip zip; do
+  if ! command -v "$cmd" >/dev/null 2>&1; then
+    echo "$cmd not found" >&2
+    exit 1
+  fi
+done
 
 
 # entrypoint smoke
