@@ -60,6 +60,11 @@ if ! command -v busybox >/dev/null 2>&1; then
   exit 1
 fi
 
+if ! command -v unzip >/dev/null 2>&1; then
+  echo "unzip not found" >&2
+  exit 1
+fi
+
 
 # entrypoint smoke
 entrypoint="$project_dir/entrypoint.sh"

@@ -10,6 +10,7 @@ apt-get update && \
     openssl \
     git \
     xz-utils \
+    unzip \
     openssh-client \
     anacron \
     logrotate \
