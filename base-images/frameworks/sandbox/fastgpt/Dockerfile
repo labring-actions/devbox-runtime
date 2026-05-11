@@ -34,6 +34,7 @@ ENV CODE_SERVER_BIND_ADDR=0.0.0.0:1318
 COPY --from=codex-gateway /usr/local/bin/codex-gateway /usr/local/bin/codex-gateway
 
 # Add build assets and execute them.
+COPY --chown=devbox:devbox settings.json /home/devbox/.local/share/code-server/User/settings.json
 COPY codex-gateway /tmp/codex-gateway-service
 COPY code-server /tmp/code-server-service
 COPY build.sh /build.sh
