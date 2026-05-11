@@ -7,9 +7,13 @@ apt-get update && \
     curl \
     sudo \
     vim \
+    less \
+    file \
+    jq \
     openssl \
     git \
     xz-utils \
+    zip \
     unzip \
     openssh-client \
     anacron \
@@ -17,7 +21,12 @@ apt-get update && \
     openssh-server \
     locales \
     ca-certificates \
-    busybox
+    busybox \
+    procps \
+    iproute2 \
+    iputils-ping \
+    lsof \
+    rsync
 
 DEBIAN_FRONTEND=noninteractive apt-get install -y tzdata
 
