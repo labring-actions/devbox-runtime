@@ -34,9 +34,21 @@ install_composer() {
 configure_composer_mirror() {
     local user_home="$1"
     local owner="${2:-}"
+    local composer_config_dir="$user_home/.config/composer"
+    local composer_config_file="$composer_config_dir/config.json"
 
-    mkdir -p "$user_home"
-    HOME="$user_home" composer config -g repo.packagist composer https://mirrors.aliyun.com/composer/
+    mkdir -p "$composer_config_dir"
+    cat >"$composer_config_file" <<'EOF'
+{
+    "repositories": {
+        "packagist": {
+            "type": "composer",
+            "url": "https://mirrors.aliyun.com/composer/"
+        }
+    }
+}
+EOF
+    chmod 0600 "$composer_config_file"
 
     if [ -n "$owner" ]; then
         chown -R "$owner:$owner" "$user_home/.config" "$user_home/.composer" 2>/dev/null || true
