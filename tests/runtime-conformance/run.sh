@@ -370,8 +370,8 @@ require_zh_composer_mirror() {
   [ "$L10N" = "zh_CN" ] || return 0
   log "check zh_CN Composer mirror"
   assert_command composer
-  HOME=/root composer config -g --list | grep 'mirrors.aliyun.com/composer' >/dev/null || fail "root Composer mirror is not Aliyun"
-  as_devbox "composer config -g --list | grep 'mirrors.aliyun.com/composer' >/dev/null" || fail "devbox Composer mirror is not Aliyun"
+  HOME=/root composer config -g repo.packagist | grep 'mirrors.aliyun.com/composer' >/dev/null || fail "root Composer packagist repo is not Aliyun"
+  as_devbox "composer config -g repo.packagist | grep 'mirrors.aliyun.com/composer' >/dev/null" || fail "devbox Composer packagist repo is not Aliyun"
 }
 
 require_zh_php_apt_mirror() {
