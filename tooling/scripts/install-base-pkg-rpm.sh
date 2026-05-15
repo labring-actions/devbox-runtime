@@ -33,6 +33,7 @@ fi
     bash \
     busybox \
     ca-certificates \
+    cpio \
     cronie \
     curl \
     diffutils \
