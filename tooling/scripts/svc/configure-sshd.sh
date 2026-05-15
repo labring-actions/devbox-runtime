@@ -15,8 +15,8 @@ set_sshd_config() {
 	local key value
 	key="$(echo "$1" | awk '{print $1}')"
 	value="$(echo "$1" | cut -d' ' -f2-)"
-	if grep -q "^$key " "$SSHD_CONFIG"; then
-		sed -i "s|^$key .*|$key $value|" "$SSHD_CONFIG"
+	if grep -Eq "^[[:space:]]*$key[[:space:]]+" "$SSHD_CONFIG"; then
+		sed -i -E "s|^[[:space:]]*$key[[:space:]]+.*|$key $value|" "$SSHD_CONFIG"
 	else
 		echo "$key $value" >> "$SSHD_CONFIG"
 	fi
