@@ -69,6 +69,11 @@ if [ ! -x /usr/sbin/sshd ]; then
   exit 1
 fi
 
+if ! /usr/sbin/sshd -T | grep -qx 'allowtcpforwarding yes'; then
+  echo "sshd AllowTcpForwarding is not enabled" >&2
+  exit 1
+fi
+
 glibc_version="$(ldd --version | head -n1 | grep -oE '[0-9]+[.][0-9]+' | tail -n1)"
 if ! awk -v version="$glibc_version" 'BEGIN { split(version, v, "."); exit !((v[1] > 2) || (v[1] == 2 && v[2] >= 28)) }'; then
   echo "glibc $glibc_version is older than the VS Code Server minimum 2.28" >&2
