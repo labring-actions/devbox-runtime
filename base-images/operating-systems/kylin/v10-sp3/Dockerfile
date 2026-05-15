@@ -1,0 +1,49 @@
+# These ARGs can be overridden at build time to customize the image
+ARG REGISTRY=ghcr.io
+ARG TOOLING_REPO=labring-actions/devbox-tooling
+ARG L10N=en_US
+ARG TARGETARCH
+ARG ARCH=${TARGETARCH:-amd64}
+ARG DEFAULT_DEVBOX_USER=devbox
+ARG KYLIN_IMAGE=macrosan/kylin:v10-sp3
+# These ARGs are not recommended to be overridden at build time.
+# Instead, update the Dockerfile directly for consistent builds,
+# and release new versions as needed.
+ARG BASE_TOOLS_VERSION=v0.0.1-alpha.1
+
+FROM ${REGISTRY}/${TOOLING_REPO}/tooling:${BASE_TOOLS_VERSION} AS tooling
+FROM ${KYLIN_IMAGE}
+ARG L10N
+ARG TARGETARCH
+ARG ARCH=${TARGETARCH:-amd64}
+ARG DEFAULT_DEVBOX_USER
+LABEL org.opencontainers.image.authors="The Devbox Authors"
+# Define some environment variables
+## BASE_TOOLS_DIR: Directory where base tools are installed
+ENV BASE_TOOLS_DIR=/opt/base-tools
+## L10N: Internationalization setting
+ENV L10N=${L10N}
+## ARCH: System architecture (from build-arg)
+ENV ARCH=${ARCH}
+## DEFAULT_DEVBOX_USER: Default user for the devbox environment
+ENV DEFAULT_DEVBOX_USER=${DEFAULT_DEVBOX_USER}
+## PROJECT_DIR: Default devbox project directory inside the container
+ENV PROJECT_DIR=/home/devbox/project
+## S6_STAGE2_HOOK: Hook script executed BEFORE s6-rc compilation
+## This allows us to dynamically disable services based on DEVBOX_ENV
+ENV S6_STAGE2_HOOK=/etc/s6-overlay-hook/pre-rc-init.d/pre-rc-init.sh
+## S6_KILL_GRACETIME: Time to wait before forcefully killing all processes during shutdown
+ENV S6_KILL_GRACETIME=500
+
+# Copy tooling assets from the tooling stage
+COPY --from=tooling ${BASE_TOOLS_DIR} ${BASE_TOOLS_DIR}
+# Add build script and execute it
+COPY build.sh /build.sh
+RUN chmod +x /build.sh && \
+    /build.sh && \
+    rm -f /build.sh && \
+    rm -rf ${BASE_TOOLS_DIR}
+## Locale: generated during build, but also export at runtime so non-login processes use UTF-8
+ENV LANG=en_US.UTF-8
+ENV LC_ALL=en_US.UTF-8
+ENTRYPOINT [ "/init" ]

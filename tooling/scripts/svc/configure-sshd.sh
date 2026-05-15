@@ -4,6 +4,10 @@ set -euo pipefail
 BASE_TOOLS_DIR=${BASE_TOOLS_DIR:-/opt/base-tools}
 ROOT_DIR=$BASE_TOOLS_DIR/scripts/svc
 source $ROOT_DIR/common.sh
+LOG_GROUP=nogroup
+if ! getent group "$LOG_GROUP" >/dev/null 2>&1; then
+	LOG_GROUP=nobody
+fi
 # Configure sshd
 SSHD_CONFIG=/etc/ssh/sshd_config
 
@@ -11,8 +15,8 @@ set_sshd_config() {
 	local key value
 	key="$(echo "$1" | awk '{print $1}')"
 	value="$(echo "$1" | cut -d' ' -f2-)"
-	if grep -q "^$key " "$SSHD_CONFIG"; then
-		sed -i "s|^$key .*|$key $value|" "$SSHD_CONFIG"
+	if grep -Eq "^[[:space:]]*$key[[:space:]]+" "$SSHD_CONFIG"; then
+		sed -i -E "s|^[[:space:]]*$key[[:space:]]+.*|$key $value|" "$SSHD_CONFIG"
 	else
 		echo "$key $value" >> "$SSHD_CONFIG"
 	fi
@@ -23,6 +27,7 @@ set_sshd_config 'IgnoreRhosts yes'
 set_sshd_config 'ListenAddress 0.0.0.0'
 set_sshd_config 'Port 22'
 set_sshd_config 'AuthorizedKeysFile /usr/start/.ssh/authorized_keys'
+set_sshd_config 'AllowTcpForwarding yes'
 set_sshd_config 'PasswordAuthentication no'
 set_sshd_config 'PubKeyAuthentication yes'
 set_sshd_config 'PermitRootLogin prohibit-password'
@@ -31,6 +36,24 @@ mkdir -p /run/sshd && chmod 755 /run/sshd
 
 # sshd service
 make_longrun sshd /usr/sbin/sshd -D -e
+cat > "$S6_DIR/sshd/run" <<'EOF'
+#!/usr/bin/env bash
+set -euo pipefail
+exec 2>&1
+
+mkdir -p /run/sshd
+chmod 755 /run/sshd
+
+if ! ls /etc/ssh/ssh_host_*_key >/dev/null 2>&1; then
+    if ! command -v ssh-keygen >/dev/null 2>&1; then
+        echo "ssh-keygen is required to generate sshd host keys" >&2
+        exit 1
+    fi
+    ssh-keygen -A
+fi
+
+exec /usr/sbin/sshd -D -e
+EOF
 touch "$S6_DIR/sshd/dependencies.d/startup"
 echo 'sshd-log' > "$S6_DIR/sshd/producer-for"
 
@@ -43,7 +66,7 @@ echo 'sshd-pipeline' > "$S6_DIR/sshd-log/pipeline-name"
 # Prepare sshd log directory service
 make_oneshot_up sshd-log-prepare \
 	'if { mkdir -p /var/log/sshd }' \
-	'if { chown nobody:nogroup /var/log/sshd }' \
+	"if { chown nobody:${LOG_GROUP} /var/log/sshd }" \
 	'chmod 02755 /var/log/sshd'
 touch "$S6_DIR/sshd-log-prepare/dependencies.d/base"
 
