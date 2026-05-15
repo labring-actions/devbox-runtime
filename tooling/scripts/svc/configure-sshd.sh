@@ -43,6 +43,7 @@ exec 2>&1
 
 mkdir -p /run/sshd
 chmod 755 /run/sshd
+rm -f /run/nologin /etc/nologin
 
 if ! ls /etc/ssh/ssh_host_*_key >/dev/null 2>&1; then
     if ! command -v ssh-keygen >/dev/null 2>&1; then

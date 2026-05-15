@@ -69,6 +69,13 @@ if [ ! -x /usr/sbin/sshd ]; then
   exit 1
 fi
 
+for nologin_file in /run/nologin /etc/nologin; do
+  if [ -e "$nologin_file" ]; then
+    echo "$nologin_file blocks non-root SSH logins" >&2
+    exit 1
+  fi
+done
+
 if ! /usr/sbin/sshd -T | grep -qx 'allowtcpforwarding yes'; then
   echo "sshd AllowTcpForwarding is not enabled" >&2
   exit 1
