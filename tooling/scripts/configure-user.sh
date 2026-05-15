@@ -2,6 +2,7 @@
 set -euo pipefail
 
 DEFAULT_USER=${1:-devbox}
+ADMIN_GROUP=sudo
 # Add user devbox
 if id -u "$DEFAULT_USER" &>/dev/null; then
     echo "User $DEFAULT_USER already exists"
@@ -20,8 +21,16 @@ else
     SHELL_PATH=/bin/sh
 fi
 useradd -m -s "$SHELL_PATH" "$DEFAULT_USER"
-# Add user devbox to sudoers with NOPASSWD
-usermod -aG sudo "$DEFAULT_USER" && echo "$DEFAULT_USER ALL=(ALL) NOPASSWD: ALL" >> /etc/sudoers
+# Add user devbox to the distro's admin group and sudoers with NOPASSWD
+if ! getent group "$ADMIN_GROUP" >/dev/null 2>&1; then
+    if getent group wheel >/dev/null 2>&1; then
+        ADMIN_GROUP=wheel
+    else
+        groupadd "$ADMIN_GROUP"
+    fi
+fi
+usermod -aG "$ADMIN_GROUP" "$DEFAULT_USER"
+echo "$DEFAULT_USER ALL=(ALL) NOPASSWD: ALL" >> /etc/sudoers
 # Change the password of user devbox
 # The password is randomly generated and not logged or stored for security reasons.
 # SSH key-based authentication is required, as password authentication is disabled in sshd_config.

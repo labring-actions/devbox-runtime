@@ -1,7 +1,18 @@
 #!/usr/bin/env bash
 set -euo pipefail
-# Remove apt cache to reduce image size
-apt-get clean && rm -rf /var/lib/apt/lists/*
+
+# Remove package manager caches to reduce image size
+if command -v apt-get >/dev/null 2>&1; then
+    apt-get clean
+    rm -rf /var/lib/apt/lists/*
+fi
+if command -v dnf >/dev/null 2>&1; then
+    dnf clean all
+    rm -rf /var/cache/dnf
+elif command -v yum >/dev/null 2>&1; then
+    yum clean all
+    rm -rf /var/cache/yum
+fi
 
 # Clear bash history
 rm -rf /root/.bash_history

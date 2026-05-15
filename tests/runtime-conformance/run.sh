@@ -572,11 +572,17 @@ check_sandbox_runtime() {
 check_runtime_specifics() {
   log "check runtime-specific contract"
   case "$RUNTIME_PATH" in
+    operating-systems/anolis/23.4)
+      check_os_runtime anolis
+      ;;
     operating-systems/debian/12.6)
       check_os_runtime debian
       ;;
     operating-systems/ubuntu/22.04)
       check_os_runtime ubuntu
+      ;;
+    operating-systems/kylin/v10-sp3)
+      check_os_runtime kylin
       ;;
     operating-systems/ubuntu-cuda/12.4.1)
       check_os_runtime ubuntu

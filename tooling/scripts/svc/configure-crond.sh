@@ -4,6 +4,10 @@ set -euo pipefail
 BASE_TOOLS_DIR=${BASE_TOOLS_DIR:-/opt/base-tools}
 ROOT_DIR=$BASE_TOOLS_DIR/scripts/svc
 source $ROOT_DIR/common.sh
+LOG_GROUP=nogroup
+if ! getent group "$LOG_GROUP" >/dev/null 2>&1; then
+	LOG_GROUP=nobody
+fi
 # crond service
 make_longrun crond /usr/sbin/supercronic /etc/crontab
 touch "$S6_DIR/crond/dependencies.d/startup"
@@ -18,7 +22,7 @@ echo 'crond-pipeline' > "$S6_DIR/crond-log/pipeline-name"
 # crond log preparation service
 make_oneshot_up crond-log-prepare \
 	'if { mkdir -p /var/log/crond }' \
-	'if { chown nobody:nogroup /var/log/crond }' \
+	"if { chown nobody:${LOG_GROUP} /var/log/crond }" \
 	'chmod 02755 /var/log/crond'
 touch "$S6_DIR/crond-log-prepare/dependencies.d/base"
 

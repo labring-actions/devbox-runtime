@@ -4,6 +4,10 @@ set -euo pipefail
 BASE_TOOLS_DIR=${BASE_TOOLS_DIR:-/opt/base-tools}
 ROOT_DIR=$BASE_TOOLS_DIR/scripts/svc
 source $ROOT_DIR/common.sh
+LOG_GROUP=nogroup
+if ! getent group "$LOG_GROUP" >/dev/null 2>&1; then
+	LOG_GROUP=nobody
+fi
 # Configure sshd
 SSHD_CONFIG=/etc/ssh/sshd_config
 
@@ -43,7 +47,7 @@ echo 'sshd-pipeline' > "$S6_DIR/sshd-log/pipeline-name"
 # Prepare sshd log directory service
 make_oneshot_up sshd-log-prepare \
 	'if { mkdir -p /var/log/sshd }' \
-	'if { chown nobody:nogroup /var/log/sshd }' \
+	"if { chown nobody:${LOG_GROUP} /var/log/sshd }" \
 	'chmod 02755 /var/log/sshd'
 touch "$S6_DIR/sshd-log-prepare/dependencies.d/base"
 
