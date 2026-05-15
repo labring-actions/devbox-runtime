@@ -35,6 +35,24 @@ mkdir -p /run/sshd && chmod 755 /run/sshd
 
 # sshd service
 make_longrun sshd /usr/sbin/sshd -D -e
+cat > "$S6_DIR/sshd/run" <<'EOF'
+#!/usr/bin/env bash
+set -euo pipefail
+exec 2>&1
+
+mkdir -p /run/sshd
+chmod 755 /run/sshd
+
+if ! ls /etc/ssh/ssh_host_*_key >/dev/null 2>&1; then
+    if ! command -v ssh-keygen >/dev/null 2>&1; then
+        echo "ssh-keygen is required to generate sshd host keys" >&2
+        exit 1
+    fi
+    ssh-keygen -A
+fi
+
+exec /usr/sbin/sshd -D -e
+EOF
 touch "$S6_DIR/sshd/dependencies.d/startup"
 echo 'sshd-log' > "$S6_DIR/sshd/producer-for"
 
