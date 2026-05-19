@@ -71,8 +71,8 @@ wget -O "/tmp/helm-${HELM_VERSION}-linux-${KUBECTL_ARCH}.tar.gz" \
 
 if [ "$L10N" = "zh_CN" ]; then
     npm config set registry https://registry.npmmirror.com
-    HOME=/root pip3.14 config set global.index-url https://mirrors.tuna.tsinghua.edu.cn/pypi/web/simple
-    HOME="$DEVBOX_HOME" pip3.14 config set global.index-url https://mirrors.tuna.tsinghua.edu.cn/pypi/web/simple
+    HOME=/root python3.14 -m pip config set global.index-url https://mirrors.tuna.tsinghua.edu.cn/pypi/web/simple
+    HOME="$DEVBOX_HOME" python3.14 -m pip config set global.index-url https://mirrors.tuna.tsinghua.edu.cn/pypi/web/simple
     chown -R "$DEFAULT_DEVBOX_USER:$DEFAULT_DEVBOX_USER" "$DEVBOX_HOME/.config" 2>/dev/null || true
 fi
 
