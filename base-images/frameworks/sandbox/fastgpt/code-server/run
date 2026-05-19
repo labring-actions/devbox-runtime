@@ -33,7 +33,7 @@ export LOGNAME="$DEFAULT_DEVBOX_USER"
 export PASSWORD="$CODE_SERVER_PASSWORD"
 
 mkdir -p "$WORKSPACE_DIR"
-chown "$DEFAULT_DEVBOX_USER:$DEFAULT_DEVBOX_USER" "$WORKSPACE_DIR" || true
+chown -R "$DEFAULT_DEVBOX_USER:$DEFAULT_DEVBOX_USER" "$WORKSPACE_DIR" || true
 
 if ! command -v code-server >/dev/null 2>&1; then
     echo "code-server binary not found in PATH" >&2

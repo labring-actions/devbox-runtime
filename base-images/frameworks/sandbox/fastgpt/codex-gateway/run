@@ -66,7 +66,7 @@ if [ -n "$GATEWAY_OPENAI_BASE_URL" ]; then
 fi
 
 mkdir -p "$GATEWAY_CODEX_HOME" "$GATEWAY_CWD"
-chown "$DEFAULT_DEVBOX_USER:$DEFAULT_DEVBOX_USER" "$GATEWAY_CODEX_HOME" "$GATEWAY_CWD" || true
+chown -R "$DEFAULT_DEVBOX_USER:$DEFAULT_DEVBOX_USER" "$GATEWAY_CODEX_HOME" "$GATEWAY_CWD" || true
 
 if [ ! -x /usr/local/bin/codex-gateway ]; then
     echo "codex-gateway binary not found at /usr/local/bin/codex-gateway" >&2
