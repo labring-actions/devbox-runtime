@@ -42,7 +42,7 @@ fi
 
 cd "$WORKSPACE_DIR"
 exec 2>&1
-exec s6-setuidgid "$DEFAULT_DEVBOX_USER" code-server \
+exec env HOME=/root USER=root LOGNAME=root code-server \
        --disable-telemetry \
        --disable-update-check \
        --disable-workspace-trust \

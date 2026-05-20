@@ -35,6 +35,7 @@ COPY --from=codex-gateway /usr/local/bin/codex-gateway /usr/local/bin/codex-gate
 
 # Add build assets and execute them.
 COPY --chown=devbox:devbox settings.json /home/devbox/.local/share/code-server/User/settings.json
+COPY settings.json /root/.local/share/code-server/User/settings.json
 COPY codex-gateway /tmp/codex-gateway-service
 COPY code-server /tmp/code-server-service
 COPY build.sh /build.sh
