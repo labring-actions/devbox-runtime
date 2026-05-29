@@ -30,6 +30,8 @@ ENV CODEX_GATEWAY_PORT=1317
 ENV CODEX_GATEWAY_MAX_SESSIONS=12
 ENV CODEX_GATEWAY_SESSION_TTL_MS=1800000
 ENV CODEX_GATEWAY_SESSION_SWEEP_INTERVAL_MS=60000
+ENV IDE_AGENT_ENABLED=true
+ENV IDE_AGENT_BIND_ADDR=0.0.0.0:1318
 
 COPY --from=codex-gateway /usr/local/bin/codex-gateway /usr/local/bin/codex-gateway
 COPY --from=fastgpt-ide-agent /usr/local/bin/fastgpt-ide-agent /usr/local/bin/fastgpt-ide-agent
