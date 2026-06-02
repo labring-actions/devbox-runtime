@@ -6,7 +6,7 @@ ARG L10N=en_US
 ARG L10N_NORMALIZED=en-us
 
 ARG CODEX_GATEWAY_IMAGE_TAG=latest
-ARG AGENT_IMAGE=crpi-w9zgjnhh22ndn5sm-vpc.cn-hangzhou.personal.cr.aliyuncs.com/acs/agent:latest
+ARG AGENT_IMAGE=crpi-w9zgjnhh22ndn5sm.cn-hangzhou.personal.cr.aliyuncs.com/hjy_fastgpt/fastgpt-ide-agent:latest
 
 # These ARGs are not recommended to be overridden at build time.
 # Instead, update the Dockerfile directly for consistent builds,
