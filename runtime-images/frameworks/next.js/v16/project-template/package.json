@@ -1,0 +1,30 @@
+{
+  "name": "next-devbox-template",
+  "private": true,
+  "version": "1.0.0",
+  "description": "Next.js DevBox runtime template",
+  "license": "MIT",
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start"
+  },
+  "engines": {
+    "node": ">=20.9.0",
+    "npm": ">=10.0.0"
+  },
+  "dependencies": {
+    "next": "16.2.6",
+    "react": "19.2.7",
+    "react-dom": "19.2.7"
+  },
+  "devDependencies": {
+    "@types/node": "24.12.4",
+    "@types/react": "19.2.16",
+    "@types/react-dom": "^19.2.3",
+    "typescript": "5.9.3"
+  },
+  "overrides": {
+    "postcss": "8.5.15"
+  }
+}

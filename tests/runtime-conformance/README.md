@@ -53,6 +53,7 @@ Runtime-specific checks:
 | `languages/python/3.12` | Python 3.12, pip, pip mirror for `zh_CN`, root/devbox entrypoint order |
 | `languages/rust/1.81.0` | Rust/Cargo 1.81.0, Cargo mirror for `zh_CN`, Cargo template, prebuilt release binary, root/devbox entrypoint order |
 | `frameworks/nest.js/v11` | Node 20, Nest CLI, npm mirror for `zh_CN`, build output, root/devbox entrypoint order |
+| `frameworks/next.js/v16` | Node 20, create-next-app, npm mirror for `zh_CN`, Next.js build output, root/devbox entrypoint order |
 | `frameworks/nginx/1.22.1` | Nginx 1.22.1, config test, `/tmp/nginx-devbox` runtime paths, no distro default include pollution, root/devbox entrypoint order |
 | `frameworks/openclaw/latest` | Node 22, OpenClaw, Clawhub, Bun, npm mirror for `zh_CN`, safe `.env.example`, root/devbox entrypoint order |
 | `frameworks/sandbox/v1` | workspace ownership, codex-gateway, Codex CLI, Node/npm, Python/pip, kubectl, helm, bun, ripgrep, bubblewrap, npm/pip mirrors for `zh_CN` |
