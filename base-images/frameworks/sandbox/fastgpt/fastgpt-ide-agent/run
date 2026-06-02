@@ -1,0 +1,35 @@
+#!/command/with-contenv bash
+# shellcheck disable=SC1008
+set -euo pipefail
+
+DEFAULT_DEVBOX_USER=${DEFAULT_DEVBOX_USER:-devbox}
+DEVBOX_HOME="$(getent passwd "$DEFAULT_DEVBOX_USER" | cut -d: -f6 || true)"
+if [ -z "$DEVBOX_HOME" ]; then
+    DEVBOX_HOME="/home/${DEFAULT_DEVBOX_USER}"
+fi
+
+if [ "${IDE_AGENT_ENABLED:-true}" != "true" ]; then
+    echo "fastgpt-ide-agent is disabled via IDE_AGENT_ENABLED. Sleeping infinity..."
+    exec sleep infinity
+fi
+
+export HOME="$DEVBOX_HOME"
+export USER="$DEFAULT_DEVBOX_USER"
+export LOGNAME="$DEFAULT_DEVBOX_USER"
+
+# Set FastGPT Workspace Directory for fastgpt-ide-agent
+export FASTGPT_WORKDIR="${CODEX_GATEWAY_CWD:-${DEVBOX_HOME}/workspace}"
+export IDE_AGENT_BIND_ADDR="${IDE_AGENT_BIND_ADDR:-0.0.0.0:1318}"
+
+# Ensure workspace directory exists and is owned by devbox user
+mkdir -p "$FASTGPT_WORKDIR"
+chown -R "$DEFAULT_DEVBOX_USER:$DEFAULT_DEVBOX_USER" "$FASTGPT_WORKDIR" || true
+
+if [ ! -x /usr/local/bin/fastgpt-ide-agent ]; then
+    echo "fastgpt-ide-agent binary not found at /usr/local/bin/fastgpt-ide-agent" >&2
+    exit 111
+fi
+
+echo "Starting fastgpt-ide-agent, binding to $IDE_AGENT_BIND_ADDR..."
+exec 2>&1
+exec s6-setuidgid "$DEFAULT_DEVBOX_USER" /usr/local/bin/fastgpt-ide-agent

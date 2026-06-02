@@ -10,7 +10,7 @@ CODEX_GATEWAY_ROOT=${CODEX_GATEWAY_ROOT:-/opt/codex-gateway}
 CODEX_GATEWAY_CODEX_HOME=${CODEX_GATEWAY_CODEX_HOME:-/codex-home}
 S6_DIR=/etc/s6-overlay/s6-rc.d
 CODEX_GATEWAY_SERVICE_SOURCE_DIR=${CODEX_GATEWAY_SERVICE_SOURCE_DIR:-/tmp/codex-gateway-service}
-CODE_SERVER_SERVICE_SOURCE_DIR=${CODE_SERVER_SERVICE_SOURCE_DIR:-/tmp/code-server-service}
+FASTGPT_IDE_AGENT_SERVICE_SOURCE_DIR=${FASTGPT_IDE_AGENT_SERVICE_SOURCE_DIR:-/tmp/fastgpt-ide-agent}
 DEVBOX_HOME="$(getent passwd "$DEFAULT_DEVBOX_USER" | cut -d: -f6 || true)"
 if [ -z "$DEVBOX_HOME" ]; then
     DEVBOX_HOME="/home/${DEFAULT_DEVBOX_USER}"
@@ -55,7 +55,6 @@ wget "https://www.python.org/ftp/python/${PYTHON_VERSION}/Python-${PYTHON_VERSIO
 
 npm install -g bun@latest
 npm install -g @openai/codex@latest
-curl -fsSL https://code-server.dev/install.sh | sh
 apt-get clean && \
     rm -rf /var/lib/apt/lists/*
 
@@ -82,7 +81,6 @@ kubectl version --client
 helm version --short
 python3.14 --version
 rg --version
-code-server --version
 
 rm -rf "$PROJECT_DIR"
 
@@ -90,7 +88,7 @@ mkdir -p \
     "$WORKSPACE_DIR" \
     "$CODEX_GATEWAY_CODEX_HOME" \
     "$S6_DIR/codex-gateway/dependencies.d" \
-    "$S6_DIR/code-server/dependencies.d"
+    "$S6_DIR/fastgpt-ide-agent/dependencies.d"
 
 install -d -m 755 "$CODEX_GATEWAY_ROOT"
 printf 'longrun\n' >"$S6_DIR/codex-gateway/type"
@@ -103,14 +101,14 @@ install -m 700 \
 touch "$S6_DIR/codex-gateway/dependencies.d/startup"
 : >"$S6_DIR/user/contents.d/codex-gateway"
 
-printf 'longrun\n' >"$S6_DIR/code-server/type"
+printf 'longrun\n' >"$S6_DIR/fastgpt-ide-agent/type"
 install -m 700 \
-    "$CODE_SERVER_SERVICE_SOURCE_DIR/run" \
-    "$S6_DIR/code-server/run"
+    "$FASTGPT_IDE_AGENT_SERVICE_SOURCE_DIR/run" \
+    "$S6_DIR/fastgpt-ide-agent/run"
 install -m 700 \
-    "$CODE_SERVER_SERVICE_SOURCE_DIR/finish" \
-    "$S6_DIR/code-server/finish"
-touch "$S6_DIR/code-server/dependencies.d/startup"
-: >"$S6_DIR/user/contents.d/code-server"
+    "$FASTGPT_IDE_AGENT_SERVICE_SOURCE_DIR/finish" \
+    "$S6_DIR/fastgpt-ide-agent/finish"
+touch "$S6_DIR/fastgpt-ide-agent/dependencies.d/startup"
+: >"$S6_DIR/user/contents.d/fastgpt-ide-agent"
 
 chown -R "$DEFAULT_DEVBOX_USER:$DEFAULT_DEVBOX_USER" "$WORKSPACE_DIR" "$CODEX_GATEWAY_CODEX_HOME"
