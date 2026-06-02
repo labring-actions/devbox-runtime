@@ -13,9 +13,15 @@ if [ "${IDE_AGENT_ENABLED:-true}" != "true" ]; then
     exec sleep infinity
 fi
 
-export HOME="$DEVBOX_HOME"
-export USER="$DEFAULT_DEVBOX_USER"
-export LOGNAME="$DEFAULT_DEVBOX_USER"
+if [ -n "${DEVBOX_SDK_RUN_AS_ROOT:-}" ]; then
+    export HOME=/root
+    export USER=root
+    export LOGNAME=root
+else
+    export HOME="$DEVBOX_HOME"
+    export USER="$DEFAULT_DEVBOX_USER"
+    export LOGNAME="$DEFAULT_DEVBOX_USER"
+fi
 
 # Set FastGPT Workspace Directory for fastgpt-ide-agent
 export FASTGPT_WORKDIR="${CODEX_GATEWAY_CWD:-${DEVBOX_HOME}/workspace}"
@@ -32,4 +38,10 @@ fi
 
 echo "Starting fastgpt-ide-agent, binding to $IDE_AGENT_BIND_ADDR..."
 exec 2>&1
+
+if [ -n "${DEVBOX_SDK_RUN_AS_ROOT:-}" ]; then
+    echo "WARNING: The ide-agent will be run as root, which is not recommended"
+    exec /usr/local/bin/fastgpt-ide-agent
+fi
+
 exec s6-setuidgid "$DEFAULT_DEVBOX_USER" /usr/local/bin/fastgpt-ide-agent
