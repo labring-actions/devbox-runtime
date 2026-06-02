@@ -196,7 +196,7 @@ check_no_root_owned_project_files() {
 
 http_port_for_runtime() {
   case "$RUNTIME_PATH" in
-    frameworks/nest.js/v11)
+    frameworks/nest.js/v11 | frameworks/next.js/v16)
       printf '3000'
       ;;
     frameworks/openclaw/latest | frameworks/sandbox/*)
@@ -210,7 +210,7 @@ http_port_for_runtime() {
 
 http_timeout_for_runtime() {
   case "$RUNTIME_PATH" in
-    frameworks/nest.js/v11 | languages/net/*)
+    frameworks/nest.js/v11 | frameworks/next.js/v16 | languages/net/*)
       printf '120'
       ;;
     languages/rust/*)
@@ -525,6 +525,18 @@ check_nest_runtime() {
   assert_file "$PROJECT_DIR/dist/main.js"
 }
 
+check_next_runtime() {
+  check_node_runtime 20
+  assert_command create-next-app
+  assert_file "$PROJECT_DIR/package.json"
+  assert_file "$PROJECT_DIR/package-lock.json"
+  assert_file "$PROJECT_DIR/next.config.ts"
+  assert_file "$PROJECT_DIR/tsconfig.json"
+  assert_file "$PROJECT_DIR/app/page.tsx"
+  assert_file "$PROJECT_DIR/app/layout.tsx"
+  assert_dir "$PROJECT_DIR/.next"
+}
+
 check_openclaw_runtime() {
   check_node_runtime 22
   assert_command openclaw
@@ -637,6 +649,9 @@ check_runtime_specifics() {
       ;;
     frameworks/nest.js/v11)
       check_nest_runtime
+      ;;
+    frameworks/next.js/v16)
+      check_next_runtime
       ;;
     frameworks/nginx/1.22.1)
       check_nginx_runtime
