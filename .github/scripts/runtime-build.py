@@ -4,6 +4,8 @@ import argparse
 import json
 import os
 import re
+import shlex
+import subprocess
 import sys
 from pathlib import Path
 
@@ -12,6 +14,19 @@ ROOT = Path.cwd()
 BASE_IMAGES_ROOT = ROOT / "base-images"
 RUNTIME_IMAGES_ROOT = ROOT / "runtime-images"
 INTERNAL_FROM_RE = re.compile(r"^FROM \$\{REGISTRY\}/\$\{(?:REPO|TOOLING_REPO)\}/([^:\s]+):")
+BUILD_ARG_KEYS = [
+    "REGISTRY",
+    "REPO",
+    "TOOLING_REPO",
+    "ARCH",
+    "L10N",
+    "L10N_NORMALIZED",
+    "BASE_TOOLS_VERSION",
+    "OS_IMAGE_VERSION",
+    "FRAMEWORK_IMAGE_VERSION",
+    "NODE_IMAGE_VERSION",
+    "RUNTIME_IMAGE_VERSION",
+]
 
 
 def fail(message: str) -> None:
@@ -173,6 +188,19 @@ def parse_target(target: str) -> tuple[str, str, str]:
     return kind_map[kind_prefix], name.strip("/"), build_type
 
 
+def parse_target_ref(target_ref: str) -> tuple[str, str]:
+    target, sep, tag = target_ref.partition("#")
+    if not sep:
+        fail("target_ref must use '<target>#<tag>', for example base/fw/sandbox/v1#latest")
+    target = target.strip()
+    tag = tag.strip()
+    if not target:
+        fail("target_ref target cannot be empty")
+    if not tag:
+        fail("target_ref tag cannot be empty")
+    return target, tag
+
+
 def parse_overrides(raw_json: str) -> dict[str, str]:
     if not raw_json or not raw_json.strip():
         return {}
@@ -260,6 +288,235 @@ def handle_resolve_dispatch(args: argparse.Namespace) -> int:
             "arch": arch,
         }
     )
+
+    return 0
+
+
+def resolve_l10n_values(value: str) -> list[dict[str, str]]:
+    if value == "en_US":
+        return [{"display": "en_US", "normalized": "en-us"}]
+    if value == "zh_CN":
+        return [{"display": "zh_CN", "normalized": "zh-cn"}]
+    if value == "both":
+        return [
+            {"display": "en_US", "normalized": "en-us"},
+            {"display": "zh_CN", "normalized": "zh-cn"},
+        ]
+    fail("l10n must be en_US|zh_CN|both")
+
+
+def resolve_arch_values(value: str) -> list[str]:
+    if value == "amd64":
+        return ["amd64"]
+    if value == "arm64":
+        return ["arm64"]
+    if value == "both":
+        return ["amd64", "arm64"]
+    fail("arch must be amd64|arm64|both")
+
+
+def dockerfile_repo_type(dockerfile: str) -> str:
+    if dockerfile.startswith("base-images/"):
+        return "base-images"
+    if dockerfile.startswith("runtime-images/"):
+        return "runtime-images"
+    fail(f"unsupported dockerfile path '{dockerfile}'")
+
+
+def dockerfile_context(dockerfile: str) -> str:
+    return str(Path(dockerfile).parent)
+
+
+def build_order_key(dockerfile: str) -> tuple[int, str]:
+    if dockerfile.startswith("base-images/operating-systems/"):
+        return 0, dockerfile
+    if dockerfile.startswith("base-images/languages/"):
+        return 1, dockerfile
+    if dockerfile.startswith("base-images/frameworks/"):
+        return 2, dockerfile
+    if dockerfile.startswith("runtime-images/operating-systems/"):
+        return 3, dockerfile
+    if dockerfile.startswith("runtime-images/languages/"):
+        return 4, dockerfile
+    if dockerfile.startswith("runtime-images/frameworks/"):
+        return 5, dockerfile
+    return 99, dockerfile
+
+
+def build_arg_map(
+    registry: str,
+    owner: str,
+    arch: str,
+    l10n: dict[str, str],
+    tools_version: str,
+    os_version: str,
+    framework_image_version: str,
+    node_image_version: str,
+    runtime_image_version: str,
+) -> dict[str, str]:
+    normalized = l10n["normalized"]
+    return {
+        "REGISTRY": registry,
+        "REPO": f"{owner}/devbox-base-images",
+        "TOOLING_REPO": f"{owner}/devbox-tooling",
+        "ARCH": arch,
+        "L10N": l10n["display"],
+        "L10N_NORMALIZED": normalized,
+        "BASE_TOOLS_VERSION": f"{tools_version}-{arch}",
+        "OS_IMAGE_VERSION": f"{os_version}-{normalized}-{arch}",
+        "FRAMEWORK_IMAGE_VERSION": f"{framework_image_version}-{normalized}-{arch}",
+        "NODE_IMAGE_VERSION": f"{node_image_version}-{normalized}-{arch}",
+        "RUNTIME_IMAGE_VERSION": f"{runtime_image_version}-{normalized}-{arch}",
+    }
+
+
+def buildkit_output_attrs(repo_type: str) -> list[str]:
+    attrs = ["type=image", "push=true"]
+    if repo_type == "runtime-images":
+        attrs.extend(["oci-mediatypes=true", "compression=estargz", "force-compression=true"])
+    return attrs
+
+
+def buildkit_command(
+    dockerfile: str,
+    image_ref: str,
+    arch: str,
+    build_args: dict[str, str],
+    output_attrs: list[str],
+) -> list[str]:
+    context = dockerfile_context(dockerfile)
+    command = [
+        "buildctl",
+        "build",
+        "--frontend",
+        "dockerfile.v0",
+        "--local",
+        f"context={context}",
+        "--local",
+        f"dockerfile={context}",
+        "--opt",
+        f"filename={Path(dockerfile).name}",
+        "--opt",
+        f"platform=linux/{arch}",
+    ]
+    for key in BUILD_ARG_KEYS:
+        value = build_args[key]
+        command.extend(["--opt", f"build-arg:{key}={value}"])
+    command.extend(["--output", ",".join([*output_attrs, f"name={image_ref}"])])
+    return command
+
+
+def shell_join(command: list[str]) -> str:
+    return " ".join(shlex.quote(part) for part in command)
+
+
+def handle_buildkit_cli(args: argparse.Namespace) -> int:
+    target, release_tag = parse_target_ref(args.target_ref)
+    owner = args.owner.strip()
+    registry = args.registry.strip()
+    if not owner:
+        fail("owner cannot be empty")
+    if not registry:
+        fail("registry cannot be empty")
+
+    target_kind, target_name, target_build_type = parse_target(target)
+    if target_build_type == "all":
+        fail("buildkit-cli does not support target 'all'; use a concrete base/... or runtime/... target")
+
+    profile = args.profile.strip()
+    if profile not in {"quick", "full"}:
+        fail("profile must be quick|full")
+
+    include_prerequisites = profile == "full"
+    l10n_values = resolve_l10n_values(args.l10n)
+    arch_values = resolve_arch_values(args.arch)
+    overrides = parse_overrides(args.overrides_json)
+    tools_version = overrides.get("tools", release_tag)
+    os_version = overrides.get("os", release_tag)
+    framework_image_version = overrides.get("framework", release_tag)
+    node_image_version = overrides.get("node", release_tag)
+    runtime_image_version = overrides.get("runtime", node_image_version)
+
+    image_targets: list[str] = []
+    runtime_targets: list[str] = []
+    if target_build_type == "base-images":
+        image_targets = select_dockerfiles("base-images", target_kind, target_name)
+    elif target_build_type == "runtime-images":
+        runtime_targets = select_dockerfiles("runtime-images", target_kind, target_name)
+    else:
+        fail(f"unsupported target build type '{target_build_type}'")
+
+    dep_seed_images = list(image_targets)
+    if include_prerequisites and runtime_targets:
+        dep_seed_images.extend(select_dockerfiles("base-images", target_kind, target_name))
+
+    if include_prerequisites:
+        planned_images, tools_required = resolve_images_with_dependencies(dep_seed_images)
+    else:
+        planned_images = sorted(set(image_targets))
+        tools_required = False
+
+    planned_dockerfiles = sorted([*planned_images, *set(runtime_targets)], key=build_order_key)
+    if not planned_dockerfiles:
+        fail("no Dockerfiles selected")
+
+    commands: list[list[str]] = []
+    if tools_required:
+        for arch in arch_values:
+            tooling_ref = f"{registry}/{owner}/devbox-tooling/tooling:{tools_version}-{arch}"
+            commands.append(
+                [
+                    "buildctl",
+                    "build",
+                    "--frontend",
+                    "dockerfile.v0",
+                    "--local",
+                    "context=tooling",
+                    "--local",
+                    "dockerfile=tooling",
+                    "--opt",
+                    f"platform=linux/{arch}",
+                    "--output",
+                    f"type=image,push=true,name={tooling_ref}",
+                ]
+            )
+
+    for dockerfile in planned_dockerfiles:
+        repo_type = dockerfile_repo_type(dockerfile)
+        image_base = image_repository(owner, repo_type, dockerfile)
+        if registry != "ghcr.io":
+            image_base = image_base.replace("ghcr.io/", f"{registry}/", 1)
+        for l10n in l10n_values:
+            for arch in arch_values:
+                image_ref = f"{image_base}:{release_tag}-{l10n['normalized']}-{arch}"
+                command = buildkit_command(
+                    dockerfile=dockerfile,
+                    image_ref=image_ref,
+                    arch=arch,
+                    build_args=build_arg_map(
+                        owner=owner,
+                        registry=registry,
+                        arch=arch,
+                        l10n=l10n,
+                        tools_version=tools_version,
+                        os_version=os_version,
+                        framework_image_version=framework_image_version,
+                        node_image_version=node_image_version,
+                        runtime_image_version=runtime_image_version,
+                    ),
+                    output_attrs=buildkit_output_attrs(repo_type),
+                )
+                commands.append(command)
+
+    if args.output == "json":
+        print(json.dumps(commands, indent=2))
+    else:
+        for command in commands:
+            print(shell_join(command))
+
+    if args.execute:
+        for command in commands:
+            subprocess.run(command, check=True)
 
     return 0
 
@@ -601,6 +858,18 @@ def build_parser() -> argparse.ArgumentParser:
     append_workflow_summary.add_argument("--l10n-matrix", default="[]")
     append_workflow_summary.add_argument("--arch-matrix", default="[]")
     append_workflow_summary.set_defaults(handler=handle_append_workflow_summary)
+
+    buildkit_cli = subparsers.add_parser("buildkit-cli", help="Render or execute standalone BuildKit buildctl commands.")
+    buildkit_cli.add_argument("target_ref", help="Build target plus tag, for example base/fw/sandbox/v1#latest")
+    buildkit_cli.add_argument("--owner", default="labring-actions", help="Registry owner or namespace")
+    buildkit_cli.add_argument("--registry", default="ghcr.io", help="Target registry")
+    buildkit_cli.add_argument("--profile", choices=["quick", "full"], default="quick")
+    buildkit_cli.add_argument("--l10n", choices=["en_US", "zh_CN", "both"], default="en_US")
+    buildkit_cli.add_argument("--arch", choices=["amd64", "arm64", "both"], default="amd64")
+    buildkit_cli.add_argument("--overrides-json", default="")
+    buildkit_cli.add_argument("--output", choices=["shell", "json"], default="shell")
+    buildkit_cli.add_argument("--execute", action="store_true", help="Run generated buildctl commands after printing them")
+    buildkit_cli.set_defaults(handler=handle_buildkit_cli)
     return parser
 
 
