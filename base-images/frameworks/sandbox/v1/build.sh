@@ -5,6 +5,7 @@ L10N=${L10N:-en_US}
 PYTHON_VERSION=${PYTHON_VERSION:-3.14.0}
 KUBECTL_VERSION=${KUBECTL_VERSION:-v1.33.0}
 HELM_VERSION=${HELM_VERSION:-v3.20.2}
+BUILDKIT_VERSION=${BUILDKIT_VERSION:-v0.25.1}
 DEFAULT_DEVBOX_USER=${DEFAULT_DEVBOX_USER:-devbox}
 CODEX_GATEWAY_ROOT=${CODEX_GATEWAY_ROOT:-/opt/codex-gateway}
 CODEX_GATEWAY_CODEX_HOME=${CODEX_GATEWAY_CODEX_HOME:-/codex-home}
@@ -21,12 +22,14 @@ ARCH="$(dpkg --print-architecture)"
 case "$ARCH" in
     amd64)
         KUBECTL_ARCH=amd64
+        BUILDKIT_ARCH=amd64
         ;;
     arm64)
         KUBECTL_ARCH=arm64
+        BUILDKIT_ARCH=arm64
         ;;
     *)
-        echo "Unsupported architecture for kubectl: $ARCH" >&2
+        echo "Unsupported architecture for kubectl/buildkit: $ARCH" >&2
         exit 1
         ;;
 esac
@@ -65,6 +68,12 @@ wget -O "/tmp/helm-${HELM_VERSION}-linux-${KUBECTL_ARCH}.tar.gz" \
     install -m 0755 "/tmp/linux-${KUBECTL_ARCH}/helm" /usr/local/bin/helm && \
     rm -rf "/tmp/helm-${HELM_VERSION}-linux-${KUBECTL_ARCH}.tar.gz" "/tmp/linux-${KUBECTL_ARCH}"
 
+wget -O "/tmp/buildkit-${BUILDKIT_VERSION}.linux-${BUILDKIT_ARCH}.tar.gz" \
+    "https://github.com/moby/buildkit/releases/download/${BUILDKIT_VERSION}/buildkit-${BUILDKIT_VERSION}.linux-${BUILDKIT_ARCH}.tar.gz" && \
+    tar -C /tmp -xzf "/tmp/buildkit-${BUILDKIT_VERSION}.linux-${BUILDKIT_ARCH}.tar.gz" && \
+    install -m 0755 /tmp/bin/buildctl /usr/local/bin/buildctl && \
+    rm -rf "/tmp/buildkit-${BUILDKIT_VERSION}.linux-${BUILDKIT_ARCH}.tar.gz" /tmp/bin
+
 if [ "$L10N" = "zh_CN" ]; then
     npm config set registry https://registry.npmmirror.com
     HOME=/root pip3.14 config set global.index-url https://mirrors.tuna.tsinghua.edu.cn/pypi/web/simple
@@ -76,6 +85,7 @@ node --version
 bun --version
 kubectl version --client
 helm version --short
+buildctl --version
 python3.14 --version
 rg --version
 
