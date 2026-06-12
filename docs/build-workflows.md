@@ -64,6 +64,53 @@
 
 注意：`quick` 依赖目标所需的上游镜像已经存在于目标 registry，否则会在 `FROM` 阶段失败。
 
+## Standalone BuildKit CLI
+
+如果需要不用 GitHub Actions、直接用 BuildKit CLI 构建单个目标，可以使用
+`.github/scripts/runtime-build.py buildkit-cli` 生成 `buildctl` 命令。
+
+语法：
+
+```fish
+python3 .github/scripts/runtime-build.py buildkit-cli '<target>#<tag>' --profile quick --l10n en_US --arch amd64
+```
+
+示例：只生成 `base/fw/sandbox/v1` 的 BuildKit 命令，不执行：
+
+```fish
+python3 .github/scripts/runtime-build.py buildkit-cli 'base/fw/sandbox/v1#v0.0.1' --profile quick --l10n en_US --arch amd64
+```
+
+示例：构建 `runtime/fw/sandbox/v1`，并补齐它依赖的 base image：
+
+```fish
+python3 .github/scripts/runtime-build.py buildkit-cli 'runtime/fw/sandbox/v1#v0.0.1' --profile full --l10n en_US --arch amd64
+```
+
+默认只打印命令。确认本机已经登录目标 registry、`buildctl` 可以连接
+`buildkitd` 后，再加 `--execute` 执行：
+
+```fish
+python3 .github/scripts/runtime-build.py buildkit-cli 'base/fw/sandbox/v1#v0.0.1' --profile quick --l10n en_US --arch amd64 --execute
+```
+
+可选项：
+
+- `--owner`: registry namespace，默认 `labring-actions`
+- `--registry`: registry 地址，默认 `ghcr.io`
+- `--profile`: `quick | full`
+- `--l10n`: `en_US | zh_CN | both`
+- `--arch`: `amd64 | arm64 | both`
+- `--overrides-json`: 与 workflow input 一致，支持 `tools / os / framework / node / runtime`
+- `--output json`: 输出 JSON 数组，方便其他脚本消费
+
+`runtime-images/` 目标会沿用正式发布流程的 BuildKit image exporter 参数：
+`oci-mediatypes=true,compression=estargz,force-compression=true`。
+单架构输出 tag 形态为 `<tag>-<l10n>-<arch>`，例如
+`v0.0.1-en-us-amd64`。在 `full` 模式下，后续层也会使用这些
+per-arch tag 作为上游 `FROM` 输入，不依赖 manifest 已经存在。多架构
+manifest 仍建议使用正式 GitHub Actions 发布入口创建。
+
 ## 镜像命名约定
 
 当前正式流程使用三套仓库：
