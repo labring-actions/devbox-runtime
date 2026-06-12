@@ -6,6 +6,7 @@ PYTHON_VERSION=${PYTHON_VERSION:-3.14.0}
 KUBECTL_VERSION=${KUBECTL_VERSION:-v1.33.0}
 HELM_VERSION=${HELM_VERSION:-v3.20.2}
 BUILDKIT_VERSION=${BUILDKIT_VERSION:-v0.30.0}
+RAILPACK_VERSION=${RAILPACK_VERSION:-0.27.0}
 DEFAULT_DEVBOX_USER=${DEFAULT_DEVBOX_USER:-devbox}
 CODEX_GATEWAY_ROOT=${CODEX_GATEWAY_ROOT:-/opt/codex-gateway}
 CODEX_GATEWAY_CODEX_HOME=${CODEX_GATEWAY_CODEX_HOME:-/codex-home}
@@ -23,10 +24,12 @@ case "$ARCH" in
     amd64)
         KUBECTL_ARCH=amd64
         BUILDKIT_ARCH=amd64
+        RAILPACK_ARCH=x86_64
         ;;
     arm64)
         KUBECTL_ARCH=arm64
         BUILDKIT_ARCH=arm64
+        RAILPACK_ARCH=arm64
         ;;
     *)
         echo "Unsupported architecture for kubectl/buildkit: $ARCH" >&2
@@ -74,6 +77,12 @@ wget -O "/tmp/buildkit-${BUILDKIT_VERSION}.linux-${BUILDKIT_ARCH}.tar.gz" \
     install -m 0755 /tmp/bin/buildctl /usr/local/bin/buildctl && \
     rm -rf "/tmp/buildkit-${BUILDKIT_VERSION}.linux-${BUILDKIT_ARCH}.tar.gz" /tmp/bin
 
+wget -O "/tmp/railpack-v${RAILPACK_VERSION}-${RAILPACK_ARCH}-unknown-linux-musl.tar.gz" \
+    "https://github.com/railwayapp/railpack/releases/download/v${RAILPACK_VERSION}/railpack-v${RAILPACK_VERSION}-${RAILPACK_ARCH}-unknown-linux-musl.tar.gz" && \
+    tar -C /usr/local/bin -xzf "/tmp/railpack-v${RAILPACK_VERSION}-${RAILPACK_ARCH}-unknown-linux-musl.tar.gz" && \
+    chmod 0755 /usr/local/bin/railpack && \
+    rm -f "/tmp/railpack-v${RAILPACK_VERSION}-${RAILPACK_ARCH}-unknown-linux-musl.tar.gz"
+
 if [ "$L10N" = "zh_CN" ]; then
     npm config set registry https://registry.npmmirror.com
     HOME=/root pip3.14 config set global.index-url https://mirrors.tuna.tsinghua.edu.cn/pypi/web/simple
@@ -86,6 +95,7 @@ bun --version
 kubectl version --client
 helm version --short
 buildctl --version
+railpack --version
 python3.14 --version
 rg --version
 

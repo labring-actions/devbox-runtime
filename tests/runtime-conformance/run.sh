@@ -555,6 +555,9 @@ check_sandbox_runtime() {
   assert_command bun
   assert_command rg
   assert_command bwrap
+  assert_command railpack
+  railpack --version >/dev/null
+  railpack schema >/dev/null
   assert_file /etc/s6-overlay/s6-rc.d/codex-gateway/run
   if [ "$RUNTIME_PATH" = "frameworks/sandbox/fastgpt" ]; then
     assert_executable /usr/local/bin/fastgpt-ide-agent
