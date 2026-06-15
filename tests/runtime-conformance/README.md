@@ -55,5 +55,5 @@ Runtime-specific checks:
 | `frameworks/nest.js/v11` | Node 20, Nest CLI, npm mirror for `zh_CN`, build output, root/devbox entrypoint order |
 | `frameworks/nginx/1.22.1` | Nginx 1.22.1, config test, `/tmp/nginx-devbox` runtime paths, no distro default include pollution, root/devbox entrypoint order |
 | `frameworks/openclaw/latest` | Node 22, OpenClaw, Clawhub, Bun, npm mirror for `zh_CN`, safe `.env.example`, root/devbox entrypoint order |
-| `frameworks/sandbox/v1` | workspace ownership, codex-gateway, Codex CLI, Node/npm, Python/pip, kubectl, helm, bun, ripgrep, bubblewrap, Railpack CLI, npm/pip mirrors for `zh_CN` |
-| `frameworks/sandbox/fastgpt` | `v1` checks plus fastgpt-ide-agent binary and s6 service registration |
+| `frameworks/sandbox/v1` | workspace ownership, codex-gateway, Codex CLI, Node/npm, Python/pip, kubectl, helm, bun, ripgrep, bubblewrap, Railpack CLI, VersityGW POSIX S3 context service, npm/pip mirrors for `zh_CN` |
+| `frameworks/sandbox/fastgpt` | common sandbox checks plus fastgpt-ide-agent binary and s6 service registration |

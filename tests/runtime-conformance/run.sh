@@ -47,6 +47,13 @@ assert_command() {
   command -v "$command_name" >/dev/null 2>&1 || fail "missing command: $command_name"
 }
 
+assert_env_equals() {
+  local name="$1"
+  local expected="$2"
+  local actual="${!name:-}"
+  [ "$actual" = "$expected" ] || fail "$name is '$actual', expected '$expected'"
+}
+
 print_runtime_context() {
   log "runtime context"
   printf 'runtime_path=%s\n' "$RUNTIME_PATH"
@@ -559,6 +566,18 @@ check_sandbox_runtime() {
   railpack --version >/dev/null
   railpack schema >/dev/null
   assert_file /etc/s6-overlay/s6-rc.d/codex-gateway/run
+  if [ "$RUNTIME_PATH" = "frameworks/sandbox/v1" ]; then
+    assert_command versitygw
+    versitygw --version >/dev/null
+    assert_file /etc/s6-overlay/s6-rc.d/versitygw/run
+    assert_file /etc/s6-overlay/s6-rc.d/versitygw/finish
+    assert_dir "${CODEX_GATEWAY_CWD:-$WORKSPACE_DIR}/.versitygw-s3/kaniko-contexts/contexts"
+    assert_env_equals AWS_ACCESS_KEY_ID admin
+    assert_env_equals AWS_REGION sealos-internal
+    assert_env_equals S3_ENDPOINT http://127.0.0.1:1319
+    assert_env_equals S3_FORCE_PATH_STYLE true
+    assert_env_equals KANIKO_CONTEXT_S3_BASE s3://kaniko-contexts/contexts
+  fi
   if [ "$RUNTIME_PATH" = "frameworks/sandbox/fastgpt" ]; then
     assert_executable /usr/local/bin/fastgpt-ide-agent
     assert_file /etc/s6-overlay/s6-rc.d/fastgpt-ide-agent/run

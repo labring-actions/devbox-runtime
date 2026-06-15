@@ -7,17 +7,24 @@ KUBECTL_VERSION=${KUBECTL_VERSION:-v1.33.0}
 HELM_VERSION=${HELM_VERSION:-v3.20.2}
 BUILDKIT_VERSION=${BUILDKIT_VERSION:-v0.30.0}
 RAILPACK_VERSION=${RAILPACK_VERSION:-0.27.0}
+VERSITYGW_VERSION=${VERSITYGW_VERSION:-1.5.0}
 DEFAULT_DEVBOX_USER=${DEFAULT_DEVBOX_USER:-devbox}
 CODEX_GATEWAY_ROOT=${CODEX_GATEWAY_ROOT:-/opt/codex-gateway}
 CODEX_GATEWAY_CODEX_HOME=${CODEX_GATEWAY_CODEX_HOME:-/codex-home}
 S6_DIR=/etc/s6-overlay/s6-rc.d
 CODEX_GATEWAY_SERVICE_SOURCE_DIR=${CODEX_GATEWAY_SERVICE_SOURCE_DIR:-/tmp/codex-gateway-service}
+VERSITYGW_SERVICE_SOURCE_DIR=${VERSITYGW_SERVICE_SOURCE_DIR:-/tmp/versitygw-service}
 DEVBOX_HOME="$(getent passwd "$DEFAULT_DEVBOX_USER" | cut -d: -f6 || true)"
 if [ -z "$DEVBOX_HOME" ]; then
     DEVBOX_HOME="/home/${DEFAULT_DEVBOX_USER}"
 fi
 WORKSPACE_DIR=${CODEX_GATEWAY_CWD:-${DEVBOX_HOME}/workspace}
 PROJECT_DIR=${PROJECT_DIR:-${DEVBOX_HOME}/project}
+VERSITYGW_ROOT=${VERSITYGW_ROOT:-${WORKSPACE_DIR}/.versitygw-s3}
+VERSITYGW_IAM_DIR=${VERSITYGW_IAM_DIR:-${WORKSPACE_DIR}/.versitygw-iam}
+VERSITYGW_VERSIONING_DIR=${VERSITYGW_VERSIONING_DIR:-${WORKSPACE_DIR}/.versitygw-versioning}
+KANIKO_CONTEXT_S3_BUCKET=${KANIKO_CONTEXT_S3_BUCKET:-kaniko-contexts}
+KANIKO_CONTEXT_S3_PREFIX=${KANIKO_CONTEXT_S3_PREFIX:-contexts}
 
 ARCH="$(dpkg --print-architecture)"
 case "$ARCH" in
@@ -25,14 +32,16 @@ case "$ARCH" in
         KUBECTL_ARCH=amd64
         BUILDKIT_ARCH=amd64
         RAILPACK_ARCH=x86_64
+        VERSITYGW_ARCH=amd64
         ;;
     arm64)
         KUBECTL_ARCH=arm64
         BUILDKIT_ARCH=arm64
         RAILPACK_ARCH=arm64
+        VERSITYGW_ARCH=arm64
         ;;
     *)
-        echo "Unsupported architecture for kubectl/buildkit: $ARCH" >&2
+        echo "Unsupported architecture for kubectl/buildkit/versitygw: $ARCH" >&2
         exit 1
         ;;
 esac
@@ -83,6 +92,11 @@ wget -O "/tmp/railpack-v${RAILPACK_VERSION}-${RAILPACK_ARCH}-unknown-linux-musl.
     chmod 0755 /usr/local/bin/railpack && \
     rm -f "/tmp/railpack-v${RAILPACK_VERSION}-${RAILPACK_ARCH}-unknown-linux-musl.tar.gz"
 
+wget -O "/tmp/versitygw_${VERSITYGW_VERSION}_linux_${VERSITYGW_ARCH}.deb" \
+    "https://github.com/versity/versitygw/releases/download/v${VERSITYGW_VERSION}/versitygw_${VERSITYGW_VERSION}_linux_${VERSITYGW_ARCH}.deb" && \
+    dpkg -i "/tmp/versitygw_${VERSITYGW_VERSION}_linux_${VERSITYGW_ARCH}.deb" && \
+    rm -f "/tmp/versitygw_${VERSITYGW_VERSION}_linux_${VERSITYGW_ARCH}.deb"
+
 if [ "$L10N" = "zh_CN" ]; then
     npm config set registry https://registry.npmmirror.com
     HOME=/root pip3.14 config set global.index-url https://mirrors.tuna.tsinghua.edu.cn/pypi/web/simple
@@ -96,12 +110,20 @@ kubectl version --client
 helm version --short
 buildctl --version
 railpack --version
+versitygw --version
 python3.14 --version
 rg --version
 
 rm -rf "$PROJECT_DIR"
 
-mkdir -p "$WORKSPACE_DIR" "$CODEX_GATEWAY_CODEX_HOME" "$S6_DIR/codex-gateway/dependencies.d"
+mkdir -p \
+    "$WORKSPACE_DIR" \
+    "$CODEX_GATEWAY_CODEX_HOME" \
+    "$VERSITYGW_ROOT/$KANIKO_CONTEXT_S3_BUCKET/$KANIKO_CONTEXT_S3_PREFIX" \
+    "$VERSITYGW_IAM_DIR" \
+    "$VERSITYGW_VERSIONING_DIR" \
+    "$S6_DIR/codex-gateway/dependencies.d" \
+    "$S6_DIR/versitygw/dependencies.d"
 
 install -d -m 755 "$CODEX_GATEWAY_ROOT"
 printf 'longrun\n' >"$S6_DIR/codex-gateway/type"
@@ -114,4 +136,37 @@ install -m 700 \
 touch "$S6_DIR/codex-gateway/dependencies.d/startup"
 : >"$S6_DIR/user/contents.d/codex-gateway"
 
-chown -R "$DEFAULT_DEVBOX_USER:$DEFAULT_DEVBOX_USER" "$WORKSPACE_DIR" "$CODEX_GATEWAY_CODEX_HOME"
+printf 'longrun\n' >"$S6_DIR/versitygw/type"
+install -m 700 \
+    "$VERSITYGW_SERVICE_SOURCE_DIR/run" \
+    "$S6_DIR/versitygw/run"
+install -m 700 \
+    "$VERSITYGW_SERVICE_SOURCE_DIR/finish" \
+    "$S6_DIR/versitygw/finish"
+touch "$S6_DIR/versitygw/dependencies.d/startup"
+: >"$S6_DIR/user/contents.d/versitygw"
+
+cat >/etc/profile.d/versitygw-kaniko-context.sh <<'PROFILE'
+# Runtime S3 endpoint backed by versitygw POSIX storage for kaniko contexts.
+export AWS_ACCESS_KEY_ID="${AWS_ACCESS_KEY_ID:-admin}"
+export AWS_REGION="${AWS_REGION:-sealos-internal}"
+export AWS_DEFAULT_REGION="${AWS_DEFAULT_REGION:-${AWS_REGION}}"
+export AWS_ENDPOINT_URL="${AWS_ENDPOINT_URL:-http://127.0.0.1:1319}"
+export AWS_ENDPOINT_URL_S3="${AWS_ENDPOINT_URL_S3:-${AWS_ENDPOINT_URL}}"
+export AWS_S3_FORCE_PATH_STYLE="${AWS_S3_FORCE_PATH_STYLE:-true}"
+export S3_ENDPOINT="${S3_ENDPOINT:-${AWS_ENDPOINT_URL_S3}}"
+export S3_FORCE_PATH_STYLE="${S3_FORCE_PATH_STYLE:-true}"
+if [ -z "${AWS_SECRET_ACCESS_KEY:-}" ]; then
+    export AWS_SECRET_ACCESS_KEY="${SEALOS_DEVBOX_JWT_SECRET:-${DEVBOX_JWT_SECRET:-}}"
+fi
+export KANIKO_CONTEXT_S3_BUCKET="${KANIKO_CONTEXT_S3_BUCKET:-kaniko-contexts}"
+export KANIKO_CONTEXT_S3_PREFIX="${KANIKO_CONTEXT_S3_PREFIX:-contexts}"
+export KANIKO_CONTEXT_S3_BASE="${KANIKO_CONTEXT_S3_BASE:-s3://${KANIKO_CONTEXT_S3_BUCKET}/${KANIKO_CONTEXT_S3_PREFIX}}"
+export KANIKO_CONTEXT_POSIX_DIR="${KANIKO_CONTEXT_POSIX_DIR:-${VERSITYGW_ROOT:-/home/devbox/workspace/.versitygw-s3}/${KANIKO_CONTEXT_S3_BUCKET}/${KANIKO_CONTEXT_S3_PREFIX}}"
+PROFILE
+chmod 0644 /etc/profile.d/versitygw-kaniko-context.sh
+
+chown -R \
+    "$DEFAULT_DEVBOX_USER:$DEFAULT_DEVBOX_USER" \
+    "$WORKSPACE_DIR" \
+    "$CODEX_GATEWAY_CODEX_HOME"
