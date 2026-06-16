@@ -525,6 +525,12 @@ check_nginx_runtime() {
   fi
 }
 
+check_java_nginx_private_runtime() {
+  check_java_runtime
+  check_nginx_runtime
+  assert_file "$PROJECT_DIR/nginx.conf"
+}
+
 check_nest_runtime() {
   check_node_runtime 20
   assert_command nest
@@ -620,6 +626,9 @@ check_runtime_specifics() {
       ;;
     languages/java/openjdk17)
       check_java_runtime
+      ;;
+    languages/java/openjdk17-nginx-private)
+      check_java_nginx_private_runtime
       ;;
     languages/net/8.0)
       check_dotnet_runtime 8
