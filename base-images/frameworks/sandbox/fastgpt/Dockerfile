@@ -1,12 +1,13 @@
 # These ARGs can be overridden at build time to customize the image
 ARG REPO=labring-actions/devbox-base-images
 ARG REPO_CODEX_GATEWAY=labring/codex-gateway
+ARG REPO_FASTGPT_IDE_AGENT=labring/fastgpt-ide-agent
 ARG REGISTRY=ghcr.io
 ARG L10N=en_US
 ARG L10N_NORMALIZED=en-us
 
 ARG CODEX_GATEWAY_IMAGE_TAG=latest
-ARG AGENT_IMAGE=crpi-w9zgjnhh22ndn5sm.cn-hangzhou.personal.cr.aliyuncs.com/hjy_fastgpt/fastgpt-ide-agent:latest
+ARG FASTGPT_IDE_AGENT_IMAGE_TAG=latest
 
 # These ARGs are not recommended to be overridden at build time.
 # Instead, update the Dockerfile directly for consistent builds,
@@ -14,7 +15,7 @@ ARG AGENT_IMAGE=crpi-w9zgjnhh22ndn5sm.cn-hangzhou.personal.cr.aliyuncs.com/hjy_f
 ARG NODE_IMAGE_VERSION=v0.0.1-alpha.1-${L10N_NORMALIZED}
 
 FROM ${REGISTRY}/${REPO_CODEX_GATEWAY}:${CODEX_GATEWAY_IMAGE_TAG} AS codex-gateway
-FROM ${AGENT_IMAGE} AS fastgpt-ide-agent
+FROM ${REGISTRY}/${REPO_FASTGPT_IDE_AGENT}:${FASTGPT_IDE_AGENT_IMAGE_TAG} AS fastgpt-ide-agent
 
 FROM ${REGISTRY}/${REPO}/node.js-22:${NODE_IMAGE_VERSION}
 ARG L10N
