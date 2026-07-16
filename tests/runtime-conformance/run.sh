@@ -404,6 +404,32 @@ check_os_runtime() {
   assert_command busybox
 }
 
+check_alpine_runtime() {
+  check_os_runtime alpine
+  grep -Eq 'VERSION_ID="?3[.]22"?' /etc/os-release || fail "expected Alpine 3.22 in /etc/os-release"
+  assert_command apk
+  assert_command bash
+  assert_command sudo
+  assert_command curl
+  assert_command wget
+  assert_command git
+  assert_command python3
+  assert_command tar
+  assert_command gzip
+  assert_command unzip
+  assert_command zip
+  assert_command ssh
+  assert_executable /usr/sbin/sshd
+  for package_name in gcompat libstdc++ libgcc openssh openssh-client openssh-server bash sudo; do
+    apk info -e "$package_name" >/dev/null 2>&1 || fail "missing Alpine package: $package_name"
+  done
+  for service_name in sshd crond; do
+    if [ -e "/etc/s6-overlay/s6-rc.d/$service_name/dependencies.d/startup" ]; then
+      fail "$service_name must not wait for the long-running DevBox startup service"
+    fi
+  done
+}
+
 check_cuda_runtime() {
   log "check CUDA runtime"
   if command -v nvcc >/dev/null 2>&1; then
@@ -607,6 +633,9 @@ check_runtime_specifics() {
   case "$RUNTIME_PATH" in
     operating-systems/anolis/23.4)
       check_os_runtime anolis
+      ;;
+    operating-systems/alpine/3.22)
+      check_alpine_runtime
       ;;
     operating-systems/debian/12.6)
       check_os_runtime debian

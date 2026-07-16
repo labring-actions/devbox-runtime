@@ -3,11 +3,14 @@ set -euo pipefail
 
 SOURCE_DIR=$(dirname "$(readlink -f "${BASH_SOURCE[0]}")")
 chmod +x "$SOURCE_DIR/"*.sh
-# Configure APT source list by distro: Debian -> USTC mirror; Ubuntu -> Tsinghua Ubuntu mirror
+# Configure package sources by distro.
 if [ -f /etc/os-release ]; then
   # shellcheck source=/dev/null
   . /etc/os-release
   case "${ID:-}" in
+    alpine)
+      "$SOURCE_DIR/configure-alpine-repositories.sh"
+      ;;
     debian)
       "$SOURCE_DIR/configure-debian-source.sh"
       ;;

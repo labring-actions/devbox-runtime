@@ -32,6 +32,7 @@ Runtime-specific checks:
 | Runtime | Checks |
 | --- | --- |
 | `operating-systems/anolis/23.4` | Anolis identity, busybox, localized README, root/devbox entrypoint order |
+| `operating-systems/alpine/3.22` | Alpine 3.22 identity, `apk`, busybox, Bash, sudo, network/archive tools, OpenSSH without embedded host keys, musl compatibility packages (`gcompat`, `libstdc++`, `libgcc`), localized README, root/devbox entrypoint order |
 | `operating-systems/debian/12.6` | Debian identity, busybox, localized README, root/devbox entrypoint order |
 | `operating-systems/kylin/v10-sp3` | Kylin identity, busybox, localized README, root/devbox entrypoint order |
 | `operating-systems/ubuntu/22.04` | Ubuntu identity, busybox, localized README, root/devbox entrypoint order |
