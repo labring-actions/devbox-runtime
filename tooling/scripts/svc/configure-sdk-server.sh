@@ -21,6 +21,22 @@ if [ "${DEVBOX_ENV:-}" = "production" ]; then
 	exit 102
 fi
 
+# Map optional env vars to sdk-server CLI flags.
+# Prefer DEVBOX_SDK_* names; fall back to the binary's native env names.
+sdk_server_args=(
+	--token="$DEVBOX_JWT_SECRET"
+	--workspace-path="${DEVBOX_SDK_WORKSPACE_PATH:-${WORKSPACE_PATH:-/home/devbox/project}}"
+)
+if [ -n "${DEVBOX_SDK_ADDR:-${ADDR:-}}" ]; then
+	sdk_server_args+=(--addr="${DEVBOX_SDK_ADDR:-$ADDR}")
+fi
+if [ -n "${DEVBOX_SDK_MAX_FILE_SIZE:-${MAX_FILE_SIZE:-}}" ]; then
+	sdk_server_args+=(--max-file-size="${DEVBOX_SDK_MAX_FILE_SIZE:-$MAX_FILE_SIZE}")
+fi
+if [ -n "${DEVBOX_SDK_MAX_CONCURRENT_READS:-${MAX_CONCURRENT_READS:-}}" ]; then
+	sdk_server_args+=(--max-concurrent-reads="${DEVBOX_SDK_MAX_CONCURRENT_READS:-$MAX_CONCURRENT_READS}")
+fi
+
 if [ -n "${DEVBOX_SDK_RUN_AS_ROOT:-}" ]; then
 	echo "DEVBOX_JWT_SECRET exists and is non-empty AND DEVBOX_ENV is not production"
 	echo "WARNING: The sdk server will be run as root, which is not recommended"
@@ -28,7 +44,7 @@ if [ -n "${DEVBOX_SDK_RUN_AS_ROOT:-}" ]; then
 	export HOME=/root
 	export USER=root
 	export LOGNAME=root
-	exec /usr/sbin/devbox-sdk-server --workspace-path=/home/devbox/project
+	exec /usr/sbin/devbox-sdk-server "${sdk_server_args[@]}"
 fi
 
 echo "DEVBOX_JWT_SECRET exists and is non-empty AND DEVBOX_ENV is not production"
@@ -36,7 +52,7 @@ echo "DEVBOX_JWT_SECRET exists and is non-empty AND DEVBOX_ENV is not production
 export HOME=/home/devbox
 export USER=devbox
 export LOGNAME=devbox
-exec s6-setuidgid devbox /usr/sbin/devbox-sdk-server --workspace-path=/home/devbox/project
+exec s6-setuidgid devbox /usr/sbin/devbox-sdk-server "${sdk_server_args[@]}"
 sdk-server
 chmod 700 "$S6_DIR/$SDK_SERVER/run"
 
