@@ -5,6 +5,7 @@ L10N=${L10N:-en_US}
 PYTHON_VERSION=${PYTHON_VERSION:-3.14.0}
 KUBECTL_VERSION=${KUBECTL_VERSION:-v1.33.0}
 HELM_VERSION=${HELM_VERSION:-v3.20.2}
+GH_VERSION=${GH_VERSION:-2.98.0}
 BUILDKIT_VERSION=${BUILDKIT_VERSION:-v0.30.0}
 RAILPACK_VERSION=${RAILPACK_VERSION:-0.27.0}
 VERSITYGW_VERSION=${VERSITYGW_VERSION:-1.5.0}
@@ -33,15 +34,17 @@ case "$ARCH" in
         BUILDKIT_ARCH=amd64
         RAILPACK_ARCH=x86_64
         VERSITYGW_ARCH=amd64
+        GH_ARCH=amd64
         ;;
     arm64)
         KUBECTL_ARCH=arm64
         BUILDKIT_ARCH=arm64
         RAILPACK_ARCH=arm64
         VERSITYGW_ARCH=arm64
+        GH_ARCH=arm64
         ;;
     *)
-        echo "Unsupported architecture for kubectl/buildkit/versitygw: $ARCH" >&2
+        echo "Unsupported architecture for kubectl/buildkit/versitygw/gh: $ARCH" >&2
         exit 1
         ;;
 esac
@@ -80,6 +83,12 @@ wget -O "/tmp/helm-${HELM_VERSION}-linux-${KUBECTL_ARCH}.tar.gz" \
     install -m 0755 "/tmp/linux-${KUBECTL_ARCH}/helm" /usr/local/bin/helm && \
     rm -rf "/tmp/helm-${HELM_VERSION}-linux-${KUBECTL_ARCH}.tar.gz" "/tmp/linux-${KUBECTL_ARCH}"
 
+wget -O "/tmp/gh_${GH_VERSION}_linux_${GH_ARCH}.tar.gz" \
+    "https://github.com/cli/cli/releases/download/v${GH_VERSION}/gh_${GH_VERSION}_linux_${GH_ARCH}.tar.gz" && \
+    tar -C /tmp -xzf "/tmp/gh_${GH_VERSION}_linux_${GH_ARCH}.tar.gz" && \
+    install -m 0755 "/tmp/gh_${GH_VERSION}_linux_${GH_ARCH}/bin/gh" /usr/local/bin/gh && \
+    rm -rf "/tmp/gh_${GH_VERSION}_linux_${GH_ARCH}.tar.gz" "/tmp/gh_${GH_VERSION}_linux_${GH_ARCH}"
+
 wget -O "/tmp/buildkit-${BUILDKIT_VERSION}.linux-${BUILDKIT_ARCH}.tar.gz" \
     "https://github.com/moby/buildkit/releases/download/${BUILDKIT_VERSION}/buildkit-${BUILDKIT_VERSION}.linux-${BUILDKIT_ARCH}.tar.gz" && \
     tar -C /tmp -xzf "/tmp/buildkit-${BUILDKIT_VERSION}.linux-${BUILDKIT_ARCH}.tar.gz" && \
@@ -108,6 +117,7 @@ node --version
 bun --version
 kubectl version --client
 helm version --short
+gh --version
 buildctl --version
 railpack --version
 versitygw --version

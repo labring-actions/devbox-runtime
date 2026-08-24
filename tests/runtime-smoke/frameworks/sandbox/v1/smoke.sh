@@ -28,7 +28,7 @@ if [ "${SMOKE_DEBUG:-}" = "1" ]; then
   echo "HOME=$HOME"
   echo "SHELL=${SHELL:-}"
   echo "PATH=$PATH"
-  for cmd in codex node npm python3 pip3 kubectl helm buildctl bun rg bwrap railpack versitygw; do
+  for cmd in codex node npm python3 pip3 kubectl helm gh buildctl bun rg bwrap railpack versitygw; do
     if command -v "$cmd" >/dev/null 2>&1; then
       echo "cmd:$cmd=$(command -v "$cmd")"
     else
@@ -39,7 +39,7 @@ fi
 
 cd "$workspace_dir"
 
-for cmd in codex node npm python3 pip3 kubectl helm buildctl bun rg bwrap railpack versitygw; do
+for cmd in codex node npm python3 pip3 kubectl helm gh buildctl bun rg bwrap railpack versitygw; do
   if ! command -v "$cmd" >/dev/null 2>&1; then
     echo "$cmd not found" >&2
     exit 1

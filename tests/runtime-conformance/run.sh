@@ -582,6 +582,7 @@ check_sandbox_runtime() {
   railpack schema >/dev/null
   assert_file /etc/s6-overlay/s6-rc.d/codex-gateway/run
   if [ "$RUNTIME_PATH" = "frameworks/sandbox/v1" ]; then
+    assert_command gh
     assert_command versitygw
     versitygw --version >/dev/null
     assert_file /etc/s6-overlay/s6-rc.d/versitygw/run
