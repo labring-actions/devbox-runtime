@@ -493,6 +493,14 @@ check_java8_runtime() {
   mvn -version | grep 'Java version: 1.8.0_492' >/dev/null || fail "Maven is not using Java 1.8.0_492"
 }
 
+check_java_openjdk25_runtime() {
+  check_java_runtime 25.0.4.1
+  assert_command mvn
+  java -version 2>&1 | grep 'Temurin' >/dev/null || fail "Java vendor is not Temurin"
+  mvn -version | grep 'Apache Maven 3.9.16' >/dev/null || fail "Maven is not 3.9.16"
+  mvn -version | grep 'Java version: 25.0.4.1' >/dev/null || fail "Maven is not using Java 25.0.4.1"
+}
+
 check_c_runtime() {
   assert_command gcc
   gcc --version | grep '12.2.0' >/dev/null || fail "gcc is not 12.2.0"
@@ -642,6 +650,9 @@ check_runtime_specifics() {
       ;;
     languages/java/openjdk8)
       check_java8_runtime
+      ;;
+    languages/java/openjdk25)
+      check_java_openjdk25_runtime
       ;;
     languages/java/openjdk17-nginx-private)
       check_java_nginx_private_runtime

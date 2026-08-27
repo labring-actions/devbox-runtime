@@ -43,6 +43,7 @@ Runtime-specific checks:
 | `languages/java/openjdk17` | Java/Javac 17, UTF-8, Maven mirror for `zh_CN`, root/devbox entrypoint order |
 | `languages/java/openjdk17-nginx-private` | Java/Javac 17, Maven mirror for `zh_CN`, Nginx 1.22.1 config/runtime paths, project proxy config, root/devbox entrypoint order |
 | `languages/java/openjdk8` | Temurin Java/Javac 1.8.0_492, UTF-8, Maven 3.9.16, Maven mirror for `zh_CN`, root/devbox entrypoint order |
+| `languages/java/openjdk25` | Temurin Java/Javac 25.0.4.1+1, UTF-8, Maven 3.9.16, Maven mirror for `zh_CN`, root/devbox entrypoint order |
 | `languages/net/8.0` | .NET 8 prefix, Tencent NuGet mirror for `zh_CN`, no `nuget.org` or unreachable Azure China source for `zh_CN`, root/devbox entrypoint order |
 | `languages/net/10.0` | .NET 10 prefix, Tencent NuGet mirror for `zh_CN`, no `nuget.org` or unreachable Azure China source for `zh_CN`, root/devbox entrypoint order |
 | `languages/node.js/18` | Node 18, npm/yarn/pnpm, npm mirror for `zh_CN`, root/devbox entrypoint order |
