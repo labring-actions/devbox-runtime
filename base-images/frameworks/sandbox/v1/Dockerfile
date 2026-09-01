@@ -5,7 +5,7 @@ ARG REGISTRY=ghcr.io
 ARG L10N=en_US
 ARG L10N_NORMALIZED=en-us
 
-ARG CODEX_GATEWAY_IMAGE_TAG=latest
+ARG CODEX_GATEWAY_IMAGE_TAG=v1.0.0
 
 # These ARGs are not recommended to be overridden at build time.
 # Instead, update the Dockerfile directly for consistent builds,

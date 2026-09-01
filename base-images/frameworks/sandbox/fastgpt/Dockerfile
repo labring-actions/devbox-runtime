@@ -6,7 +6,7 @@ ARG REGISTRY=ghcr.io
 ARG L10N=en_US
 ARG L10N_NORMALIZED=en-us
 
-ARG CODEX_GATEWAY_IMAGE_TAG=latest
+ARG CODEX_GATEWAY_IMAGE_TAG=v0.6.1
 ARG FASTGPT_IDE_AGENT_IMAGE_TAG=latest
 
 # These ARGs are not recommended to be overridden at build time.
