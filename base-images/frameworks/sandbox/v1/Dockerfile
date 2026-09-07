@@ -14,6 +14,17 @@ ARG NODE_IMAGE_VERSION=v0.0.1-alpha.1-${L10N_NORMALIZED}
 
 FROM ${REGISTRY}/${REPO_CODEX_GATEWAY}:${CODEX_GATEWAY_IMAGE_TAG} AS codex-gateway
 
+FROM node:22-bookworm-slim AS skills
+ARG SEALOS_SKILLS_REPOSITORY=https://github.com/labring/sealos-skills.git
+ARG SEALOS_SKILLS_REVISION=7a90d024665150126c085feb085db6779e4a8d26
+RUN apt-get update && apt-get install -y --no-install-recommends git ca-certificates && rm -rf /var/lib/apt/lists/*
+COPY skill-bundle.mjs /build/skill-bundle.mjs
+RUN git init /source && git -C /source remote add origin "$SEALOS_SKILLS_REPOSITORY" && \
+    git -C /source fetch --depth 1 origin "$SEALOS_SKILLS_REVISION" && \
+    git -C /source checkout --detach FETCH_HEAD && \
+    test "$(git -C /source rev-parse HEAD)" = "$SEALOS_SKILLS_REVISION" && \
+    node /build/skill-bundle.mjs build /source /bundle "$SEALOS_SKILLS_REVISION"
+
 FROM ${REGISTRY}/${REPO}/node.js-22:${NODE_IMAGE_VERSION}
 ARG L10N
 LABEL org.opencontainers.image.authors="The Devbox Authors"
@@ -52,6 +63,9 @@ ENV KANIKO_CONTEXT_S3_BASE=s3://kaniko-contexts/contexts
 ENV KANIKO_CONTEXT_POSIX_DIR=/home/${DEFAULT_DEVBOX_USER}/workspace/.versitygw-s3/kaniko-contexts/contexts
 
 COPY --from=codex-gateway /usr/local/bin/codex-gateway /usr/local/bin/codex-gateway
+COPY --from=skills /bundle /opt/sealai/skill-bundle
+COPY skill-bundle.mjs /opt/sealai/skill-bundle.mjs
+COPY --chmod=755 prepare-skills /usr/local/bin/sealai-prepare-skills
 
 # Add build assets and execute them.
 COPY codex-gateway /tmp/codex-gateway-service

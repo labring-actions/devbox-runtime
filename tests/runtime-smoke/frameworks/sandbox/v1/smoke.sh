@@ -90,4 +90,19 @@ if [ ! -d "$workspace_dir/.versitygw-s3/kaniko-contexts/contexts" ]; then
   exit 1
 fi
 
+# Execute only in a disposable smoke-test container, as its actual Devbox user.
+test "$(id -un)" = devbox
+command -v node
+command -v flock
+test -x /usr/local/bin/sealai-prepare-skills
+node /opt/sealai/skill-bundle.mjs verify /opt/sealai/skill-bundle >/dev/null
+mkdir -p /home/devbox/project/.agents/skills/smoke-custom
+printf 'preserved\n' > /home/devbox/project/.agents/skills/smoke-custom/SKILL.md
+first=$(/usr/local/bin/sealai-prepare-skills)
+second=$(/usr/local/bin/sealai-prepare-skills)
+test "$first" = "$second"
+test -f /home/devbox/project/.agents/skills/sealos-deploy/SKILL.md
+test "$(< /home/devbox/project/.agents/skills/smoke-custom/SKILL.md)" = preserved
+printf '%s\n' "$second"
+
 echo "ok"

@@ -51,7 +51,7 @@ esac
 
 apt-get update && \
     apt-get install -y wget build-essential libncursesw5-dev libssl-dev bubblewrap \
-        ripgrep \
+        ripgrep util-linux \
         libsqlite3-dev tk-dev libgdbm-dev libc6-dev libbz2-dev libffi-dev zlib1g-dev && \
     apt-get clean && \
     rm -rf /var/lib/apt/lists/*

@@ -1,0 +1,9 @@
+#!/bin/sh
+set -eu
+# Serialize preparation outside the user repository.
+if output=$(flock --wait 10 /tmp/sealai-runtime-skills.lock node /opt/sealai/skill-bundle.mjs prepare /opt/sealai/skill-bundle /home/devbox/project 2>/dev/null); then
+    printf '%s\n' "$output"
+else
+    printf '%s\n' '{"schema":1,"status":"failed","reason":"skill_bundle_unavailable"}' >&2
+    exit 1
+fi
