@@ -19,4 +19,6 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: '22'
-      - run: node --test base-images/frameworks/sandbox/v1/skill-bundle.test.mjs
+      - run: node --test base-images/frameworks/sandbox/v1/skill-bundle*.test.mjs
+      - name: Build and verify every Skill from the actual pinned repository
+        run: node base-images/frameworks/sandbox/v1/verify-pinned-source.mjs

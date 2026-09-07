@@ -12,6 +12,7 @@ async function fixture(t) {
   const source = path.join(root, 'source');
   const bundle = path.join(root, 'bundle');
   const workspace = path.join(root, 'workspace');
+  await mkdir(workspace);
   const skill = path.join(source, 'skills/sealos-deploy');
   await mkdir(path.join(skill, 'references'), { recursive: true });
   await writeFile(path.join(skill, 'SKILL.md'), '---\nname: sealos-deploy\ndescription: Deploy applications.\n---\n# Deploy');
@@ -60,7 +61,7 @@ test('tampered bundle fails before touching workspace', async t => {
   assert.match(await readFile(path.join(f.workspace, '.agents/skills/sealos-deploy/SKILL.md'), 'utf8'), /# Deploy/);
 });
 
-test('manifest must enumerate unique skills and require deployment entry', async t => {
+test('manifest must enumerate a nonempty, unique set of source skills', async t => {
   const f = await fixture(t);
   const file = path.join(f.bundle, 'manifest.json');
   const manifest = JSON.parse(await readFile(file, 'utf8'));
@@ -73,7 +74,6 @@ test('manifest must enumerate unique skills and require deployment entry', async
 test('repository symlinks cannot redirect Skill writes', async t => {
   const f = await fixture(t);
   const outside = path.join(f.root, 'outside');
-  await mkdir(f.workspace);
   await mkdir(outside);
   await writeFile(path.join(outside, 'keep'), 'unchanged');
   await symlink(outside, path.join(f.workspace, '.agents'));
@@ -102,6 +102,6 @@ test('staging failure leaves the previous workspace intact', async t => {
   const f = await fixture(t);
   await prepareBundle(f.bundle, f.workspace);
   await mkdir(path.join(f.workspace, `.agents/skills-backup-${process.pid}`));
-  await assert.rejects(prepareBundle(f.bundle, f.workspace), { code: 'EEXIST' });
+  await assert.rejects(prepareBundle(f.bundle, f.workspace), /recovery_ambiguous/);
   assert.match(await readFile(path.join(f.workspace, '.agents/skills/sealos-deploy/SKILL.md'), 'utf8'), /# Deploy/);
 });

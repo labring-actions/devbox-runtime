@@ -14,7 +14,7 @@ ARG NODE_IMAGE_VERSION=v0.0.1-alpha.1-${L10N_NORMALIZED}
 
 FROM ${REGISTRY}/${REPO_CODEX_GATEWAY}:${CODEX_GATEWAY_IMAGE_TAG} AS codex-gateway
 
-FROM node:22-bookworm-slim AS skills
+FROM ${REGISTRY}/${REPO}/node.js-22:${NODE_IMAGE_VERSION} AS skills
 ARG SEALOS_SKILLS_REPOSITORY=https://github.com/norberia/sealos-skills-next.git
 ARG SEALOS_SKILLS_REVISION=bdd824cf2fd6c72896f8e201f32259cc8aed3f98
 RUN apt-get update && apt-get install -y --no-install-recommends git ca-certificates && rm -rf /var/lib/apt/lists/*
@@ -23,7 +23,8 @@ RUN git init /source && git -C /source remote add origin "$SEALOS_SKILLS_REPOSIT
     git -C /source fetch --depth 1 origin "$SEALOS_SKILLS_REVISION" && \
     git -C /source checkout --detach FETCH_HEAD && \
     test "$(git -C /source rev-parse HEAD)" = "$SEALOS_SKILLS_REVISION" && \
-    node /build/skill-bundle.mjs build /source/plugins/sealos /bundle "$SEALOS_SKILLS_REVISION"
+    /usr/bin/node /build/skill-bundle.mjs build /source/plugins/sealos /bundle "$SEALOS_SKILLS_REVISION" && \
+    /usr/bin/node /build/skill-bundle.mjs verify /bundle
 
 FROM ${REGISTRY}/${REPO}/node.js-22:${NODE_IMAGE_VERSION}
 ARG L10N
@@ -78,6 +79,7 @@ RUN chmod +x \
         /tmp/versitygw-service/run \
         /tmp/versitygw-service/finish && \
     /build.sh && \
+    test -x /usr/bin/node && test -x /usr/bin/flock && test -x /usr/bin/timeout && \
     rm -f /build.sh && \
     rm -rf /tmp/codex-gateway-service /tmp/versitygw-service
 

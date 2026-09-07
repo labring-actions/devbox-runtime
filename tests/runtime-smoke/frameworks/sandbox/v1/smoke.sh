@@ -101,7 +101,18 @@ printf 'preserved\n' > /home/devbox/project/.agents/skills/smoke-custom/SKILL.md
 first=$(/usr/local/bin/sealai-prepare-skills)
 second=$(/usr/local/bin/sealai-prepare-skills)
 test "$first" = "$second"
-test -f /home/devbox/project/.agents/skills/sealos-deploy/SKILL.md
+SKILL_READY_JSON="$second" /usr/bin/node --input-type=module <<'NODE'
+import assert from 'node:assert/strict';
+import { readFile } from 'node:fs/promises';
+import { createHash } from 'node:crypto';
+import { validateReady, verifyBundle } from '/opt/sealai/skill-bundle.mjs';
+const manifest = await verifyBundle('/opt/sealai/skill-bundle');
+assert.equal(validateReady(process.env.SKILL_READY_JSON).skillCount, manifest.skills.length);
+for (const [file, digest] of Object.entries(manifest.files)) {
+  const data = await readFile('/home/devbox/project/.agents/skills/' + file);
+  assert.equal(createHash('sha256').update(data).digest('hex'), digest);
+}
+NODE
 test "$(< /home/devbox/project/.agents/skills/smoke-custom/SKILL.md)" = preserved
 printf '%s\n' "$second"
 
