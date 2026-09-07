@@ -1,5 +1,5 @@
 import assert from 'node:assert/strict';
-import { mkdtemp, mkdir, readFile, realpath, rm, symlink, writeFile } from 'node:fs/promises';
+import { cp, mkdtemp, mkdir, readFile, realpath, rm, symlink, writeFile } from 'node:fs/promises';
 import os from 'node:os';
 import path from 'node:path';
 import test from 'node:test';
@@ -35,6 +35,21 @@ test('offline preparation is repeatable, copies resources and preserves unrelate
   assert.equal(await readFile(path.join(f.workspace, '.agents/skills/sealos-deploy/references/guide.md'), 'utf8'), 'offline guide');
   assert.equal(await readFile(path.join(custom, 'SKILL.md'), 'utf8'), 'user skill');
   assert.equal(await readFile(path.join(f.workspace, 'skills-lock.json'), 'utf8'), 'user lock');
+});
+
+test('canonical plugin directory builds without following repository skill aliases', async t => {
+  const f = await fixture(t);
+  const repo = path.join(f.root, 'plugin-repo');
+  const plugin = path.join(repo, 'plugins/sealos');
+  await mkdir(plugin, { recursive: true });
+  await cp(f.source, plugin, { recursive: true });
+  await mkdir(path.join(repo, 'skills'));
+  await symlink('../plugins/sealos/skills/sealos-deploy', path.join(repo, 'skills/sealos-deploy'));
+  const bundle = path.join(f.root, 'plugin-bundle');
+  await buildBundle(plugin, bundle, revision);
+  assert.equal((await prepareBundle(bundle, f.workspace)).skillCount, 1);
+  assert.equal(await readFile(path.join(f.workspace, '.agents/skills/sealos-deploy/references/guide.md'), 'utf8'), 'offline guide');
+  await assert.rejects(buildBundle(repo, path.join(f.root, 'alias-bundle'), revision), /invalid_skill_directory/);
 });
 
 test('tampered bundle fails before touching workspace', async t => {

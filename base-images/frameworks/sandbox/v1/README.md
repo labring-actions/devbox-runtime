@@ -2,7 +2,9 @@
 
 This image owns the Sealos Skill bundle; codex-gateway only supplies its existing binary. Network access to GitHub is needed during image build, never during Skill preparation.
 
-The `skills` build stage fetches `SEALOS_SKILLS_REPOSITORY` at the full `SEALOS_SKILLS_REVISION` commit. Its default is the resolved Brain-compatible labring source, not a floating runtime branch. Change these build arguments for a reviewed preview revision. Do not put private repository credentials in build arguments.
+The `skills` build stage fetches `SEALOS_SKILLS_REPOSITORY` at the full `SEALOS_SKILLS_REVISION` commit. The default source is `https://github.com/norberia/sealos-skills-next.git`, pinned to `bdd824cf2fd6c72896f8e201f32259cc8aed3f98`, not a floating runtime branch. This preserves the repository selected by the former Brain `DEPLOY_SKILL_SOURCE` setting. Change these build arguments for a reviewed preview revision. Do not put private repository credentials in build arguments.
+
+The build reads the repository's canonical `plugins/sealos/skills` tree, not the top-level `skills` symlink aliases. It includes `use-sealos`, `sealos-deploy`, and `k8s-kaniko-job` with their resources. Repository overrides must provide the same plugin layout.
 
 The image contains:
 
