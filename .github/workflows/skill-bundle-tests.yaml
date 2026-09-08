@@ -1,0 +1,24 @@
+name: Sandbox Skill bundle tests
+on:
+  pull_request:
+    paths:
+      - 'base-images/frameworks/sandbox/v1/**'
+      - '.github/workflows/skill-bundle-tests.yaml'
+  push:
+    branches: [main]
+    paths:
+      - 'base-images/frameworks/sandbox/v1/**'
+      - '.github/workflows/skill-bundle-tests.yaml'
+permissions:
+  contents: read
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - run: node --test base-images/frameworks/sandbox/v1/skill-bundle*.test.mjs
+      - name: Build and verify every Skill from the actual pinned repository
+        run: node base-images/frameworks/sandbox/v1/verify-pinned-source.mjs

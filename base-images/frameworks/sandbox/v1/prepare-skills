@@ -1,0 +1,23 @@
+#!/bin/sh
+set -eu
+# Do not inherit repository-selected Node options or interpreter lookup paths.
+unset NODE_OPTIONS NODE_PATH
+operation=prepare
+case "$#:$*" in
+    0:) ;;
+    1:--init-workspace) operation=prepare-chat ;;
+    *) printf '%s\n' '{"schema":1,"status":"failed","reason":"invalid_arguments"}' >&2; exit 1 ;;
+esac
+# One shared wait + work budget, leaving room under Brain's 30-second RPC cap.
+if output=$(/usr/bin/timeout --kill-after=1 28 /usr/bin/flock /tmp/sealai-runtime-skills.lock /usr/bin/node /opt/sealai/skill-bundle.mjs "$operation" /opt/sealai/skill-bundle /home/devbox/project 2>/dev/null); then
+    if printf '%s' "$output" | /usr/bin/node /opt/sealai/skill-bundle.mjs validate-ready 2>/dev/null; then
+        exit 0
+    fi
+    reason=invalid_ready
+else
+    code=$?
+    reason=skill_bundle_unavailable
+    if [ "$code" = 124 ] || [ "$code" = 137 ]; then reason=skill_prepare_timeout; fi
+fi
+printf '{"schema":1,"status":"failed","reason":"%s"}\n' "$reason" >&2
+exit 1
