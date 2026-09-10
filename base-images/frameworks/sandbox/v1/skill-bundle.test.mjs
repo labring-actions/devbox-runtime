@@ -81,12 +81,12 @@ test('repository symlinks cannot redirect Skill writes', async t => {
   assert.equal(await readFile(path.join(outside, 'keep'), 'utf8'), 'unchanged');
 });
 
-test('nested workspace symlinks and bundle symlinks are rejected', async t => {
+test('external workspace symlinks and bundle symlinks are rejected', async t => {
   const f = await fixture(t);
   const target = path.join(f.workspace, '.agents/skills/custom');
   await mkdir(target, { recursive: true });
   await symlink(f.skill, path.join(target, 'link'));
-  await assert.rejects(prepareBundle(f.bundle, f.workspace), /bundle_symlink/);
+  await assert.rejects(prepareBundle(f.bundle, f.workspace), /workspace_symlink_outside/);
   await symlink(f.skill, path.join(f.bundle, 'skills/link'));
   await assert.rejects(verifyBundle(f.bundle), /bundle_symlink/);
 });

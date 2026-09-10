@@ -92,6 +92,32 @@ const exists = async entry => {
 };
 const cleanup = directory => rm(directory, { recursive: true, force: true }).catch(() => {});
 
+// Unlike image-owned bundles, repositories may alias Skills (e.g. to .claude).
+// Never read file bodies or dereference links while copying or removing a tree.
+// Recovery scans types only: relative links are meaningful at the live location,
+// not inside a transaction. Validate their destinations after restoring backup.
+async function workspaceFiles(root, workspace, ancestors = new Set()) {
+  if (!(await lstat(root)).isDirectory()) fail('workspace_symlink');
+  if (ancestors.has(root)) fail('workspace_symlink_cycle');
+  const parents = new Set([...ancestors, root]);
+  for (const entry of await readdir(root)) {
+    const file = path.join(root, entry);
+    const stat = await lstat(file);
+    if (stat.isSymbolicLink()) {
+      if (!workspace) continue;
+      let resolved;
+      try { resolved = await realpath(file); }
+      catch { fail('workspace_symlink_invalid'); }
+      const relative = path.relative(workspace, resolved);
+      if (relative === '..' || relative.startsWith(`..${path.sep}`) || path.isAbsolute(relative)) fail('workspace_symlink_outside');
+      const destination = await lstat(resolved);
+      if (destination.isDirectory()) await workspaceFiles(resolved, workspace, parents);
+      else if (!destination.isFile()) fail('workspace_special_file');
+    } else if (stat.isDirectory()) await workspaceFiles(file, workspace, parents);
+    else if (!stat.isFile()) fail('workspace_special_file');
+  }
+}
+
 // The caller holds flock. Backup presence is the recovery journal:
 // absent target + backup => restore old; present target => publication completed.
 async function recoverTransactions(state, target) {
@@ -99,10 +125,11 @@ async function recoverTransactions(state, target) {
   if (transactions.length > 1) fail('recovery_ambiguous');
   for (const name of transactions) {
     const transaction = path.join(state, name);
-    await files(transaction, '', false);
+    await workspaceFiles(transaction);
     const backup = path.join(transaction, 'backup');
     if (!(await exists(target))) {
       if (!(await exists(backup))) fail('recovery_ambiguous');
+      await safeDirectory(backup);
       await rename(backup, target);
     }
     await cleanup(transaction);
@@ -117,12 +144,12 @@ async function recoverLegacy(agentRoot, target) {
   if (!backups.length && !stages.length) return;
   if (backups.length !== 1 || await exists(target)) fail('recovery_ambiguous');
   const backup = path.join(agentRoot, backups[0]);
-  await files(backup, '', false);
+  await workspaceFiles(backup);
   await rename(backup, target);
   // A stage may be incomplete. Never promote it over the previous user's tree.
   for (const name of stages) {
     const stage = path.join(agentRoot, name);
-    await files(stage, '', false);
+    await workspaceFiles(stage);
     await cleanup(stage);
   }
 }
@@ -138,12 +165,12 @@ export async function prepareBundle(bundle, workspace) {
   await recoverTransactions(state, target);
   await recoverLegacy(agentRoot, target);
   await safeDirectory(target, true);
-  await files(target, '', false); // Type scan only; do not hash user content.
+  await workspaceFiles(target, workspace);
   const transaction = await mkdtemp(path.join(state, 'txn-'));
   const stage = path.join(transaction, 'stage');
   const backup = path.join(transaction, 'backup');
   try {
-    await cp(target, stage, { recursive: true });
+    await cp(target, stage, { recursive: true, dereference: false, verbatimSymlinks: true });
     for (const name of manifest.skills) {
       await rm(path.join(stage, name), { recursive: true, force: true });
       await cp(path.join(bundle, 'skills', name), path.join(stage, name), { recursive: true });
