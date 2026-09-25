@@ -12,5 +12,6 @@
 ## 文档索引
 
 - [build-workflows.md](./build-workflows.md): GitHub Actions 构建与测试入口说明
+- [create-runtime-from-image.md](./create-runtime-from-image.md): 从已有基础镜像创建 Devbox Runtime 的关键步骤
 - [README.s6-example.en_US.md](./README.s6-example.en_US.md): 英文版运行时模板 README 示例
 - [README.s6-example.zh_CN.md](./README.s6-example.zh_CN.md): 中文版运行时模板 README 示例
